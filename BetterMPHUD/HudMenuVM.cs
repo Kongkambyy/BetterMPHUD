@@ -17,10 +17,14 @@ namespace BetterMPHUD.ViewModels
         private bool _warbandKillfeedEnabled;
 
         // Top Bar Settings (Default True = Visible)
-        private bool _showAvatars = true;
-        private bool _showEnemyScore = true;
-        private bool _showBanners = true;
-        private bool _showMorale = true;
+        private bool _showTimeAndScores;
+        private bool _showAvatars;
+        private bool _showEnemyScore;
+        private bool _showBanners;
+        private bool _showMorale;
+
+        // Settings object for persistence
+        private HudSettings _settings;
 
         public Action OnCloseConfigMenu;
         public Action<bool> OnWarbandKillfeedToggled;
@@ -30,13 +34,23 @@ namespace BetterMPHUD.ViewModels
 
         public HudMenuVM()
         {
-            _nativeKillfeedEnabled = false;
-            _warbandKillfeedEnabled = true;
+            // Load saved settings (or defaults if no config exists)
+            _settings = ConfigManager.LoadSettings();
+            
+            // Apply loaded settings to private fields (don't use properties to avoid triggering saves)
+            _nativeKillfeedEnabled = _settings.NativeKillfeedEnabled;
+            _warbandKillfeedEnabled = _settings.WarbandKillfeedEnabled;
+            _showTimeAndScores = _settings.ShowTimeAndScores;
+            _showAvatars = _settings.ShowAvatars;
+            _showEnemyScore = _settings.ShowEnemyScore;
+            _showBanners = _settings.ShowBanners;
+            _showMorale = _settings.ShowMorale;
             
             // Default to Killfeed page open
             _isKillfeedPageOpen = true; 
             _isTopBarPageOpen = false;
 
+            // Apply native killfeed setting immediately
             ApplyNativeKillfeedSetting();
         }
 
@@ -70,6 +84,22 @@ namespace BetterMPHUD.ViewModels
         private void NotifySettingsChanged()
         {
             OnHudSettingsChanged?.Invoke();
+        }
+
+        /// <summary>
+        /// Saves current settings to the config file
+        /// </summary>
+        private void SaveCurrentSettings()
+        {
+            _settings.NativeKillfeedEnabled = _nativeKillfeedEnabled;
+            _settings.WarbandKillfeedEnabled = _warbandKillfeedEnabled;
+            _settings.ShowTimeAndScores = _showTimeAndScores;
+            _settings.ShowAvatars = _showAvatars;
+            _settings.ShowEnemyScore = _showEnemyScore;
+            _settings.ShowBanners = _showBanners;
+            _settings.ShowMorale = _showMorale;
+            
+            ConfigManager.SaveSettings(_settings);
         }
 
         // --- Properties ---
@@ -127,6 +157,7 @@ namespace BetterMPHUD.ViewModels
                     _nativeKillfeedEnabled = value;
                     OnPropertyChangedWithValue(value, "NativeKillfeedEnabled");
                     ApplyNativeKillfeedSetting();
+                    SaveCurrentSettings();
                 }
             }
         }
@@ -142,11 +173,28 @@ namespace BetterMPHUD.ViewModels
                     _warbandKillfeedEnabled = value;
                     OnPropertyChangedWithValue(value, "WarbandKillfeedEnabled");
                     OnWarbandKillfeedToggled?.Invoke(value);
+                    SaveCurrentSettings();
                 }
             }
         }
 
         // --- Top Bar Properties ---
+
+        [DataSourceProperty]
+        public bool ShowTimeAndScores
+        {
+            get => _showTimeAndScores;
+            set
+            {
+                if (value != _showTimeAndScores)
+                {
+                    _showTimeAndScores = value;
+                    OnPropertyChangedWithValue(value, "ShowTimeAndScores");
+                    NotifySettingsChanged();
+                    SaveCurrentSettings();
+                }
+            }
+        }
 
         [DataSourceProperty]
         public bool ShowAvatars
@@ -159,6 +207,7 @@ namespace BetterMPHUD.ViewModels
                     _showAvatars = value;
                     OnPropertyChangedWithValue(value, "ShowAvatars");
                     NotifySettingsChanged();
+                    SaveCurrentSettings();
                 }
             }
         }
@@ -174,6 +223,7 @@ namespace BetterMPHUD.ViewModels
                     _showEnemyScore = value;
                     OnPropertyChangedWithValue(value, "ShowEnemyScore");
                     NotifySettingsChanged();
+                    SaveCurrentSettings();
                 }
             }
         }
@@ -189,6 +239,7 @@ namespace BetterMPHUD.ViewModels
                     _showBanners = value;
                     OnPropertyChangedWithValue(value, "ShowBanners");
                     NotifySettingsChanged();
+                    SaveCurrentSettings();
                 }
             }
         }
@@ -204,6 +255,7 @@ namespace BetterMPHUD.ViewModels
                     _showMorale = value;
                     OnPropertyChangedWithValue(value, "ShowMorale");
                     NotifySettingsChanged();
+                    SaveCurrentSettings();
                 }
             }
         }

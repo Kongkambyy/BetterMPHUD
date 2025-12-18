@@ -224,6 +224,7 @@
     <ItemGroup>
         <Compile Include="HudBehavior.cs" />
         <Compile Include="HudMenuVM.cs" />
+        <Compile Include="HudSettings.cs" />
         <Compile Include="KillfeedItemVM.cs" />
         <Compile Include="KillfeedVM.cs" />
         <Compile Include="SubModule.cs" />

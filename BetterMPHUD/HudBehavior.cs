@@ -26,6 +26,14 @@ namespace BetterMPHUD
 
         private const float KILLFEED_DURATION = 5f;
         private float _enforceSettingsTimer = 0f;
+        
+        // Cache for found widgets to avoid re-searching every tick
+        private Widget _timeAndScoresWidget;
+        private Widget _avatarsWidget;
+        private Widget _enemyScoreWidget;
+        private List<Widget> _bannerWidgets = new List<Widget>();
+        private Widget _moraleWidget;
+        private bool _widgetsCached = false;
 
         public override MissionBehaviorType BehaviorType => MissionBehaviorType.Other;
 
@@ -38,7 +46,6 @@ namespace BetterMPHUD
             if (Input.IsKeyPressed(InputKey.F10)) ToggleMenu();
 
             // Periodically enforce Native HUD visibility (every 1 sec)
-            // This is necessary because game logic might try to set IsVisible back to true
             _enforceSettingsTimer += dt;
             if (_enforceSettingsTimer > 1.0f)
             {
@@ -46,7 +53,7 @@ namespace BetterMPHUD
                 _enforceSettingsTimer = 0f;
             }
 
-            // ... Existing Killfeed Cleanup logic ...
+            // Killfeed Cleanup logic
             if (_killfeedVM != null && _killfeedVM.KillList.Count > 0)
             {
                 float currentTime = Mission.Current?.CurrentTime ?? 0f;
@@ -59,8 +66,6 @@ namespace BetterMPHUD
             }
         }
 
-        // ... OnAgentRemoved Logic (Same as before) ...
-
         private void TryInitializeUI()
         {
             try
@@ -71,8 +76,6 @@ namespace BetterMPHUD
                 _dataSource = new HudMenuVM();
                 _dataSource.OnCloseConfigMenu = CloseMenu;
                 _dataSource.OnWarbandKillfeedToggled = OnWarbandKillfeedToggled;
-                
-                // IMPORTANT: When user clicks a toggle, run the logic immediately
                 _dataSource.OnHudSettingsChanged = ApplyTopBarSettings;
 
                 _configLayer = new GauntletLayer("GauntletLayer", 50, false);
@@ -88,7 +91,7 @@ namespace BetterMPHUD
 
                 _initialized = true;
                 
-                // Try applying settings once on load
+                // Initial apply after a short delay to let native HUD initialize
                 ApplyTopBarSettings(); 
             }
             catch (System.Exception ex)
@@ -97,74 +100,190 @@ namespace BetterMPHUD
             }
         }
 
-        // --- NEW LOGIC: FIND AND HIDE NATIVE WIDGETS ---
         private void ApplyTopBarSettings()
         {
             if (_dataSource == null || Mission.Current == null) return;
 
-            // 1. Find the Native HUD Behavior using Reflection logic to avoid crashes if types change
+            // Find the Native HUD Behavior
             var hudBehavior = Mission.Current.MissionBehaviors
                 .FirstOrDefault(mb => mb.GetType().Name == "MissionMultiplayerHUDExtension");
 
-            if (hudBehavior == null) return;
+            if (hudBehavior == null) 
+            {
+                // Try alternative names
+                hudBehavior = Mission.Current.MissionBehaviors
+                    .FirstOrDefault(mb => mb.GetType().Name.Contains("HUDExtension"));
+                    
+                if (hudBehavior == null) return;
+            }
 
-            // 2. Access the private '_gauntletLayer' field
-            var fieldInfo = hudBehavior.GetType().GetField("_gauntletLayer", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (fieldInfo == null) return;
+            // Try multiple possible field names for the gauntlet layer
+            GauntletLayer nativeLayer = null;
+            string[] possibleFieldNames = { "_gauntletLayer", "_layer", "_hudLayer", "gauntletLayer" };
+            
+            foreach (var fieldName in possibleFieldNames)
+            {
+                var fieldInfo = hudBehavior.GetType().GetField(fieldName, 
+                    BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+                    
+                if (fieldInfo != null)
+                {
+                    nativeLayer = fieldInfo.GetValue(hudBehavior) as GauntletLayer;
+                    if (nativeLayer != null) break;
+                }
+            }
 
-            var nativeLayer = fieldInfo.GetValue(hudBehavior) as GauntletLayer;
             if (nativeLayer == null || nativeLayer.UIContext?.Root == null) return;
 
-            // 3. Search the widget tree
-            foreach (var widget in nativeLayer.UIContext.Root.Children)
+            // Cache widgets if not done yet
+            if (!_widgetsCached)
             {
-                ApplyVisibilityRecursively(widget);
+                CacheWidgets(nativeLayer.UIContext.Root);
+                _widgetsCached = true;
+                
+                // Debug output
+                InformationManager.DisplayMessage(new InformationMessage(
+                    $"[BetterMPHUD] Cached: Time={_timeAndScoresWidget != null}, Avatars={_avatarsWidget != null}, EnemyScore={_enemyScoreWidget != null}, Banners={_bannerWidgets.Count}, Morale={_moraleWidget != null}", 
+                    Colors.Green));
             }
+
+            // Apply visibility settings
+            if (_timeAndScoresWidget != null)
+                _timeAndScoresWidget.IsVisible = _dataSource.ShowTimeAndScores;
+
+            if (_avatarsWidget != null)
+                _avatarsWidget.IsVisible = _dataSource.ShowAvatars;
+
+            if (_enemyScoreWidget != null)
+                _enemyScoreWidget.IsVisible = _dataSource.ShowEnemyScore;
+
+            foreach (var banner in _bannerWidgets)
+                banner.IsVisible = _dataSource.ShowBanners;
+
+            if (_moraleWidget != null)
+                _moraleWidget.IsVisible = _dataSource.ShowMorale;
         }
 
-        private void ApplyVisibilityRecursively(Widget widget)
+        private void CacheWidgets(Widget root)
         {
-            // --- 1. Team Avatars + Class Info ---
-            // Identification: It's a ListPanel with SuggestedHeight="75"
-            // (Looking at your provided XML: <ListPanel ... SuggestedHeight="75">)
-            if (widget is ListPanel && widget.HeightSizePolicy == SizePolicy.Fixed && widget.SuggestedHeight == 75)
+            _bannerWidgets.Clear();
+            SearchWidgetsRecursively(root, 0, null);
+        }
+
+        private void SearchWidgetsRecursively(Widget widget, int depth, Widget parent)
+        {
+            // Prevent infinite recursion
+            if (depth > 50) return;
+
+            // --- 1. Time & Scores (Top center bar with timer, banners, scores) ---
+            // ListPanel with HorizontalAlignment="Center", VerticalAlignment="Top", MarginTop="5"
+            // It's the first ListPanel child of the root HUDExtensionBrushWidget
+            if (_timeAndScoresWidget == null && 
+                widget is ListPanel &&
+                widget.HorizontalAlignment == HorizontalAlignment.Center &&
+                widget.VerticalAlignment == VerticalAlignment.Top &&
+                widget.MarginTop >= 4 && widget.MarginTop <= 6)
             {
-                widget.IsVisible = _dataSource.ShowAvatars;
+                _timeAndScoresWidget = widget;
             }
 
-            // --- 2. Enemy Score ---
-            // Identification: The widget containing the score has MarginLeft="5" in the XML
-            // <Widget ... MarginLeft="5" ...>
-            if (widget.WidthSizePolicy == SizePolicy.Fixed && widget.MarginLeft == 5)
+            // --- 2. Team Avatars + Class Info ---
+            // The ListPanel with SuggestedHeight="75" that contains MultiplayerTeamAvatarsSide
+            if (_avatarsWidget == null && 
+                widget is ListPanel && 
+                widget.HeightSizePolicy == SizePolicy.Fixed && 
+                widget.SuggestedHeight >= 74 && widget.SuggestedHeight <= 76)
             {
-                // We check if it has a child that is a TextWidget just to be safe
-                // This targets the Enemy Score specifically
-                widget.IsVisible = _dataSource.ShowEnemyScore;
+                // Verify it has the right structure (contains Left/Center/Right widgets)
+                if (widget.ChildCount == 3)
+                {
+                    _avatarsWidget = widget;
+                }
             }
 
-            // --- 3. Banners ---
-            // Identification: Sprite="BlankWhiteCircle"
-            if (widget.Sprite != null && widget.Sprite.Name == "BlankWhiteCircle")
+            // --- 3. Enemy Score ---
+            // Widget with SuggestedWidth="10" and MarginLeft="5"
+            if (_enemyScoreWidget == null &&
+                widget.WidthSizePolicy == SizePolicy.Fixed &&
+                widget.SuggestedWidth >= 9 && widget.SuggestedWidth <= 11 &&
+                widget.MarginLeft >= 4 && widget.MarginLeft <= 6)
             {
-                widget.IsVisible = _dataSource.ShowBanners;
+                _enemyScoreWidget = widget;
             }
 
-            // --- 4. Morale ---
-            // Identification: Sprite="MPHud\morale_canvas"
-            // Note: C# strings escape backslashes, so we check both possible path formats
-            if (widget.Sprite != null && (widget.Sprite.Name == @"MPHud\morale_canvas" || widget.Sprite.Name == "MPHud\\morale_canvas"))
+            // --- 4. Banners ---
+            // 50x50 widgets - check by size
+            if (widget.WidthSizePolicy == SizePolicy.Fixed &&
+                widget.HeightSizePolicy == SizePolicy.Fixed &&
+                widget.SuggestedWidth >= 49 && widget.SuggestedWidth <= 51 &&
+                widget.SuggestedHeight >= 49 && widget.SuggestedHeight <= 51)
             {
-                widget.IsVisible = _dataSource.ShowMorale;
+                // Check if it has a MaskedTextureWidget child (banner indicator)
+                bool hasBannerChild = false;
+                for (int i = 0; i < widget.ChildCount; i++)
+                {
+                    var child = widget.GetChild(i);
+                    if (child.GetType().Name.Contains("MaskedTextureWidget"))
+                    {
+                        hasBannerChild = true;
+                        break;
+                    }
+                }
+                
+                if (hasBannerChild && !_bannerWidgets.Contains(widget))
+                {
+                    _bannerWidgets.Add(widget);
+                }
             }
 
-            // Recursive loop for children
+            // --- 5. Morale ---
+            // ListPanel with morale_canvas sprite or containing MoraleWidget children
+            if (_moraleWidget == null && widget is ListPanel)
+            {
+                // Check sprite name
+                bool isMoraleBySprite = false;
+                if (widget.Sprite != null)
+                {
+                    string spriteName = widget.Sprite.Name ?? "";
+                    isMoraleBySprite = spriteName.Contains("morale_canvas") || spriteName.Contains("morale");
+                }
+
+                // Alternative: check for MoraleWidget children
+                bool hasMoraleChild = false;
+                for (int i = 0; i < widget.ChildCount; i++)
+                {
+                    var child = widget.GetChild(i);
+                    if (child.GetType().Name.Contains("MoraleWidget"))
+                    {
+                        hasMoraleChild = true;
+                        break;
+                    }
+                }
+
+                if (isMoraleBySprite || hasMoraleChild)
+                {
+                    _moraleWidget = widget;
+                }
+            }
+
+            // Recurse into children
             for (int i = 0; i < widget.ChildCount; i++)
             {
-                ApplyVisibilityRecursively(widget.GetChild(i));
+                SearchWidgetsRecursively(widget.GetChild(i), depth + 1, widget);
             }
         }
 
-        // ... Rest of the standard boilerplate (CloseMenu, OnRemoveBehavior, etc) ...
+        // Force re-cache when settings are applied (useful if HUD reinitializes)
+        public void InvalidateWidgetCache()
+        {
+            _widgetsCached = false;
+            _timeAndScoresWidget = null;
+            _avatarsWidget = null;
+            _enemyScoreWidget = null;
+            _bannerWidgets.Clear();
+            _moraleWidget = null;
+        }
+
         private void OnWarbandKillfeedToggled(bool enabled)
         {
             if (_killfeedVM != null)
@@ -199,7 +318,7 @@ namespace BetterMPHUD
         public override void OnRemoveBehavior()
         {
             base.OnRemoveBehavior();
-            ManagedOptions.SetConfig(ManagedOptions.ManagedOptionsType.ReportCasualtiesType, 0f); // Reset native setting
+            ManagedOptions.SetConfig(ManagedOptions.ManagedOptionsType.ReportCasualtiesType, 0f);
             
             var missionScreen = TaleWorlds.ScreenSystem.ScreenManager.TopScreen as TaleWorlds.MountAndBlade.View.Screens.MissionScreen;
             if (missionScreen != null)
@@ -207,11 +326,13 @@ namespace BetterMPHUD
                 if (_configLayer != null) missionScreen.RemoveLayer(_configLayer);
                 if (_killfeedLayer != null) missionScreen.RemoveLayer(_killfeedLayer);
             }
+            
             _dataSource = null;
             _killfeedVM = null;
             _configMovie = null;
             _killfeedMovie = null;
             _initialized = false;
+            _widgetsCached = false;
         }
     }
 }
