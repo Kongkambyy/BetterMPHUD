@@ -9,14 +9,14 @@ namespace BetterMPHUD
         protected override void OnSubModuleLoad()
         {
             base.OnSubModuleLoad();
-            InformationManager.DisplayMessage(new InformationMessage("BetterMPHUD Loaded!", Colors.Cyan));
+            InformationManager.DisplayMessage(new InformationMessage("BetterMPHUD Loaded", Colors.Cyan));
         }
 
         public override void OnMissionBehaviorInitialize(Mission mission)
         {
             base.OnMissionBehaviorInitialize(mission);
             mission.AddMissionBehavior(new HudBehavior());
-            InformationManager.DisplayMessage(new InformationMessage("BetterMPHUD Behavior Added!", Colors.Cyan));
+            InformationManager.DisplayMessage(new InformationMessage("BetterMPHUD Behavior Added", Colors.Cyan));
         }
     }
 }

@@ -5,52 +5,54 @@ using TaleWorlds.Library;
 
 namespace BetterMPHUD
 {
-    /// <summary>
-    /// Serializable settings class that gets saved to/loaded from XML
-    /// </summary>
     [Serializable]
     public class HudSettings
     {
-        // Killfeed Settings
         public bool NativeKillfeedEnabled { get; set; } = false;
         public bool WarbandKillfeedEnabled { get; set; } = true;
 
-        // Top Bar Settings
         public bool ShowTimeAndScores { get; set; } = true;
         public bool ShowAvatars { get; set; } = true;
         public bool ShowEnemyScore { get; set; } = true;
         public bool ShowBanners { get; set; } = true;
         public bool ShowMorale { get; set; } = true;
 
-        /// <summary>
-        /// Default constructor with default values (required for XML serialization)
-        /// </summary>
+        public ElementCustomization TimeAndScoresCustom { get; set; } = new ElementCustomization();
+        public ElementCustomization TeamAvatarsCustom { get; set; } = new ElementCustomization();
+        public ElementCustomization MoraleCustom { get; set; } = new ElementCustomization();
+        
         public HudSettings() { }
-    }
 
-    /// <summary>
-    /// Handles saving and loading of HudSettings to/from XML file
-    /// </summary>
+        public ElementCustomization GetCustomization(HudElement element)
+        {
+            switch (element)
+            {
+                case HudElement.TimeAndScores:
+                    return TimeAndScoresCustom;
+                case HudElement.TeamAvatars:
+                    return TeamAvatarsCustom;
+                case HudElement.Morale:
+                    return MoraleCustom;
+                default:
+                    return new ElementCustomization();
+            }
+        }
+    }
+    
     public static class ConfigManager
     {
         private static readonly string ConfigFileName = "BetterMPHUD_Config.xml";
         private static string _configPath;
-
-        /// <summary>
-        /// Gets the full path to the config file.
-        /// Saves to: Documents/Mount and Blade II Bannerlord/Configs/BetterMPHUD_Config.xml
-        /// </summary>
+        
         private static string ConfigPath
         {
             get
             {
                 if (string.IsNullOrEmpty(_configPath))
                 {
-                    // Get Bannerlord's config directory
                     string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                     string bannerlordConfigPath = Path.Combine(documentsPath, "Mount and Blade II Bannerlord", "Configs");
                     
-                    // Ensure directory exists
                     if (!Directory.Exists(bannerlordConfigPath))
                     {
                         Directory.CreateDirectory(bannerlordConfigPath);
@@ -61,10 +63,7 @@ namespace BetterMPHUD
                 return _configPath;
             }
         }
-
-        /// <summary>
-        /// Load settings from XML file. Returns default settings if file doesn't exist or is corrupted.
-        /// </summary>
+        
         public static HudSettings LoadSettings()
         {
             try
@@ -75,6 +74,11 @@ namespace BetterMPHUD
                     using (FileStream stream = new FileStream(ConfigPath, FileMode.Open))
                     {
                         HudSettings settings = (HudSettings)serializer.Deserialize(stream);
+                        
+                        if (settings.TimeAndScoresCustom == null) settings.TimeAndScoresCustom = new ElementCustomization();
+                        if (settings.TeamAvatarsCustom == null) settings.TeamAvatarsCustom = new ElementCustomization();
+                        if (settings.MoraleCustom == null) settings.MoraleCustom = new ElementCustomization();
+                        
                         InformationManager.DisplayMessage(new InformationMessage("[BetterMPHUD] Settings loaded.", Colors.Green));
                         return settings;
                     }
@@ -85,13 +89,9 @@ namespace BetterMPHUD
                 InformationManager.DisplayMessage(new InformationMessage($"[BetterMPHUD] Failed to load config: {ex.Message}", Colors.Red));
             }
 
-            // Return default settings if file doesn't exist or failed to load
             return new HudSettings();
         }
-
-        /// <summary>
-        /// Save settings to XML file.
-        /// </summary>
+        
         public static void SaveSettings(HudSettings settings)
         {
             try
@@ -101,8 +101,6 @@ namespace BetterMPHUD
                 {
                     serializer.Serialize(stream, settings);
                 }
-                // Optional: Uncomment for save confirmation (can be spammy)
-                // InformationManager.DisplayMessage(new InformationMessage("[BetterMPHUD] Settings saved.", Colors.Green));
             }
             catch (Exception ex)
             {

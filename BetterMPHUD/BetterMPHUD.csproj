@@ -222,13 +222,14 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="HudBehavior.cs" />
-        <Compile Include="HudMenuVM.cs" />
-        <Compile Include="HudSettings.cs" />
-        <Compile Include="KillfeedItemVM.cs" />
-        <Compile Include="KillfeedVM.cs" />
+        <Compile Include="Behaviors\HudBehavior.cs" />
+        <Compile Include="Config\ElementCustomization.cs" />
+        <Compile Include="Config\HudSettings.cs" />
         <Compile Include="SubModule.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
+        <Compile Include="ViewModels\HudMenuVM.cs" />
+        <Compile Include="ViewModels\KillfeedItemVM.cs" />
+        <Compile Include="ViewModels\KillfeedVM.cs" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

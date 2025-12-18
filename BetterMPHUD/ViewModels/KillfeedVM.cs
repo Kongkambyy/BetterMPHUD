@@ -15,7 +15,6 @@ namespace BetterMPHUD.ViewModels
 
         public void AddKill(KillfeedItemVM item)
         {
-            // Keep max 15 entries
             if (_killList.Count >= 15)
             {
                 _killList.RemoveAt(0);
