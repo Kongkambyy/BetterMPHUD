@@ -7,12 +7,12 @@ namespace BetterMPHUD
     {
         private string _killerName;
         private string _victimName;
-        private string _rowColor;
+        private Color _rowColor;
         private readonly Action<KillfeedItemVM> _onRemove;
 
         public float ExpireTime { get; set; }
 
-        public KillfeedItemVM(string killerName, string victimName, string rowColor, float expireTime, Action<KillfeedItemVM> onRemove)
+        public KillfeedItemVM(string killerName, string victimName, Color rowColor, float expireTime, Action<KillfeedItemVM> onRemove)
         {
             _killerName = killerName;
             _victimName = victimName;
@@ -30,6 +30,6 @@ namespace BetterMPHUD
         public string VictimName { get => _victimName; set { if (_victimName != value) { _victimName = value; OnPropertyChangedWithValue(value, "VictimName"); } } }
 
         [DataSourceProperty]
-        public string RowColor { get => _rowColor; set { if (_rowColor != value) { _rowColor = value; OnPropertyChangedWithValue(value, "RowColor"); } } }
+        public Color RowColor { get => _rowColor; set { if (_rowColor != value) { _rowColor = value; OnPropertyChangedWithValue(value, "RowColor"); } } }
     }
 }

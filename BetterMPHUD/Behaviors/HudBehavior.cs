@@ -40,6 +40,11 @@ namespace BetterMPHUD
         private WidgetOriginalValues _moraleOriginal;
         private Dictionary<Widget, WidgetOriginalValues> _childOriginals = new Dictionary<Widget, WidgetOriginalValues>();
 
+        // Killfeed colors
+        private static readonly Color FriendlyKillColor = new Color(0.27f, 1f, 0.27f, 1f);   // Green - friendly killed enemy
+        private static readonly Color EnemyKillColor = new Color(1f, 0.27f, 0.27f, 1f);      // Red - enemy killed friendly
+        private static readonly Color NeutralColor = new Color(1f, 1f, 1f, 1f);              // White - default
+
         private struct WidgetOriginalValues
         {
             public float X; public float Y; public float Width; public float Height;
@@ -81,15 +86,15 @@ namespace BetterMPHUD
             if (_killfeedVM != null && _dataSource != null && _dataSource.WarbandKillfeedEnabled 
                 && affectedAgent != null && affectorAgent != null && affectedAgent.IsHuman)
             {
-                string rowColor = "#FFFFFFFF"; 
+                Color rowColor = NeutralColor;
                 Team playerTeam = Mission.Current?.PlayerTeam;
 
                 if (playerTeam != null)
                 {
                     if (affectedAgent.Team == playerTeam)
-                        rowColor = "#FF4444FF"; 
+                        rowColor = EnemyKillColor;      // Red - a friendly died (enemy killed our teammate)
                     else
-                        rowColor = "#44FF44FF";
+                        rowColor = FriendlyKillColor;   // Green - an enemy died (our team got a kill)
                 }
 
                 float expireTime = (Mission.Current?.CurrentTime ?? 0f) + KILLFEED_DURATION;
