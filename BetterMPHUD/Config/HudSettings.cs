@@ -20,6 +20,7 @@ namespace BetterMPHUD
         public ElementCustomization TimeAndScoresCustom { get; set; } = new ElementCustomization();
         public ElementCustomization TeamAvatarsCustom { get; set; } = new ElementCustomization();
         public ElementCustomization MoraleCustom { get; set; } = new ElementCustomization();
+        public ElementCustomization KillfeedCustom { get; set; } = new ElementCustomization();
         
         public HudSettings() { }
 
@@ -33,6 +34,8 @@ namespace BetterMPHUD
                     return TeamAvatarsCustom;
                 case HudElement.Morale:
                     return MoraleCustom;
+                case HudElement.Killfeed:
+                    return KillfeedCustom;
                 default:
                     return new ElementCustomization();
             }
@@ -78,6 +81,7 @@ namespace BetterMPHUD
                         if (settings.TimeAndScoresCustom == null) settings.TimeAndScoresCustom = new ElementCustomization();
                         if (settings.TeamAvatarsCustom == null) settings.TeamAvatarsCustom = new ElementCustomization();
                         if (settings.MoraleCustom == null) settings.MoraleCustom = new ElementCustomization();
+                        if (settings.KillfeedCustom == null) settings.KillfeedCustom = new ElementCustomization();
                         
                         InformationManager.DisplayMessage(new InformationMessage("[BetterMPHUD] Settings loaded.", Colors.Green));
                         return settings;

@@ -33,17 +33,26 @@ namespace BetterMPHUD
         private Widget _enemyScoreWidget;
         private List<Widget> _bannerWidgets = new List<Widget>();
         private Widget _moraleWidget;
+        private Widget _killfeedRootWidget;
         private bool _widgetsCached = false;
 
         private WidgetOriginalValues _timeAndScoresOriginal;
         private WidgetOriginalValues _avatarsOriginal;
         private WidgetOriginalValues _moraleOriginal;
+        private WidgetOriginalValues _killfeedOriginal;
         private Dictionary<Widget, WidgetOriginalValues> _childOriginals = new Dictionary<Widget, WidgetOriginalValues>();
 
-        // Killfeed colors
-        private static readonly Color FriendlyKillColor = new Color(0.27f, 1f, 0.27f, 1f);   // Green - friendly killed enemy
-        private static readonly Color EnemyKillColor = new Color(1f, 0.27f, 0.27f, 1f);      // Red - enemy killed friendly
-        private static readonly Color NeutralColor = new Color(1f, 1f, 1f, 1f);              // White - default
+        private static readonly Color FriendlyKillColor = new Color(0.27f, 1f, 0.27f, 1f); 
+        private static readonly Color EnemyKillColor = new Color(1f, 0.27f, 0.27f, 1f);     
+        private static readonly Color NeutralColor = new Color(1f, 1f, 1f, 1f);         
+        
+        private const string SPRITE_SWORD = "icon_sword";
+        private const string SPRITE_BOW = "icon_bow";
+        private const string SPRITE_HORSE = "icon_horse";
+        private const string SPRITE_KILL = "icon_kill";   
+        private const string SPRITE_DEATH = "icon_death";    
+        
+        private const bool DEBUG_KILLFEED = false;
 
         private struct WidgetOriginalValues
         {
@@ -87,14 +96,31 @@ namespace BetterMPHUD
                 && affectedAgent != null && affectorAgent != null && affectedAgent.IsHuman)
             {
                 Color rowColor = NeutralColor;
+                string killIconSprite = SPRITE_DEATH;
                 Team playerTeam = Mission.Current?.PlayerTeam;
 
                 if (playerTeam != null)
                 {
                     if (affectedAgent.Team == playerTeam)
-                        rowColor = EnemyKillColor;      // Red - a friendly died (enemy killed our teammate)
+                    {
+                        rowColor = EnemyKillColor;
+                        killIconSprite = SPRITE_KILL;
+                    }
                     else
-                        rowColor = FriendlyKillColor;   // Green - an enemy died (our team got a kill)
+                    {
+                        rowColor = FriendlyKillColor;
+                        killIconSprite = SPRITE_DEATH;
+                    }
+                }
+
+                string killerClassSprite = GetAgentClassSprite(affectorAgent);
+                string victimClassSprite = GetAgentClassSprite(affectedAgent);
+
+                if (DEBUG_KILLFEED)
+                {
+                    InformationManager.DisplayMessage(new InformationMessage(
+                        $"[Killfeed] {affectorAgent.Name}({killerClassSprite}) -> {affectedAgent.Name}({victimClassSprite}) Skull:{killIconSprite}", 
+                        Colors.Yellow));
                 }
 
                 float expireTime = (Mission.Current?.CurrentTime ?? 0f) + KILLFEED_DURATION;
@@ -102,10 +128,49 @@ namespace BetterMPHUD
                 _killfeedVM.AddKill(new KillfeedItemVM(
                     affectorAgent.Name, 
                     affectedAgent.Name, 
-                    rowColor, 
+                    rowColor,
+                    killerClassSprite,
+                    victimClassSprite,
+                    killIconSprite,
                     expireTime, 
                     (item) => _killfeedVM.RemoveKill(item)));
             }
+        }
+
+        private string GetAgentClassSprite(Agent agent)
+        {
+            if (agent == null) return SPRITE_SWORD;
+
+            // hest
+            if (agent.HasMount)
+                return SPRITE_HORSE;
+
+            // distancesværd, bue, armbrøst, spyd, kasteøkse, kastekniv
+            if (HasRangedWeapon(agent))
+                return SPRITE_BOW;
+
+            // sværd eller anden nærkampsklasse
+            return SPRITE_SWORD;
+        }
+
+        private bool HasRangedWeapon(Agent agent)
+        {
+            if (agent?.Equipment == null) return false;
+
+            for (EquipmentIndex i = EquipmentIndex.WeaponItemBeginSlot; i < EquipmentIndex.NumAllWeaponSlots; i++)
+            {
+                var item = agent.Equipment[i];
+                if (!item.IsEmpty && item.Item?.PrimaryWeapon != null)
+                {
+                    var weaponClass = item.Item.PrimaryWeapon.WeaponClass;
+                    if (weaponClass == WeaponClass.Bow || 
+                        weaponClass == WeaponClass.Crossbow)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private void TryInitializeUI()
@@ -131,6 +196,11 @@ namespace BetterMPHUD
                 _killfeedMovie = _killfeedLayer.LoadMovie("WarbandKillfeed", _killfeedVM).Movie;
                 missionScreen.AddLayer(_killfeedLayer);
 
+                if (_killfeedLayer.UIContext?.Root != null && _killfeedLayer.UIContext.Root.ChildCount > 0)
+                {
+                    _killfeedRootWidget = _killfeedLayer.UIContext.Root.GetChild(0);
+                }
+
                 _initialized = true;
                 ApplyAllSettings(); 
             }
@@ -146,6 +216,9 @@ namespace BetterMPHUD
             
             if (_killfeedVM != null)
                 _killfeedVM.IsVisible = _dataSource.WarbandKillfeedEnabled;
+
+            // tildeler egen vm for killfeed til å kunne tilpasse posisjon og skala
+            ApplyKillfeedCustomization();
 
             var hudBehavior = Mission.Current.MissionBehaviors
                 .FirstOrDefault(mb => mb.GetType().Name == "MissionMultiplayerHUDExtension" || mb.GetType().Name.Contains("HUDExtension"));
@@ -175,6 +248,33 @@ namespace BetterMPHUD
 
             ApplyVisibilitySettings();
             ApplyCustomizationSettings();
+        }
+
+        private void ApplyKillfeedCustomization()
+        {
+            if (_killfeedRootWidget == null) return;
+
+            if (!_killfeedOriginal.IsValid)
+            {
+                _killfeedOriginal = CaptureWidgetValues(_killfeedRootWidget);
+            }
+
+            var settings = _dataSource.GetSettings();
+            var custom = settings.KillfeedCustom;
+
+            _killfeedRootWidget.PositionXOffset = _killfeedOriginal.X + custom.OffsetX;
+            _killfeedRootWidget.PositionYOffset = _killfeedOriginal.Y + custom.OffsetY;
+
+            if (custom.Scale != 1f)
+            {
+                if (_killfeedRootWidget.WidthSizePolicy == SizePolicy.Fixed && _killfeedOriginal.Width > 0)
+                    _killfeedRootWidget.SuggestedWidth = _killfeedOriginal.Width * custom.Scale;
+            }
+            else
+            {
+                if (_killfeedRootWidget.WidthSizePolicy == SizePolicy.Fixed)
+                    _killfeedRootWidget.SuggestedWidth = _killfeedOriginal.Width;
+            }
         }
 
         private WidgetOriginalValues CaptureWidgetValues(Widget widget)

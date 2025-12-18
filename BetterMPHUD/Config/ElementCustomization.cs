@@ -30,6 +30,7 @@ namespace BetterMPHUD
     {
         TimeAndScores,
         TeamAvatars,
-        Morale
+        Morale,
+        Killfeed
     }
 }

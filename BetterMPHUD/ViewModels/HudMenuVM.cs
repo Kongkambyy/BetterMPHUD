@@ -8,34 +8,35 @@ namespace BetterMPHUD.ViewModels
     {
         private bool _isConfigMenuOpen;
         
-        // Menu Navigation State
+        // menu navigering
         private bool _isKillfeedPageOpen;
         private bool _isTopBarPageOpen;
         private bool _isVisibilityPageOpen;
         private bool _isCustomizePageOpen;
-
-        // Killfeed Settings
+        private bool _isChatPageOpen;
+        private bool _isLeaderboardPageOpen;
+        private bool _isHPPageOpen;
+        private bool _isCrosshairPageOpen;
+        
         private bool _nativeKillfeedEnabled;
         private bool _warbandKillfeedEnabled;
 
-        // Top Bar Visibility Settings
         private bool _showTimeAndScores;
         private bool _showAvatars;
         private bool _showEnemyScore;
         private bool _showBanners;
         private bool _showMorale;
 
-        // Customization State
+        // top bar indstillinger
         private int _selectedElementIndex = 0;
         private string _selectedElementName = "Time & Scores";
         private float _currentOffsetX;
         private float _currentOffsetY;
         private float _currentScale;
 
-        // Settings object for persistence
+        // persistence
         private HudSettings _settings;
 
-        // Step amounts for adjustments
         private const float POSITION_STEP = 10f;
         private const float SCALE_STEP = 0.1f;
         private const float MIN_SCALE = 0.5f;
@@ -50,7 +51,7 @@ namespace BetterMPHUD.ViewModels
             // Load saved settings
             _settings = ConfigManager.LoadSettings();
             
-            // Apply loaded visibility settings
+            // synlighedsindstillinger
             _nativeKillfeedEnabled = _settings.NativeKillfeedEnabled;
             _warbandKillfeedEnabled = _settings.WarbandKillfeedEnabled;
             _showTimeAndScores = _settings.ShowTimeAndScores;
@@ -59,19 +60,33 @@ namespace BetterMPHUD.ViewModels
             _showBanners = _settings.ShowBanners;
             _showMorale = _settings.ShowMorale;
             
-            // Default navigation state
+            // navigering
             _isKillfeedPageOpen = true; 
             _isTopBarPageOpen = false;
             _isVisibilityPageOpen = false;
             _isCustomizePageOpen = false;
+            _isChatPageOpen = false;
+            _isLeaderboardPageOpen = false;
+            _isHPPageOpen = false;
+            _isCrosshairPageOpen = false;
 
-            // Load initial element customization values
             LoadSelectedElementValues();
 
             ApplyNativeKillfeedSetting();
         }
 
-        // ==================== NAVIGATION COMMANDS ====================
+
+        private void CloseAllPages()
+        {
+            IsKillfeedPageOpen = false;
+            IsTopBarPageOpen = false;
+            IsVisibilityPageOpen = false;
+            IsCustomizePageOpen = false;
+            IsChatPageOpen = false;
+            IsLeaderboardPageOpen = false;
+            IsHPPageOpen = false;
+            IsCrosshairPageOpen = false;
+        }
 
         public void ExecuteClose()
         {
@@ -80,35 +95,51 @@ namespace BetterMPHUD.ViewModels
 
         public void ExecuteOpenKillfeedPage()
         {
+            CloseAllPages();
             IsKillfeedPageOpen = true;
-            IsTopBarPageOpen = false;
-            IsVisibilityPageOpen = false;
-            IsCustomizePageOpen = false;
         }
 
         public void ExecuteOpenTopBarPage()
         {
-            IsKillfeedPageOpen = false;
+            CloseAllPages();
             IsTopBarPageOpen = true;
-            IsVisibilityPageOpen = false;
-            IsCustomizePageOpen = false;
         }
 
         public void ExecuteOpenVisibilityPage()
         {
-            IsKillfeedPageOpen = false;
-            IsTopBarPageOpen = false;
+            CloseAllPages();
             IsVisibilityPageOpen = true;
-            IsCustomizePageOpen = false;
         }
 
         public void ExecuteOpenCustomizePage()
         {
-            IsKillfeedPageOpen = false;
-            IsTopBarPageOpen = false;
-            IsVisibilityPageOpen = false;
+            CloseAllPages();
             IsCustomizePageOpen = true;
             LoadSelectedElementValues();
+        }
+
+        public void ExecuteOpenChatPage()
+        {
+            CloseAllPages();
+            IsChatPageOpen = true;
+        }
+
+        public void ExecuteOpenLeaderboardPage()
+        {
+            CloseAllPages();
+            IsLeaderboardPageOpen = true;
+        }
+
+        public void ExecuteOpenHPPage()
+        {
+            CloseAllPages();
+            IsHPPageOpen = true;
+        }
+
+        public void ExecuteOpenCrosshairPage()
+        {
+            CloseAllPages();
+            IsCrosshairPageOpen = true;
         }
 
         public void ExecuteBackToTopBar()
@@ -116,7 +147,7 @@ namespace BetterMPHUD.ViewModels
             ExecuteOpenTopBarPage();
         }
 
-        // ==================== ELEMENT SELECTION COMMANDS ====================
+        // ==================== ELEMENT SELECTION COMMANDS (Top Bar) ====================
 
         public void ExecuteSelectTimeAndScores()
         {
@@ -139,7 +170,7 @@ namespace BetterMPHUD.ViewModels
             LoadSelectedElementValues();
         }
 
-        // ==================== CUSTOMIZATION COMMANDS ====================
+        // ==================== TOP BAR CUSTOMIZATION COMMANDS ====================
 
         public void ExecuteIncreaseOffsetX()
         {
@@ -203,6 +234,76 @@ namespace BetterMPHUD.ViewModels
             SaveCurrentSettings();
             NotifySettingsChanged();
         }
+
+        // ==================== KILLFEED CUSTOMIZATION COMMANDS ====================
+
+        public void ExecuteIncreaseKillfeedOffsetX()
+        {
+            _settings.KillfeedCustom.OffsetX += POSITION_STEP;
+            OnPropertyChangedWithValue(KillfeedOffsetXText, "KillfeedOffsetXText");
+            SaveCurrentSettings();
+            NotifySettingsChanged();
+        }
+
+        public void ExecuteDecreaseKillfeedOffsetX()
+        {
+            _settings.KillfeedCustom.OffsetX -= POSITION_STEP;
+            OnPropertyChangedWithValue(KillfeedOffsetXText, "KillfeedOffsetXText");
+            SaveCurrentSettings();
+            NotifySettingsChanged();
+        }
+
+        public void ExecuteIncreaseKillfeedOffsetY()
+        {
+            _settings.KillfeedCustom.OffsetY += POSITION_STEP;
+            OnPropertyChangedWithValue(KillfeedOffsetYText, "KillfeedOffsetYText");
+            SaveCurrentSettings();
+            NotifySettingsChanged();
+        }
+
+        public void ExecuteDecreaseKillfeedOffsetY()
+        {
+            _settings.KillfeedCustom.OffsetY -= POSITION_STEP;
+            OnPropertyChangedWithValue(KillfeedOffsetYText, "KillfeedOffsetYText");
+            SaveCurrentSettings();
+            NotifySettingsChanged();
+        }
+
+        public void ExecuteIncreaseKillfeedScale()
+        {
+            float newScale = _settings.KillfeedCustom.Scale + SCALE_STEP;
+            if (newScale <= MAX_SCALE)
+            {
+                _settings.KillfeedCustom.Scale = (float)Math.Round(newScale, 1);
+                OnPropertyChangedWithValue(KillfeedScaleText, "KillfeedScaleText");
+                SaveCurrentSettings();
+                NotifySettingsChanged();
+            }
+        }
+
+        public void ExecuteDecreaseKillfeedScale()
+        {
+            float newScale = _settings.KillfeedCustom.Scale - SCALE_STEP;
+            if (newScale >= MIN_SCALE)
+            {
+                _settings.KillfeedCustom.Scale = (float)Math.Round(newScale, 1);
+                OnPropertyChangedWithValue(KillfeedScaleText, "KillfeedScaleText");
+                SaveCurrentSettings();
+                NotifySettingsChanged();
+            }
+        }
+
+        public void ExecuteResetKillfeed()
+        {
+            _settings.KillfeedCustom.Reset();
+            OnPropertyChangedWithValue(KillfeedOffsetXText, "KillfeedOffsetXText");
+            OnPropertyChangedWithValue(KillfeedOffsetYText, "KillfeedOffsetYText");
+            OnPropertyChangedWithValue(KillfeedScaleText, "KillfeedScaleText");
+            SaveCurrentSettings();
+            NotifySettingsChanged();
+        }
+
+        // ==================== HELPER METHODS ====================
         
         private HudElement GetSelectedElement()
         {
@@ -280,6 +381,8 @@ namespace BetterMPHUD.ViewModels
         {
             return _settings;
         }
+
+        // ==================== DATA SOURCE PROPERTIES ====================
         
         [DataSourceProperty]
         public bool IsConfigMenuOpen
@@ -347,6 +450,62 @@ namespace BetterMPHUD.ViewModels
                 {
                     _isCustomizePageOpen = value;
                     OnPropertyChangedWithValue(value, "IsCustomizePageOpen");
+                }
+            }
+        }
+
+        [DataSourceProperty]
+        public bool IsChatPageOpen
+        {
+            get => _isChatPageOpen;
+            set
+            {
+                if (value != _isChatPageOpen)
+                {
+                    _isChatPageOpen = value;
+                    OnPropertyChangedWithValue(value, "IsChatPageOpen");
+                }
+            }
+        }
+
+        [DataSourceProperty]
+        public bool IsLeaderboardPageOpen
+        {
+            get => _isLeaderboardPageOpen;
+            set
+            {
+                if (value != _isLeaderboardPageOpen)
+                {
+                    _isLeaderboardPageOpen = value;
+                    OnPropertyChangedWithValue(value, "IsLeaderboardPageOpen");
+                }
+            }
+        }
+
+        [DataSourceProperty]
+        public bool IsHPPageOpen
+        {
+            get => _isHPPageOpen;
+            set
+            {
+                if (value != _isHPPageOpen)
+                {
+                    _isHPPageOpen = value;
+                    OnPropertyChangedWithValue(value, "IsHPPageOpen");
+                }
+            }
+        }
+
+        [DataSourceProperty]
+        public bool IsCrosshairPageOpen
+        {
+            get => _isCrosshairPageOpen;
+            set
+            {
+                if (value != _isCrosshairPageOpen)
+                {
+                    _isCrosshairPageOpen = value;
+                    OnPropertyChangedWithValue(value, "IsCrosshairPageOpen");
                 }
             }
         }
@@ -544,5 +703,15 @@ namespace BetterMPHUD.ViewModels
 
         [DataSourceProperty]
         public string CurrentScaleText => (_currentScale * 100).ToString("F0") + "%";
+
+        // Killfeed-specific display properties
+        [DataSourceProperty]
+        public string KillfeedOffsetXText => _settings.KillfeedCustom.OffsetX.ToString("F0");
+
+        [DataSourceProperty]
+        public string KillfeedOffsetYText => _settings.KillfeedCustom.OffsetY.ToString("F0");
+
+        [DataSourceProperty]
+        public string KillfeedScaleText => (_settings.KillfeedCustom.Scale * 100).ToString("F0") + "%";
     }
 }
