@@ -1,15 +1,22 @@
-﻿using TaleWorlds.MountAndBlade;
-using BetterMPHUD.Views;
+﻿using TaleWorlds.Core;
+using TaleWorlds.Library;
+using TaleWorlds.MountAndBlade;
 
 namespace BetterMPHUD
 {
     public class SubModule : MBSubModuleBase
     {
+        protected override void OnSubModuleLoad()
+        {
+            base.OnSubModuleLoad();
+            InformationManager.DisplayMessage(new InformationMessage("BetterMPHUD Loaded!", Colors.Cyan));
+        }
+
         public override void OnMissionBehaviorInitialize(Mission mission)
         {
             base.OnMissionBehaviorInitialize(mission);
-            // Add our View to the mission
-            mission.AddMissionBehavior(new HudMissionView());
+            mission.AddMissionBehavior(new HudBehavior());
+            InformationManager.DisplayMessage(new InformationMessage("BetterMPHUD Behavior Added!", Colors.Cyan));
         }
     }
 }

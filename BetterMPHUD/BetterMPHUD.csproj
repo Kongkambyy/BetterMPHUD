@@ -222,8 +222,10 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="HudMissionView.cs" />
+        <Compile Include="HudBehavior.cs" />
         <Compile Include="HudMenuVM.cs" />
+        <Compile Include="KillfeedItemVM.cs" />
+        <Compile Include="KillfeedVM.cs" />
         <Compile Include="SubModule.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
     </ItemGroup>
