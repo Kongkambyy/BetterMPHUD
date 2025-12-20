@@ -20,6 +20,8 @@ namespace BetterMPHUD
 
         public bool ShowChat { get; set; } = true;
         public bool ChatAlwaysVisible { get; set; } = false;
+        
+        public bool CameraSnapbackEnabled { get; set; } = false;
 
         public ElementCustomization TimeAndScoresCustom { get; set; }
         public ElementCustomization TeamAvatarsCustom { get; set; }
@@ -33,6 +35,7 @@ namespace BetterMPHUD
             TeamAvatarsCustom = new ElementCustomization();
             MoraleCustom = new ElementCustomization();
             KillfeedCustom = new ElementCustomization();
+            ChatCustom = new ElementCustomization();
         }
 
         public ElementCustomization GetCustomization(HudElement element)

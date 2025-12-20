@@ -16,6 +16,8 @@ namespace BetterMPHUD.ViewModels
         private bool _isLeaderboardPageOpen;
         private bool _isHPPageOpen;
         private bool _isCrosshairPageOpen;
+        // NEW: Misc Page State
+        private bool _isMiscPageOpen;
         
         private bool _nativeKillfeedEnabled;
         private bool _warbandKillfeedEnabled;
@@ -28,6 +30,9 @@ namespace BetterMPHUD.ViewModels
 
         private bool _showChat;
         private bool _chatAlwaysVisible;
+        
+        // NEW: Camera Snapback VM property
+        private bool _cameraSnapbackEnabled;
 
         private int _selectedElementIndex = 0;
         private string _selectedElementName = "Time & Scores";
@@ -62,6 +67,7 @@ namespace BetterMPHUD.ViewModels
             _showEnemyScore = _settings.ShowEnemyScore;
             _showBanners = _settings.ShowBanners;
             _showMorale = _settings.ShowMorale;
+            _cameraSnapbackEnabled = _settings.CameraSnapbackEnabled;
             
             _isKillfeedPageOpen = true; 
             _isTopBarPageOpen = false;
@@ -71,6 +77,7 @@ namespace BetterMPHUD.ViewModels
             _isLeaderboardPageOpen = false;
             _isHPPageOpen = false;
             _isCrosshairPageOpen = false;
+            _isMiscPageOpen = false;
 
             LoadSelectedElementValues();
             ApplyNativeKillfeedSetting();
@@ -86,6 +93,7 @@ namespace BetterMPHUD.ViewModels
             IsLeaderboardPageOpen = false;
             IsHPPageOpen = false;
             IsCrosshairPageOpen = false;
+            IsMiscPageOpen = false;
         }
 
         public void ExecuteClose() => OnCloseConfigMenu?.Invoke();
@@ -98,6 +106,8 @@ namespace BetterMPHUD.ViewModels
         public void ExecuteOpenLeaderboardPage() { CloseAllPages(); IsLeaderboardPageOpen = true; }
         public void ExecuteOpenHPPage() { CloseAllPages(); IsHPPageOpen = true; }
         public void ExecuteOpenCrosshairPage() { CloseAllPages(); IsCrosshairPageOpen = true; }
+        public void ExecuteOpenMiscPage() { CloseAllPages(); IsMiscPageOpen = true; }
+        
         public void ExecuteBackToTopBar() => ExecuteOpenTopBarPage();
 
         public void ExecuteSelectTimeAndScores() { SelectedElementIndex = 0; SelectedElementName = "Time & Scores"; LoadSelectedElementValues(); }
@@ -304,6 +314,7 @@ namespace BetterMPHUD.ViewModels
             _settings.ShowEnemyScore = _showEnemyScore;
             _settings.ShowBanners = _showBanners;
             _settings.ShowMorale = _showMorale;
+            _settings.CameraSnapbackEnabled = _cameraSnapbackEnabled;
             ConfigManager.SaveSettings(_settings);
         }
 
@@ -318,6 +329,7 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty] public bool IsLeaderboardPageOpen { get => _isLeaderboardPageOpen; set { if (value != _isLeaderboardPageOpen) { _isLeaderboardPageOpen = value; OnPropertyChangedWithValue(value, "IsLeaderboardPageOpen"); } } }
         [DataSourceProperty] public bool IsHPPageOpen { get => _isHPPageOpen; set { if (value != _isHPPageOpen) { _isHPPageOpen = value; OnPropertyChangedWithValue(value, "IsHPPageOpen"); } } }
         [DataSourceProperty] public bool IsCrosshairPageOpen { get => _isCrosshairPageOpen; set { if (value != _isCrosshairPageOpen) { _isCrosshairPageOpen = value; OnPropertyChangedWithValue(value, "IsCrosshairPageOpen"); } } }
+        [DataSourceProperty] public bool IsMiscPageOpen { get => _isMiscPageOpen; set { if (value != _isMiscPageOpen) { _isMiscPageOpen = value; OnPropertyChangedWithValue(value, "IsMiscPageOpen"); } } }
 
         [DataSourceProperty]
         public bool NativeKillfeedEnabled
@@ -351,6 +363,13 @@ namespace BetterMPHUD.ViewModels
         { 
             get => _chatAlwaysVisible; 
             set { if (value != _chatAlwaysVisible) { _chatAlwaysVisible = value; OnPropertyChangedWithValue(value, "ChatAlwaysVisible"); NotifySettingsChanged(); SaveCurrentSettings(); } } 
+        }
+
+        [DataSourceProperty] 
+        public bool CameraSnapbackEnabled 
+        { 
+            get => _cameraSnapbackEnabled; 
+            set { if (value != _cameraSnapbackEnabled) { _cameraSnapbackEnabled = value; OnPropertyChangedWithValue(value, "CameraSnapbackEnabled"); SaveCurrentSettings(); } } 
         }
         
         [DataSourceProperty] public int SelectedElementIndex { get => _selectedElementIndex; set { if (value != _selectedElementIndex) { _selectedElementIndex = value; OnPropertyChangedWithValue(value, "SelectedElementIndex"); } } }

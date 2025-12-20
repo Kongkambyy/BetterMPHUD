@@ -6,51 +6,46 @@
                 MarginTop="50" MarginRight="20"
                 IsVisible="@IsVisible">
             <Children>
-                <ListPanel DataSource="{KillList}" WidthSizePolicy="StretchToParent" 
+                <ListPanel DataSource="{KillList}" WidthSizePolicy="StretchToParent"
                            HeightSizePolicy="CoverChildren"
                            StackLayout.LayoutMethod="VerticalBottomToTop">
                     <ItemTemplate>
                         <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
-                                   SuggestedHeight="32"
+                                   SuggestedHeight="@RowHeight"
                                    StackLayout.LayoutMethod="HorizontalRightToLeft"
                                    MarginBottom="4">
                             <Children>
-                                <!-- Victim Class Icon (rightmost) -->
                                 <ImageWidget Sprite="@VictimClassSprite"
                                              WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
-                                             SuggestedWidth="24" SuggestedHeight="24"
+                                             SuggestedWidth="@IconSize" SuggestedHeight="@IconSize"
                                              VerticalAlignment="Center"
                                              MarginLeft="6"/>
 
-                                <!-- Victim Name -->
-                                <TextWidget Text="@VictimName" 
+                                <TextWidget Text="@VictimName"
                                             WidthSizePolicy="CoverChildren" HeightSizePolicy="StretchToParent"
                                             VerticalAlignment="Center"
-                                            Brush.FontSize="20" Brush.FontColor="@RowColor"
+                                            Brush.FontSize="@FontSize" Brush.FontColor="@RowColor"
                                             Brush.TextVerticalAlignment="Center"
                                             Brush.TextShadowOffset="2" Brush.TextShadowColor="#000000FF"
                                             MarginLeft="6" MarginRight="6"/>
 
-                                <!-- Kill/Death Skull Icon (center) -->
                                 <ImageWidget Sprite="@KillIconSprite"
                                              WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
-                                             SuggestedWidth="34" SuggestedHeight="34"
+                                             SuggestedWidth="@SkullSize" SuggestedHeight="@SkullSize"
                                              VerticalAlignment="Center"
                                              MarginLeft="4" MarginRight="4"/>
 
-                                <!-- Killer Name -->
-                                <TextWidget Text="@KillerName" 
+                                <TextWidget Text="@KillerName"
                                             WidthSizePolicy="CoverChildren" HeightSizePolicy="StretchToParent"
                                             VerticalAlignment="Center"
-                                            Brush.FontSize="20" Brush.FontColor="@RowColor"
+                                            Brush.FontSize="@FontSize" Brush.FontColor="@RowColor"
                                             Brush.TextVerticalAlignment="Center"
                                             Brush.TextShadowOffset="2" Brush.TextShadowColor="#000000FF"
                                             MarginLeft="6" MarginRight="6"/>
 
-                                <!-- Killer Class Icon (leftmost) -->
                                 <ImageWidget Sprite="@KillerClassSprite"
                                              WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
-                                             SuggestedWidth="24" SuggestedHeight="24"
+                                             SuggestedWidth="@IconSize" SuggestedHeight="@IconSize"
                                              VerticalAlignment="Center"
                                              MarginRight="6"/>
                             </Children>

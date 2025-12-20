@@ -12,6 +12,8 @@ using TaleWorlds.MountAndBlade;
 using TaleWorlds.MountAndBlade.View.MissionViews; 
 using BetterMPHUD.ViewModels;
 using TaleWorlds.GauntletUI.Data;
+using TaleWorlds.MountAndBlade.View.Screens;
+using TaleWorlds.ScreenSystem; 
 
 namespace BetterMPHUD
 {
@@ -21,11 +23,7 @@ namespace BetterMPHUD
         private GauntletLayer _killfeedLayer;
         private HudMenuVM _dataSource;
         private KillfeedVM _killfeedVM;
-        private IGauntletMovie _configMovie;
-        private IGauntletMovie _killfeedMovie;
         private bool _initialized = false;
-
-        private const float KILLFEED_DURATION = 8f;
         private float _enforceSettingsTimer = 0f;
         
         private Widget _timeAndScoresWidget;
@@ -42,8 +40,12 @@ namespace BetterMPHUD
         private WidgetOriginalValues _moraleOriginal;
         private WidgetOriginalValues _controlPointsOriginal;
         private WidgetOriginalValues _killfeedOriginal;
+        
         private Dictionary<Widget, WidgetOriginalValues> _childOriginals = new Dictionary<Widget, WidgetOriginalValues>();
-        private Dictionary<Widget, WidgetOriginalValues> _killfeedChildOriginals = new Dictionary<Widget, WidgetOriginalValues>();
+
+        // Camera Snapback Fields
+        private FieldInfo _bearingDelta, _elevationDelta, _stBear, _scBear, _stElev, _scElev;
+        private bool _cameraFieldsCached = false;
 
         private static readonly Color FriendlyKillColor = new Color(0.27f, 1f, 0.27f, 1f); 
         private static readonly Color EnemyKillColor = new Color(1f, 0.27f, 0.27f, 1f);     
@@ -53,8 +55,6 @@ namespace BetterMPHUD
         private const string SPRITE_BOW = "icon_bow";
         private const string SPRITE_HORSE = "icon_horse";
         private const string SPRITE_DEATH = "icon_death";    
-        
-        private const bool DEBUG_KILLFEED = false;
 
         private struct WidgetOriginalValues
         {
@@ -82,15 +82,49 @@ namespace BetterMPHUD
             if (_killfeedVM != null && _killfeedVM.KillList.Count > 0)
             {
                 float currentTime = Mission.Current?.CurrentTime ?? 0f;
-                List<KillfeedItemVM> toRemove = new List<KillfeedItemVM>();
-                foreach (var item in _killfeedVM.KillList)
-                {
-                    if (item.ExpireTime <= currentTime) toRemove.Add(item);
-                }
+                // Safe removal using ToList()
+                var toRemove = _killfeedVM.KillList.Where(item => item.ExpireTime <= currentTime).ToList();
                 foreach (var item in toRemove) _killfeedVM.RemoveKill(item);
+            }
+
+            // --- CAMERA SNAPBACK LOGIC ---
+            if (_dataSource != null && _dataSource.CameraSnapbackEnabled)
+            {
+                if (ScreenManager.TopScreen is MissionScreen ms)
+                {
+                    if (!_cameraFieldsCached) CacheCameraFields(ms);
+
+                    // 25 is 'R' (GameKey.ViewCharacter)
+                    if (ms.SceneLayer.Input.IsGameKeyReleased(25)) 
+                    {
+                        try
+                        {
+                            _bearingDelta?.SetValue(ms, 0f);
+                            _elevationDelta?.SetValue(ms, 0f);
+                            _stBear?.SetValue(ms, 0f);
+                            _scBear?.SetValue(ms, 0f);
+                            _stElev?.SetValue(ms, 0f);
+                            _scElev?.SetValue(ms, 0f);
+                        }
+                        catch { }
+                    }
+                }
             }
         }
         
+        private void CacheCameraFields(MissionScreen screen)
+        {
+            var type = screen.GetType();
+            var flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+            _bearingDelta = type.GetField("_cameraBearingDelta", flags);
+            _elevationDelta = type.GetField("_cameraElevationDelta", flags);
+            _stBear = type.GetField("_cameraSpecialTargetAddedBearing", flags);
+            _scBear = type.GetField("_cameraSpecialCurrentAddedBearing", flags);
+            _stElev = type.GetField("_cameraSpecialTargetAddedElevation", flags);
+            _scElev = type.GetField("_cameraSpecialCurrentAddedElevation", flags);
+            _cameraFieldsCached = true;
+        }
+
         public override void OnAgentRemoved(Agent affectedAgent, Agent affectorAgent, AgentState agentState, KillingBlow blow)
         {
             base.OnAgentRemoved(affectedAgent, affectorAgent, agentState, blow);
@@ -113,7 +147,7 @@ namespace BetterMPHUD
                 float fadeoutTime = _dataSource.GetSettings().KillfeedFadeoutTime;
                 float expireTime = (Mission.Current?.CurrentTime ?? 0f) + fadeoutTime;
 
-                _killfeedVM.AddKill(new KillfeedItemVM(
+                var item = new KillfeedItemVM(
                     affectorAgent.Name, 
                     affectedAgent.Name, 
                     rowColor,
@@ -121,7 +155,14 @@ namespace BetterMPHUD
                     victimClassSprite,
                     killIconSprite,
                     expireTime, 
-                    (item) => _killfeedVM.RemoveKill(item)));
+                    (vm) => _killfeedVM.RemoveKill(vm));
+
+                // Scale correct
+                float currentScale = _dataSource.GetSettings().KillfeedCustom.Scale;
+                _killfeedVM.GetScaledSizes(currentScale, out int font, out int icon, out int skull, out int row);
+                item.UpdateSizes(font, icon, skull, row);
+
+                _killfeedVM.AddKill(item);
             }
         }
 
@@ -165,14 +206,14 @@ namespace BetterMPHUD
                 _dataSource.OnHudSettingsChanged = ApplyAllSettings;
 
                 _configLayer = new GauntletLayer("GauntletLayer", 50, false);
-                _configMovie = _configLayer.LoadMovie("HudConfig", _dataSource).Movie;
+                _configLayer.LoadMovie("HudConfig", _dataSource);
                 missionScreen.AddLayer(_configLayer);
 
                 _killfeedVM = new KillfeedVM();
                 _killfeedVM.IsVisible = _dataSource.WarbandKillfeedEnabled;
 
                 _killfeedLayer = new GauntletLayer("GauntletLayer", 25, false); 
-                _killfeedMovie = _killfeedLayer.LoadMovie("WarbandKillfeed", _killfeedVM).Movie;
+                _killfeedLayer.LoadMovie("WarbandKillfeed", _killfeedVM);
                 missionScreen.AddLayer(_killfeedLayer);
 
                 if (_killfeedLayer.UIContext?.Root != null && _killfeedLayer.UIContext.Root.ChildCount > 0)
@@ -230,113 +271,22 @@ namespace BetterMPHUD
 
         private void ApplyKillfeedCustomization()
         {
-            if (_killfeedRootWidget == null) return;
+            if (_killfeedRootWidget == null || _killfeedVM == null) return;
 
             if (!_killfeedOriginal.IsValid)
             {
                 _killfeedOriginal = CaptureWidgetValues(_killfeedRootWidget);
-                StoreKillfeedChildrenOriginals(_killfeedRootWidget);
             }
 
             var settings = _dataSource.GetSettings();
             var custom = settings.KillfeedCustom;
 
+            // Apply Position
             _killfeedRootWidget.PositionXOffset = _killfeedOriginal.X + custom.OffsetX;
             _killfeedRootWidget.PositionYOffset = _killfeedOriginal.Y + custom.OffsetY;
 
-            if (custom.Scale != 1f)
-            {
-                if (_killfeedRootWidget.WidthSizePolicy == SizePolicy.Fixed && _killfeedOriginal.Width > 0)
-                    _killfeedRootWidget.SuggestedWidth = _killfeedOriginal.Width * custom.Scale;
-                if (_killfeedRootWidget.HeightSizePolicy == SizePolicy.Fixed && _killfeedOriginal.Height > 0)
-                    _killfeedRootWidget.SuggestedHeight = _killfeedOriginal.Height * custom.Scale;
-                
-                ApplyScaleToKillfeedChildren(_killfeedRootWidget, custom.Scale);
-            }
-            else
-            {
-                if (_killfeedRootWidget.WidthSizePolicy == SizePolicy.Fixed)
-                    _killfeedRootWidget.SuggestedWidth = _killfeedOriginal.Width;
-                if (_killfeedRootWidget.HeightSizePolicy == SizePolicy.Fixed)
-                    _killfeedRootWidget.SuggestedHeight = _killfeedOriginal.Height;
-                
-                ResetKillfeedChildrenToOriginal(_killfeedRootWidget);
-            }
-        }
-
-        private void StoreKillfeedChildrenOriginals(Widget parent)
-        {
-            for (int i = 0; i < parent.ChildCount; i++)
-            {
-                var child = parent.GetChild(i);
-                if (!_killfeedChildOriginals.ContainsKey(child))
-                {
-                    _killfeedChildOriginals[child] = CaptureWidgetValues(child);
-                }
-                StoreKillfeedChildrenOriginals(child);
-            }
-        }
-
-        private void ApplyScaleToKillfeedChildren(Widget parent, float scale)
-        {
-            for (int i = 0; i < parent.ChildCount; i++)
-            {
-                var child = parent.GetChild(i);
-                
-                if (_killfeedChildOriginals.TryGetValue(child, out WidgetOriginalValues original))
-                {
-                    if (child.WidthSizePolicy == SizePolicy.Fixed && original.Width > 0)
-                        child.SuggestedWidth = original.Width * scale;
-                    if (child.HeightSizePolicy == SizePolicy.Fixed && original.Height > 0)
-                        child.SuggestedHeight = original.Height * scale;
-                    
-                    child.MarginTop = original.MarginTop * scale;
-                    child.MarginBottom = original.MarginBottom * scale;
-                    child.MarginLeft = original.MarginLeft * scale;
-                    child.MarginRight = original.MarginRight * scale;
-                }
-                
-                if (child is TextWidget textWidget)
-                {
-                    if (_killfeedChildOriginals.TryGetValue(child, out WidgetOriginalValues textOriginal) && textOriginal.FontSize > 0)
-                    {
-                        textWidget.Brush.FontSize = (int)(textOriginal.FontSize * scale);
-                    }
-                }
-                
-                ApplyScaleToKillfeedChildren(child, scale);
-            }
-        }
-
-        private void ResetKillfeedChildrenToOriginal(Widget parent)
-        {
-            for (int i = 0; i < parent.ChildCount; i++)
-            {
-                var child = parent.GetChild(i);
-                
-                if (_killfeedChildOriginals.TryGetValue(child, out WidgetOriginalValues original))
-                {
-                    if (child.WidthSizePolicy == SizePolicy.Fixed)
-                        child.SuggestedWidth = original.Width;
-                    if (child.HeightSizePolicy == SizePolicy.Fixed)
-                        child.SuggestedHeight = original.Height;
-                    
-                    child.MarginTop = original.MarginTop;
-                    child.MarginBottom = original.MarginBottom;
-                    child.MarginLeft = original.MarginLeft;
-                    child.MarginRight = original.MarginRight;
-                }
-                
-                if (child is TextWidget textWidget)
-                {
-                    if (_killfeedChildOriginals.TryGetValue(child, out WidgetOriginalValues textOriginal) && textOriginal.FontSize > 0)
-                    {
-                        textWidget.Brush.FontSize = (int)textOriginal.FontSize;
-                    }
-                }
-                
-                ResetKillfeedChildrenToOriginal(child);
-            }
+            // Apply Scale via VM
+            _killfeedVM.UpdateScale(custom.Scale);
         }
 
         private WidgetOriginalValues CaptureWidgetValues(Widget widget)
@@ -485,9 +435,15 @@ namespace BetterMPHUD
                 for (int i = 0; i < widget.ChildCount; i++) { if (widget.GetChild(i).GetType().Name.Contains("MoraleWidget")) { hasMoraleChild = true; break; } }
                 if (isMoraleBySprite || hasMoraleChild) _moraleWidget = widget;
             }
-
-            if (_controlPointsWidget == null && widget is ListPanel && widget.HorizontalAlignment == HorizontalAlignment.Center && widget.MarginTop >= 79f && widget.MarginTop <= 81f && widget.ChildCount == 3)
+            
+            if (_controlPointsWidget == null && 
+                widget is ListPanel && 
+                widget.HorizontalAlignment == HorizontalAlignment.Center && 
+                Math.Abs(widget.MarginTop - 80f) < 1f &&
+                widget.ChildCount == 3)
+            {
                 _controlPointsWidget = widget;
+            }
 
             for (int i = 0; i < widget.ChildCount; i++) SearchWidgetsRecursively(widget.GetChild(i), depth + 1, widget);
         }
@@ -521,8 +477,8 @@ namespace BetterMPHUD
             ManagedOptions.SetConfig(ManagedOptions.ManagedOptionsType.ReportCasualtiesType, 0f);
             var missionScreen = TaleWorlds.ScreenSystem.ScreenManager.TopScreen as TaleWorlds.MountAndBlade.View.Screens.MissionScreen;
             if (missionScreen != null) { if (_configLayer != null) missionScreen.RemoveLayer(_configLayer); if (_killfeedLayer != null) missionScreen.RemoveLayer(_killfeedLayer); }
-            _dataSource = null; _killfeedVM = null; _configMovie = null; _killfeedMovie = null;
-            _initialized = false; _widgetsCached = false; _childOriginals.Clear(); _killfeedChildOriginals.Clear();
+            _dataSource = null; _killfeedVM = null; 
+            _initialized = false; _widgetsCached = false; _childOriginals.Clear(); 
         }
     }
 }

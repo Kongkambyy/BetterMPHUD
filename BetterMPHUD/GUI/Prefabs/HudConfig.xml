@@ -25,7 +25,6 @@
                                    SuggestedHeight="390" StackLayout.LayoutMethod="HorizontalLeftToRight"
                                    MarginTop="70" MarginLeft="20" MarginRight="20">
                             <Children>
-                                <!-- LEFT SIDEBAR -->
                                 <Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="150">
                                     <Children>
                                         <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
@@ -85,15 +84,22 @@
                                                                     Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" PositionYOffset="-6"/>
                                                     </Children>
                                                 </ButtonWidget>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                              SuggestedWidth="130" SuggestedHeight="45" HorizontalAlignment="Center"
+                                                              Brush="HUDNavigationButton" Command.Click="ExecuteOpenMiscPage">
+                                                    <Children>
+                                                        <TextWidget Text="Misc" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                    Brush.FontSize="18" Brush.FontColor="#FFFFFFFF"
+                                                                    Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" PositionYOffset="-6"/>
+                                                    </Children>
+                                                </ButtonWidget>
                                             </Children>
                                         </ListPanel>
                                     </Children>
                                 </Widget>
 
-                                <!-- RIGHT CONTENT AREA -->
                                 <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" MarginLeft="15">
                                     <Children>
-                                        <!-- KILLFEED PAGE -->
                                         <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
                                                    StackLayout.LayoutMethod="VerticalBottomToTop" IsVisible="@IsKillfeedPageOpen"
                                                    MarginTop="20" MarginLeft="20" MarginRight="20">
@@ -101,7 +107,6 @@
                                                 <TextWidget Text="Killfeed Settings" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
                                                             HorizontalAlignment="Left" MarginBottom="20" Brush.FontSize="22" Brush.FontColor="#FFD700FF"/>
 
-                                                <!-- Native Killfeed Toggle -->
                                                 <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
                                                            StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="12">
                                                     <Children>
@@ -120,7 +125,6 @@
                                                     </Children>
                                                 </ListPanel>
 
-                                                <!-- Custom Killfeed Toggle -->
                                                 <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
                                                            StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="12">
                                                     <Children>
@@ -139,7 +143,6 @@
                                                     </Children>
                                                 </ListPanel>
 
-                                                <!-- Fadeout Time -->
                                                 <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
                                                            StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="15">
                                                     <Children>
@@ -172,7 +175,6 @@
                                                             HorizontalAlignment="Left" MarginTop="5" MarginBottom="8"
                                                             Brush.FontSize="18" Brush.FontColor="#FFD700FF"/>
 
-                                                <!-- X Offset -->
                                                 <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
                                                            StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
                                                     <Children>
@@ -201,7 +203,6 @@
                                                     </Children>
                                                 </ListPanel>
 
-                                                <!-- Y Offset -->
                                                 <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
                                                            StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
                                                     <Children>
@@ -230,7 +231,6 @@
                                                     </Children>
                                                 </ListPanel>
 
-                                                <!-- Scale -->
                                                 <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
                                                            StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
                                                     <Children>
@@ -270,9 +270,8 @@
                                                 </ButtonWidget>
                                             </Children>
                                         </ListPanel>
-                                        
 
-                                        <!-- TOP BAR PAGE -->
+
                                         <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
                                                    StackLayout.LayoutMethod="VerticalBottomToTop" IsVisible="@IsTopBarPageOpen"
                                                    MarginTop="20" MarginLeft="20" MarginRight="20">
@@ -300,7 +299,6 @@
                                             </Children>
                                         </ListPanel>
 
-                                        <!-- VISIBILITY PAGE -->
                                         <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
                                                    StackLayout.LayoutMethod="VerticalBottomToTop" IsVisible="@IsVisibilityPageOpen"
                                                    MarginTop="20" MarginLeft="20" MarginRight="20">
@@ -365,7 +363,6 @@
                                             </Children>
                                         </ListPanel>
 
-                                        <!-- CUSTOMIZE PAGE -->
                                         <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
                                                    StackLayout.LayoutMethod="VerticalBottomToTop" IsVisible="@IsCustomizePageOpen"
                                                    MarginTop="15" MarginLeft="20" MarginRight="20">
@@ -397,7 +394,6 @@
                                                     </Children>
                                                 </ListPanel>
 
-                                                <!-- X/Y/Scale controls same as before -->
                                                 <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="10">
                                                     <Children>
                                                         <TextWidget Text="X Offset:" WidthSizePolicy="Fixed" SuggestedWidth="80" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="15" Brush.FontColor="#FFFFFFFF"/>
@@ -448,7 +444,6 @@
                                             </Children>
                                         </ListPanel>
 
-                                        <!-- LEADERBOARD PAGE (Coming Soon) -->
                                         <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" StackLayout.LayoutMethod="VerticalBottomToTop" IsVisible="@IsLeaderboardPageOpen" MarginTop="20" MarginLeft="20" MarginRight="20">
                                             <Children>
                                                 <TextWidget Text="Chat settings" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="25" Brush.FontSize="22" Brush.FontColor="#FFD700FF"/>
@@ -456,15 +451,6 @@
                                             </Children>
                                         </ListPanel>
 
-                                        <!-- LEADERBOARD PAGE (Coming Soon) -->
-                                        <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" StackLayout.LayoutMethod="VerticalBottomToTop" IsVisible="@IsLeaderboardPageOpen" MarginTop="20" MarginLeft="20" MarginRight="20">
-                                            <Children>
-                                                <TextWidget Text="Leaderboard Settings" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="25" Brush.FontSize="22" Brush.FontColor="#FFD700FF"/>
-                                                <TextWidget Text="Coming Soon..." WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Center" VerticalAlignment="Center" Brush.FontSize="18" Brush.FontColor="#888888FF"/>
-                                            </Children>
-                                        </ListPanel>
-
-                                        <!-- HP PAGE (Coming Soon) -->
                                         <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" StackLayout.LayoutMethod="VerticalBottomToTop" IsVisible="@IsHPPageOpen" MarginTop="20" MarginLeft="20" MarginRight="20">
                                             <Children>
                                                 <TextWidget Text="HP Settings" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="25" Brush.FontSize="22" Brush.FontColor="#FFD700FF"/>
@@ -472,11 +458,27 @@
                                             </Children>
                                         </ListPanel>
 
-                                        <!-- CROSSHAIR PAGE (Coming Soon) -->
                                         <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" StackLayout.LayoutMethod="VerticalBottomToTop" IsVisible="@IsCrosshairPageOpen" MarginTop="20" MarginLeft="20" MarginRight="20">
                                             <Children>
                                                 <TextWidget Text="Crosshair Settings" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="25" Brush.FontSize="22" Brush.FontColor="#FFD700FF"/>
                                                 <TextWidget Text="Coming Soon..." WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Center" VerticalAlignment="Center" Brush.FontSize="18" Brush.FontColor="#888888FF"/>
+                                            </Children>
+                                        </ListPanel>
+
+                                        <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" StackLayout.LayoutMethod="VerticalBottomToTop" IsVisible="@IsMiscPageOpen" MarginTop="20" MarginLeft="20" MarginRight="20">
+                                            <Children>
+                                                <TextWidget Text="Miscellaneous Settings" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="25" Brush.FontSize="22" Brush.FontColor="#FFD700FF"/>
+
+                                                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="12">
+                                                    <Children>
+                                                        <TextWidget Text="Warband Tilted Key" WidthSizePolicy="Fixed" SuggestedWidth="300" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="16" Brush.FontColor="#FFFFFFFF"/>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="25" SuggestedHeight="25" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@CameraSnapbackEnabled" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
+                                                            <Children><BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/></Children>
+                                                        </ButtonWidget>
+                                                    </Children>
+                                                </ListPanel>
+
+                                                <TextWidget Text="Instantly returns camera after using tilted" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginTop="5" Brush.FontSize="14" Brush.FontColor="#AAAAAAFF"/>
                                             </Children>
                                         </ListPanel>
                                     </Children>
