@@ -41,10 +41,12 @@ namespace BetterMPHUD
         private WidgetOriginalValues _moraleOriginal;
         private WidgetOriginalValues _killfeedOriginal;
         private Dictionary<Widget, WidgetOriginalValues> _childOriginals = new Dictionary<Widget, WidgetOriginalValues>();
+        private Dictionary<Widget, WidgetOriginalValues> _killfeedChildOriginals = new Dictionary<Widget, WidgetOriginalValues>();
 
         private static readonly Color FriendlyKillColor = new Color(0.27f, 1f, 0.27f, 1f); 
         private static readonly Color EnemyKillColor = new Color(1f, 0.27f, 0.27f, 1f);     
         private static readonly Color NeutralColor = new Color(1f, 1f, 1f, 1f);         
+        
         
         private const string SPRITE_SWORD = "icon_sword";
         private const string SPRITE_BOW = "icon_bow";
@@ -57,6 +59,7 @@ namespace BetterMPHUD
         {
             public float X; public float Y; public float Width; public float Height;
             public float MarginTop; public float MarginBottom; public float MarginLeft; public float MarginRight;
+            public float FontSize;
             public bool IsValid;
         }
 
@@ -100,29 +103,14 @@ namespace BetterMPHUD
 
                 if (playerTeam != null)
                 {
-                    if (affectedAgent.Team == playerTeam)
-                    {
-                        rowColor = EnemyKillColor;
-                        killIconSprite = SPRITE_DEATH;
-                    }
-                    else
-                    {
-                        rowColor = FriendlyKillColor;
-                        killIconSprite = SPRITE_DEATH;
-                    }
+                    rowColor = (affectedAgent.Team == playerTeam) ? EnemyKillColor : FriendlyKillColor;
                 }
 
                 string killerClassSprite = GetAgentClassSprite(affectorAgent);
                 string victimClassSprite = GetAgentClassSprite(affectedAgent);
 
-                if (DEBUG_KILLFEED)
-                {
-                    InformationManager.DisplayMessage(new InformationMessage(
-                        $"[Killfeed] {affectorAgent.Name}({killerClassSprite}) -> {affectedAgent.Name}({victimClassSprite}) Skull:{killIconSprite}", 
-                        Colors.Yellow));
-                }
-
-                float expireTime = (Mission.Current?.CurrentTime ?? 0f) + KILLFEED_DURATION;
+                float fadeoutTime = _dataSource.GetSettings().KillfeedFadeoutTime;
+                float expireTime = (Mission.Current?.CurrentTime ?? 0f) + fadeoutTime;
 
                 _killfeedVM.AddKill(new KillfeedItemVM(
                     affectorAgent.Name, 
@@ -139,16 +127,8 @@ namespace BetterMPHUD
         private string GetAgentClassSprite(Agent agent)
         {
             if (agent == null) return SPRITE_SWORD;
-
-            // hest
-            if (agent.HasMount)
-                return SPRITE_HORSE;
-
-            // distancesværd, bue, armbrøst, spyd, kasteøkse, kastekniv
-            if (HasRangedWeapon(agent))
-                return SPRITE_BOW;
-
-            // sværd eller anden nærkampsklasse
+            if (agent.HasMount) return SPRITE_HORSE;
+            if (HasRangedWeapon(agent)) return SPRITE_BOW;
             return SPRITE_SWORD;
         }
 
@@ -162,8 +142,7 @@ namespace BetterMPHUD
                 if (!item.IsEmpty && item.Item?.PrimaryWeapon != null)
                 {
                     var weaponClass = item.Item.PrimaryWeapon.WeaponClass;
-                    if (weaponClass == WeaponClass.Bow || 
-                        weaponClass == WeaponClass.Crossbow)
+                    if (weaponClass == WeaponClass.Bow || weaponClass == WeaponClass.Crossbow)
                     {
                         return true;
                     }
@@ -216,7 +195,6 @@ namespace BetterMPHUD
             if (_killfeedVM != null)
                 _killfeedVM.IsVisible = _dataSource.WarbandKillfeedEnabled;
 
-            // tildeler egen vm for killfeed til å kunne tilpasse posisjon og skala
             ApplyKillfeedCustomization();
 
             var hudBehavior = Mission.Current.MissionBehaviors
@@ -256,6 +234,7 @@ namespace BetterMPHUD
             if (!_killfeedOriginal.IsValid)
             {
                 _killfeedOriginal = CaptureWidgetValues(_killfeedRootWidget);
+                StoreKillfeedChildrenOriginals(_killfeedRootWidget);
             }
 
             var settings = _dataSource.GetSettings();
@@ -268,21 +247,111 @@ namespace BetterMPHUD
             {
                 if (_killfeedRootWidget.WidthSizePolicy == SizePolicy.Fixed && _killfeedOriginal.Width > 0)
                     _killfeedRootWidget.SuggestedWidth = _killfeedOriginal.Width * custom.Scale;
+                if (_killfeedRootWidget.HeightSizePolicy == SizePolicy.Fixed && _killfeedOriginal.Height > 0)
+                    _killfeedRootWidget.SuggestedHeight = _killfeedOriginal.Height * custom.Scale;
+                
+                ApplyScaleToKillfeedChildren(_killfeedRootWidget, custom.Scale);
             }
             else
             {
                 if (_killfeedRootWidget.WidthSizePolicy == SizePolicy.Fixed)
                     _killfeedRootWidget.SuggestedWidth = _killfeedOriginal.Width;
+                if (_killfeedRootWidget.HeightSizePolicy == SizePolicy.Fixed)
+                    _killfeedRootWidget.SuggestedHeight = _killfeedOriginal.Height;
+                
+                ResetKillfeedChildrenToOriginal(_killfeedRootWidget);
+            }
+        }
+
+        private void StoreKillfeedChildrenOriginals(Widget parent)
+        {
+            for (int i = 0; i < parent.ChildCount; i++)
+            {
+                var child = parent.GetChild(i);
+                if (!_killfeedChildOriginals.ContainsKey(child))
+                {
+                    _killfeedChildOriginals[child] = CaptureWidgetValues(child);
+                }
+                StoreKillfeedChildrenOriginals(child);
+            }
+        }
+
+        private void ApplyScaleToKillfeedChildren(Widget parent, float scale)
+        {
+            for (int i = 0; i < parent.ChildCount; i++)
+            {
+                var child = parent.GetChild(i);
+                
+                if (_killfeedChildOriginals.TryGetValue(child, out WidgetOriginalValues original))
+                {
+                    if (child.WidthSizePolicy == SizePolicy.Fixed && original.Width > 0)
+                        child.SuggestedWidth = original.Width * scale;
+                    if (child.HeightSizePolicy == SizePolicy.Fixed && original.Height > 0)
+                        child.SuggestedHeight = original.Height * scale;
+                    
+                    child.MarginTop = original.MarginTop * scale;
+                    child.MarginBottom = original.MarginBottom * scale;
+                    child.MarginLeft = original.MarginLeft * scale;
+                    child.MarginRight = original.MarginRight * scale;
+                }
+                
+                if (child is TextWidget textWidget)
+                {
+                    if (_killfeedChildOriginals.TryGetValue(child, out WidgetOriginalValues textOriginal) && textOriginal.FontSize > 0)
+                    {
+                        textWidget.Brush.FontSize = (int)(textOriginal.FontSize * scale);
+                    }
+                }
+                
+                ApplyScaleToKillfeedChildren(child, scale);
+            }
+        }
+
+        private void ResetKillfeedChildrenToOriginal(Widget parent)
+        {
+            for (int i = 0; i < parent.ChildCount; i++)
+            {
+                var child = parent.GetChild(i);
+                
+                if (_killfeedChildOriginals.TryGetValue(child, out WidgetOriginalValues original))
+                {
+                    if (child.WidthSizePolicy == SizePolicy.Fixed)
+                        child.SuggestedWidth = original.Width;
+                    if (child.HeightSizePolicy == SizePolicy.Fixed)
+                        child.SuggestedHeight = original.Height;
+                    
+                    child.MarginTop = original.MarginTop;
+                    child.MarginBottom = original.MarginBottom;
+                    child.MarginLeft = original.MarginLeft;
+                    child.MarginRight = original.MarginRight;
+                }
+                
+                if (child is TextWidget textWidget)
+                {
+                    if (_killfeedChildOriginals.TryGetValue(child, out WidgetOriginalValues textOriginal) && textOriginal.FontSize > 0)
+                    {
+                        textWidget.Brush.FontSize = (int)textOriginal.FontSize;
+                    }
+                }
+                
+                ResetKillfeedChildrenToOriginal(child);
             }
         }
 
         private WidgetOriginalValues CaptureWidgetValues(Widget widget)
         {
+            float fontSize = 0f;
+            if (widget is TextWidget textWidget)
+            {
+                fontSize = textWidget.Brush?.FontSize ?? 0f;
+            }
+            
             return new WidgetOriginalValues {
                 X = widget.PositionXOffset, Y = widget.PositionYOffset,
                 Width = widget.SuggestedWidth, Height = widget.SuggestedHeight,
                 MarginTop = widget.MarginTop, MarginBottom = widget.MarginBottom,
                 MarginLeft = widget.MarginLeft, MarginRight = widget.MarginRight,
+                FontSize = fontSize,
                 IsValid = true
             };
         }
@@ -445,7 +514,7 @@ namespace BetterMPHUD
             var missionScreen = TaleWorlds.ScreenSystem.ScreenManager.TopScreen as TaleWorlds.MountAndBlade.View.Screens.MissionScreen;
             if (missionScreen != null) { if (_configLayer != null) missionScreen.RemoveLayer(_configLayer); if (_killfeedLayer != null) missionScreen.RemoveLayer(_killfeedLayer); }
             _dataSource = null; _killfeedVM = null; _configMovie = null; _killfeedMovie = null;
-            _initialized = false; _widgetsCached = false; _childOriginals.Clear();
+            _initialized = false; _widgetsCached = false; _childOriginals.Clear(); _killfeedChildOriginals.Clear();
         }
     }
 }

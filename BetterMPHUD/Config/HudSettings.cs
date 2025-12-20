@@ -10,6 +10,7 @@ namespace BetterMPHUD
     {
         public bool NativeKillfeedEnabled { get; set; } = false;
         public bool WarbandKillfeedEnabled { get; set; } = true;
+        public float KillfeedFadeoutTime { get; set; } = 8f;
 
         public bool ShowTimeAndScores { get; set; } = true;
         public bool ShowAvatars { get; set; } = true;
@@ -17,28 +18,42 @@ namespace BetterMPHUD
         public bool ShowBanners { get; set; } = true;
         public bool ShowMorale { get; set; } = true;
 
-        public ElementCustomization TimeAndScoresCustom { get; set; } = new ElementCustomization();
-        public ElementCustomization TeamAvatarsCustom { get; set; } = new ElementCustomization();
-        public ElementCustomization MoraleCustom { get; set; } = new ElementCustomization();
-        public ElementCustomization KillfeedCustom { get; set; } = new ElementCustomization();
+        public bool ShowChat { get; set; } = true;
+        public bool ChatAlwaysVisible { get; set; } = false;
+
+        public ElementCustomization TimeAndScoresCustom { get; set; }
+        public ElementCustomization TeamAvatarsCustom { get; set; }
+        public ElementCustomization MoraleCustom { get; set; }
+        public ElementCustomization KillfeedCustom { get; set; }
+        public ElementCustomization ChatCustom { get; set; }
         
-        public HudSettings() { }
+        public HudSettings() 
+        {
+            TimeAndScoresCustom = new ElementCustomization();
+            TeamAvatarsCustom = new ElementCustomization();
+            MoraleCustom = new ElementCustomization();
+            KillfeedCustom = new ElementCustomization();
+        }
 
         public ElementCustomization GetCustomization(HudElement element)
         {
             switch (element)
             {
-                case HudElement.TimeAndScores:
-                    return TimeAndScoresCustom;
-                case HudElement.TeamAvatars:
-                    return TeamAvatarsCustom;
-                case HudElement.Morale:
-                    return MoraleCustom;
-                case HudElement.Killfeed:
-                    return KillfeedCustom;
-                default:
-                    return new ElementCustomization();
+                case HudElement.TimeAndScores: return TimeAndScoresCustom ?? (TimeAndScoresCustom = new ElementCustomization());
+                case HudElement.TeamAvatars: return TeamAvatarsCustom ?? (TeamAvatarsCustom = new ElementCustomization());
+                case HudElement.Morale: return MoraleCustom ?? (MoraleCustom = new ElementCustomization());
+                case HudElement.Killfeed: return KillfeedCustom ?? (KillfeedCustom = new ElementCustomization());
+                default: return new ElementCustomization();
             }
+        }
+
+        public void EnsureCustomizationsExist()
+        {
+            if (TimeAndScoresCustom == null) TimeAndScoresCustom = new ElementCustomization();
+            if (TeamAvatarsCustom == null) TeamAvatarsCustom = new ElementCustomization();
+            if (MoraleCustom == null) MoraleCustom = new ElementCustomization();
+            if (KillfeedCustom == null) KillfeedCustom = new ElementCustomization();
+            if (ChatCustom == null) ChatCustom = new ElementCustomization();
         }
     }
     
@@ -55,12 +70,7 @@ namespace BetterMPHUD
                 {
                     string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                     string bannerlordConfigPath = Path.Combine(documentsPath, "Mount and Blade II Bannerlord", "Configs");
-                    
-                    if (!Directory.Exists(bannerlordConfigPath))
-                    {
-                        Directory.CreateDirectory(bannerlordConfigPath);
-                    }
-                    
+                    if (!Directory.Exists(bannerlordConfigPath)) Directory.CreateDirectory(bannerlordConfigPath);
                     _configPath = Path.Combine(bannerlordConfigPath, ConfigFileName);
                 }
                 return _configPath;
@@ -77,11 +87,10 @@ namespace BetterMPHUD
                     using (FileStream stream = new FileStream(ConfigPath, FileMode.Open))
                     {
                         HudSettings settings = (HudSettings)serializer.Deserialize(stream);
+                        settings.EnsureCustomizationsExist();
                         
-                        if (settings.TimeAndScoresCustom == null) settings.TimeAndScoresCustom = new ElementCustomization();
-                        if (settings.TeamAvatarsCustom == null) settings.TeamAvatarsCustom = new ElementCustomization();
-                        if (settings.MoraleCustom == null) settings.MoraleCustom = new ElementCustomization();
-                        if (settings.KillfeedCustom == null) settings.KillfeedCustom = new ElementCustomization();
+                        if (settings.KillfeedFadeoutTime <= 0f) 
+                            settings.KillfeedFadeoutTime = 8f;
                         
                         InformationManager.DisplayMessage(new InformationMessage("[BetterMPHUD] Settings loaded.", Colors.Green));
                         return settings;
@@ -92,7 +101,6 @@ namespace BetterMPHUD
             {
                 InformationManager.DisplayMessage(new InformationMessage($"[BetterMPHUD] Failed to load config: {ex.Message}", Colors.Red));
             }
-
             return new HudSettings();
         }
         
@@ -100,6 +108,7 @@ namespace BetterMPHUD
         {
             try
             {
+                settings.EnsureCustomizationsExist();
                 XmlSerializer serializer = new XmlSerializer(typeof(HudSettings));
                 using (FileStream stream = new FileStream(ConfigPath, FileMode.Create))
                 {
