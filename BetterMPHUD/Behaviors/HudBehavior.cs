@@ -33,12 +33,14 @@ namespace BetterMPHUD
         private Widget _enemyScoreWidget;
         private List<Widget> _bannerWidgets = new List<Widget>();
         private Widget _moraleWidget;
+        private Widget _controlPointsWidget;
         private Widget _killfeedRootWidget;
         private bool _widgetsCached = false;
 
         private WidgetOriginalValues _timeAndScoresOriginal;
         private WidgetOriginalValues _avatarsOriginal;
         private WidgetOriginalValues _moraleOriginal;
+        private WidgetOriginalValues _controlPointsOriginal;
         private WidgetOriginalValues _killfeedOriginal;
         private Dictionary<Widget, WidgetOriginalValues> _childOriginals = new Dictionary<Widget, WidgetOriginalValues>();
         private Dictionary<Widget, WidgetOriginalValues> _killfeedChildOriginals = new Dictionary<Widget, WidgetOriginalValues>();
@@ -46,7 +48,6 @@ namespace BetterMPHUD
         private static readonly Color FriendlyKillColor = new Color(0.27f, 1f, 0.27f, 1f); 
         private static readonly Color EnemyKillColor = new Color(1f, 0.27f, 0.27f, 1f);     
         private static readonly Color NeutralColor = new Color(1f, 1f, 1f, 1f);         
-        
         
         private const string SPRITE_SWORD = "icon_sword";
         private const string SPRITE_BOW = "icon_bow";
@@ -362,6 +363,7 @@ namespace BetterMPHUD
             if (_timeAndScoresWidget != null) { _timeAndScoresOriginal = CaptureWidgetValues(_timeAndScoresWidget); StoreChildrenOriginals(_timeAndScoresWidget); }
             if (_avatarsWidget != null) { _avatarsOriginal = CaptureWidgetValues(_avatarsWidget); StoreChildrenOriginals(_avatarsWidget); }
             if (_moraleWidget != null) { _moraleOriginal = CaptureWidgetValues(_moraleWidget); StoreChildrenOriginals(_moraleWidget); }
+            if (_controlPointsWidget != null) { _controlPointsOriginal = CaptureWidgetValues(_controlPointsWidget); StoreChildrenOriginals(_controlPointsWidget); }
         }
 
         private void StoreChildrenOriginals(Widget parent)
@@ -381,6 +383,7 @@ namespace BetterMPHUD
             if (_enemyScoreWidget != null) _enemyScoreWidget.IsVisible = _dataSource.ShowEnemyScore;
             foreach (var banner in _bannerWidgets) banner.IsVisible = _dataSource.ShowBanners;
             if (_moraleWidget != null) _moraleWidget.IsVisible = _dataSource.ShowMorale;
+            if (_controlPointsWidget != null) _controlPointsWidget.IsVisible = _dataSource.ShowMorale;
         }
 
         private void ApplyCustomizationSettings()
@@ -389,6 +392,7 @@ namespace BetterMPHUD
             if (_timeAndScoresWidget != null && _timeAndScoresOriginal.IsValid) ApplyWidgetCustomization(_timeAndScoresWidget, _timeAndScoresOriginal, settings.TimeAndScoresCustom);
             if (_avatarsWidget != null && _avatarsOriginal.IsValid) ApplyWidgetCustomization(_avatarsWidget, _avatarsOriginal, settings.TeamAvatarsCustom);
             if (_moraleWidget != null && _moraleOriginal.IsValid) ApplyWidgetCustomization(_moraleWidget, _moraleOriginal, settings.MoraleCustom);
+            if (_controlPointsWidget != null && _controlPointsOriginal.IsValid) ApplyWidgetCustomization(_controlPointsWidget, _controlPointsOriginal, settings.MoraleCustom);
         }
 
         private void ApplyWidgetCustomization(Widget widget, WidgetOriginalValues original, ElementCustomization custom)
@@ -444,6 +448,7 @@ namespace BetterMPHUD
         private void CacheWidgets(Widget root)
         {
             _bannerWidgets.Clear();
+            _controlPointsWidget = null;
             SearchWidgetsRecursively(root, 0, null);
         }
 
@@ -480,6 +485,9 @@ namespace BetterMPHUD
                 for (int i = 0; i < widget.ChildCount; i++) { if (widget.GetChild(i).GetType().Name.Contains("MoraleWidget")) { hasMoraleChild = true; break; } }
                 if (isMoraleBySprite || hasMoraleChild) _moraleWidget = widget;
             }
+
+            if (_controlPointsWidget == null && widget is ListPanel && widget.HorizontalAlignment == HorizontalAlignment.Center && widget.MarginTop >= 79f && widget.MarginTop <= 81f && widget.ChildCount == 3)
+                _controlPointsWidget = widget;
 
             for (int i = 0; i < widget.ChildCount; i++) SearchWidgetsRecursively(widget.GetChild(i), depth + 1, widget);
         }
