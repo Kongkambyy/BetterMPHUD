@@ -1,0 +1,146 @@
+<Brushes>
+    <Brush Name="HUDCloseButton">
+    <Layers>
+      <BrushLayer Name="Default" Sprite="hud_close" />
+      <BrushLayer Name="Hovered" Sprite="hud_close_hover" IsHidden="true" />
+      <BrushLayer Name="Pressed" Sprite="hud_close_pressed" IsHidden="true" />
+    </Layers>
+
+    <Styles>
+      <Style Name="Hovered">
+        <BrushLayer Name="Hovered" IsHidden="false" />
+      </Style>
+      <Style Name="Pressed">
+        <BrushLayer Name="Pressed" IsHidden="false" />
+      </Style>
+    </Styles>
+  </Brush>
+  <Brush Name="KillfeedOffsetMinusButton">
+    <Layers>
+      <BrushLayer Name="Default" Sprite="hud_buttonleft" />
+      <BrushLayer Name="Hovered" Sprite="hud_buttonleft" IsHidden="true" />
+      <BrushLayer Name="Pressed" Sprite="hud_buttonleft" IsHidden="true" />
+    </Layers>
+
+    <Styles>
+      <Style Name="Hovered">
+        <BrushLayer Name="Hovered" IsHidden="false" />
+      </Style>
+      <Style Name="Pressed">
+        <BrushLayer Name="Pressed" IsHidden="false" />
+      </Style>
+    </Styles>
+  </Brush>
+  <Brush Name="KillfeedOffsetPlusButton">
+    <Layers>
+      <BrushLayer Name="Default" Sprite="hud_buttonright" />
+      <BrushLayer Name="Hovered" Sprite="hud_buttonright" IsHidden="true" />
+      <BrushLayer Name="Pressed" Sprite="hud_buttonright" IsHidden="true" />
+    </Layers>
+
+    <Styles>
+      <Style Name="Hovered">
+        <BrushLayer Name="Hovered" IsHidden="false" />
+      </Style>
+      <Style Name="Pressed">
+        <BrushLayer Name="Pressed" IsHidden="false" />
+      </Style>
+    </Styles>
+  </Brush>
+  <Brush Name="KillfeedOffsetXLMinusButton">
+    <Layers>
+      <BrushLayer Name="Default" Sprite="hud_xlbuttonleft" />
+      <BrushLayer Name="Hovered" Sprite="hud_xlbuttonleft" IsHidden="true" />
+      <BrushLayer Name="Pressed" Sprite="hud_xlbuttonleft" IsHidden="true" />
+    </Layers>
+
+    <Styles>
+      <Style Name="Hovered">
+        <BrushLayer Name="Hovered" IsHidden="false" />
+      </Style>
+      <Style Name="Pressed">
+        <BrushLayer Name="Pressed" IsHidden="false" />
+      </Style>
+    </Styles>
+  </Brush>
+  <Brush Name="KillfeedOffsetXLPlusButton">
+    <Layers>
+      <BrushLayer Name="Default" Sprite="hud_xlbuttonright" />
+      <BrushLayer Name="Hovered" Sprite="hud_xlbuttonright" IsHidden="true" />
+      <BrushLayer Name="Pressed" Sprite="hud_xlbuttonright" IsHidden="true" />
+    </Layers>
+
+    <Styles>
+      <Style Name="Hovered">
+        <BrushLayer Name="Hovered" IsHidden="false" />
+      </Style>
+      <Style Name="Pressed">
+        <BrushLayer Name="Pressed" IsHidden="false" />
+      </Style>
+    </Styles>
+  </Brush>
+  <Brush Name="HUDButton">
+    <Layers>
+      <BrushLayer Name="Default" Sprite="hud_button" />
+      <BrushLayer Name="Hovered" Sprite="hud_button" IsHidden="true" />
+      <BrushLayer Name="Pressed" Sprite="hud_button" IsHidden="true" />
+    </Layers>
+
+    <Styles>
+      <Style Name="Hovered">
+        <BrushLayer Name="Hovered" IsHidden="false" />
+      </Style>
+      <Style Name="Pressed">
+        <BrushLayer Name="Pressed" IsHidden="false" />
+      </Style>
+    </Styles>
+  </Brush>
+  <Brush Name="HUDNavigationButton">
+    <Layers>
+      <BrushLayer Name="Default" Sprite="hud_navoption" />
+      <BrushLayer Name="Hovered" Sprite="hud_navoption" IsHidden="true" />
+      <BrushLayer Name="Pressed" Sprite="hud_navoption" IsHidden="true" />
+    </Layers>
+
+    <Styles>
+      <Style Name="Hovered">
+        <BrushLayer Name="Hovered" IsHidden="false" />
+      </Style>
+      <Style Name="Pressed">
+        <BrushLayer Name="Pressed" IsHidden="false" />
+      </Style>
+    </Styles>
+  </Brush>
+  <Brush Name="HUDCheckboxUnticked">
+    <Layers>
+      <BrushLayer Name="Default" Sprite="hud_checkbox_unticked" />
+      <BrushLayer Name="Hovered" Sprite="hud_checkbox_unticked" IsHidden="true" />
+      <BrushLayer Name="Pressed" Sprite="hud_checkbox_unticked" IsHidden="true" />
+    </Layers>
+
+    <Styles>
+      <Style Name="Hovered">
+        <BrushLayer Name="Hovered" IsHidden="false" />
+      </Style>
+      <Style Name="Pressed">
+        <BrushLayer Name="Pressed" IsHidden="false" />
+      </Style>
+    </Styles>
+  </Brush>
+  <Brush Name="HUDCheckboxTicked">
+    <Layers>
+      <BrushLayer Name="Default" Sprite="hud_checkbox_ticked" />
+      <BrushLayer Name="Hovered" Sprite="hud_checkbox_ticked" IsHidden="true" />
+      <BrushLayer Name="Pressed" Sprite="hud_checkbox_ticked" IsHidden="true" />
+    </Layers>
+
+    <Styles>
+      <Style Name="Hovered">
+        <BrushLayer Name="Hovered" IsHidden="false" />
+      </Style>
+      <Style Name="Pressed">
+        <BrushLayer Name="Pressed" IsHidden="false" />
+      </Style>
+    </Styles>
+  </Brush>
+</Brushes>

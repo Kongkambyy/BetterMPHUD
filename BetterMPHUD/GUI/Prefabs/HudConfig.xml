@@ -1,0 +1,995 @@
+<Prefab>
+    <Window>
+        <!-- Full screen dark overlay -->
+        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                Sprite="BlankWhiteSquare_9" Color="#000000CC" IsVisible="@IsConfigMenuOpen">
+            <Children>
+
+                <!-- Main Menu Container -->
+                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                        SuggestedWidth="700" SuggestedHeight="520"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Sprite="hud_background">
+                    <Children>
+
+                        <!-- Title -->
+                        <TextWidget Text="BetterMPHUD Settings"
+                                    WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                    HorizontalAlignment="Center" VerticalAlignment="Top"
+                                    MarginTop="20"
+                                    Brush.FontSize="28" Brush.FontColor="#FFD700FF"/>
+
+                        <!-- Close Button (Top-Right) -->
+                        <Widget WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                HorizontalAlignment="Right" VerticalAlignment="Top"
+                                MarginTop="18" MarginRight="18">
+                            <Children>
+                                <PopupCloseButton
+                                                  Parameter.ButtonAction="ExecuteClose"/>
+                            </Children>
+                        </Widget>
+
+                        <!-- Main Content Area (Sidebar + Content) -->
+                        <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
+                                   SuggestedHeight="390"
+                                   StackLayout.LayoutMethod="HorizontalLeftToRight"
+                                   MarginTop="70" MarginLeft="20" MarginRight="20">
+                            <Children>
+
+                                <!-- LEFT SIDEBAR - Navigation Buttons -->
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent"
+                                        SuggestedWidth="150">
+                                    <Children>
+                                        <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                                   StackLayout.LayoutMethod="VerticalBottomToTop"
+                                                   MarginTop="15">
+                                            <Children>
+
+                                                <!-- Killfeed Nav Button -->
+                                                <ButtonWidget DoNotPassEventsToChildren="true"
+                                                              WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                              SuggestedWidth="130" SuggestedHeight="45"
+                                                              HorizontalAlignment="Center"
+                                                              Brush="HUDNavigationButton"
+                                                              Command.Click="ExecuteOpenKillfeedPage">
+                                                    <Children>
+                                                        <TextWidget Text="Killfeed"
+                                                                    WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                    Brush.FontSize="18" Brush.FontColor="#FFFFFFFF"
+                                                                    Brush.TextHorizontalAlignment="Center"
+                                                                    Brush.TextVerticalAlignment="Center"
+                                                                    PositionYOffset="-6"/>
+                                                    </Children>
+                                                </ButtonWidget>
+
+                                                <!-- Top Bar Nav Button -->
+                                                <ButtonWidget DoNotPassEventsToChildren="true"
+                                                              WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                              SuggestedWidth="130" SuggestedHeight="45"
+                                                              HorizontalAlignment="Center"
+                                                              Brush="HUDNavigationButton"
+                                                              Command.Click="ExecuteOpenTopBarPage">
+                                                    <Children>
+                                                        <TextWidget Text="Top Bar"
+                                                                    WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                    Brush.FontSize="18" Brush.FontColor="#FFFFFFFF"
+                                                                    Brush.TextHorizontalAlignment="Center"
+                                                                    Brush.TextVerticalAlignment="Center"
+                                                                    PositionYOffset="-6"/>
+                                                    </Children>
+                                                </ButtonWidget>
+
+                                                <!-- Chat Nav Button -->
+                                                <ButtonWidget DoNotPassEventsToChildren="true"
+                                                              WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                              SuggestedWidth="130" SuggestedHeight="45"
+                                                              HorizontalAlignment="Center"
+                                                              Brush="HUDNavigationButton"
+                                                              Command.Click="ExecuteOpenChatPage">
+                                                    <Children>
+                                                        <TextWidget Text="Chat"
+                                                                    WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                    Brush.FontSize="18" Brush.FontColor="#888888FF"
+                                                                    Brush.TextHorizontalAlignment="Center"
+                                                                    Brush.TextVerticalAlignment="Center"
+                                                                    PositionYOffset="-6"/>
+                                                    </Children>
+                                                </ButtonWidget>
+
+                                                <!-- Leaderboard Nav Button -->
+                                                <ButtonWidget DoNotPassEventsToChildren="true"
+                                                              WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                              SuggestedWidth="130" SuggestedHeight="45"
+                                                              HorizontalAlignment="Center"
+                                                              Brush="HUDNavigationButton"
+                                                              Command.Click="ExecuteOpenLeaderboardPage">
+                                                    <Children>
+                                                        <TextWidget Text="Leaderboard"
+                                                                    WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                    Brush.FontSize="16" Brush.FontColor="#888888FF"
+                                                                    Brush.TextHorizontalAlignment="Center"
+                                                                    Brush.TextVerticalAlignment="Center"
+                                                                    PositionYOffset="-6"/>
+                                                    </Children>
+                                                </ButtonWidget>
+
+                                                <!-- HP Nav Button -->
+                                                <ButtonWidget DoNotPassEventsToChildren="true"
+                                                              WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                              SuggestedWidth="130" SuggestedHeight="45"
+                                                              HorizontalAlignment="Center"
+                                                              Brush="HUDNavigationButton"
+                                                              Command.Click="ExecuteOpenHPPage">
+                                                    <Children>
+                                                        <TextWidget Text="HP"
+                                                                    WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                    Brush.FontSize="18" Brush.FontColor="#888888FF"
+                                                                    Brush.TextHorizontalAlignment="Center"
+                                                                    Brush.TextVerticalAlignment="Center"
+                                                                    PositionYOffset="-6"/>
+                                                    </Children>
+                                                </ButtonWidget>
+
+                                                <!-- Crosshair Nav Button -->
+                                                <ButtonWidget DoNotPassEventsToChildren="true"
+                                                              WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                              SuggestedWidth="130" SuggestedHeight="45"
+                                                              HorizontalAlignment="Center"
+                                                              Brush="HUDNavigationButton"
+                                                              Command.Click="ExecuteOpenCrosshairPage">
+                                                    <Children>
+                                                        <TextWidget Text="Crosshair"
+                                                                    WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                    Brush.FontSize="18" Brush.FontColor="#888888FF"
+                                                                    Brush.TextHorizontalAlignment="Center"
+                                                                    Brush.TextVerticalAlignment="Center"
+                                                                    PositionYOffset="-6"/>
+                                                    </Children>
+                                                </ButtonWidget>
+
+                                            </Children>
+                                        </ListPanel>
+                                    </Children>
+                                </Widget>
+
+                                <!-- RIGHT CONTENT AREA -->
+                                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                        MarginLeft="15">
+                                    <Children>
+
+                                        <!-- ========== KILLFEED PAGE ========== -->
+                                        <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                   StackLayout.LayoutMethod="VerticalBottomToTop"
+                                                   IsVisible="@IsKillfeedPageOpen"
+                                                   MarginTop="20" MarginLeft="20" MarginRight="20">
+                                            <Children>
+
+                                                <TextWidget Text="Killfeed Settings"
+                                                            WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                            HorizontalAlignment="Left" MarginBottom="25"
+                                                            Brush.FontSize="22" Brush.FontColor="#FFD700FF"/>
+
+                                                <!-- Native Killfeed Toggle -->
+                                                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                                           StackLayout.LayoutMethod="HorizontalLeftToRight"
+                                                           MarginBottom="15">
+                                                    <Children>
+                                                        <TextWidget Text="Native Killfeed"
+                                                                    WidthSizePolicy="Fixed" SuggestedWidth="200"
+                                                                    HeightSizePolicy="CoverChildren"
+                                                                    VerticalAlignment="Center"
+                                                                    Brush.FontSize="18" Brush.FontColor="#FFFFFFFF"/>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="25" SuggestedHeight="25"
+                                                                      Brush="HUDCheckboxUnticked"
+                                                                      ButtonType="Toggle"
+                                                                      IsSelected="@NativeKillfeedEnabled"
+                                                                      ToggleIndicator="ToggleIndicator"
+                                                                      UpdateChildrenStates="true">
+                                                            <Children>
+                                                                <BrushWidget Id="ToggleIndicator"
+                                                                             WidthSizePolicy="StretchToParent"
+                                                                             HeightSizePolicy="StretchToParent"
+                                                                             Brush="HUDCheckboxTicked"/>
+                                                            </Children>
+                                                        </ButtonWidget>
+                                                    </Children>
+                                                </ListPanel>
+
+                                                <!-- Custom Killfeed Toggle -->
+                                                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                                           StackLayout.LayoutMethod="HorizontalLeftToRight"
+                                                           MarginBottom="15">
+                                                    <Children>
+                                                        <TextWidget Text="Custom Killfeed"
+                                                                    WidthSizePolicy="Fixed" SuggestedWidth="200"
+                                                                    HeightSizePolicy="CoverChildren"
+                                                                    VerticalAlignment="Center"
+                                                                    Brush.FontSize="18" Brush.FontColor="#FFFFFFFF"/>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="25" SuggestedHeight="25"
+                                                                      Brush="HUDCheckboxUnticked"
+                                                                      ButtonType="Toggle"
+                                                                      IsSelected="@WarbandKillfeedEnabled"
+                                                                      ToggleIndicator="ToggleIndicator"
+                                                                      UpdateChildrenStates="true">
+                                                            <Children>
+                                                                <BrushWidget Id="ToggleIndicator"
+                                                                             WidthSizePolicy="StretchToParent"
+                                                                             HeightSizePolicy="StretchToParent"
+                                                                             Brush="HUDCheckboxTicked"/>
+                                                            </Children>
+                                                        </ButtonWidget>
+                                                    </Children>
+                                                </ListPanel>
+
+                                                <!-- Killfeed Position Header -->
+                                                <TextWidget Text="Position"
+                                                            WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                            HorizontalAlignment="Left" MarginTop="10" MarginBottom="10"
+                                                            Brush.FontSize="18" Brush.FontColor="#FFD700FF"/>
+
+                                                <!-- Killfeed X Offset Control -->
+                                                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                                           StackLayout.LayoutMethod="HorizontalLeftToRight"
+                                                           MarginBottom="8">
+                                                    <Children>
+                                                        <TextWidget Text="X Offset:"
+                                                                    WidthSizePolicy="Fixed" SuggestedWidth="80"
+                                                                    HeightSizePolicy="CoverChildren"
+                                                                    VerticalAlignment="Center"
+                                                                    Brush.FontSize="15" Brush.FontColor="#FFFFFFFF"/>
+
+                                                        <ButtonWidget
+                                                            DoNotPassEventsToChildren="true"
+                                                            WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                            SuggestedWidth="28" SuggestedHeight="28"
+                                                            Brush="KillfeedOffsetXLMinusButton"
+                                                            Command.Click="ExecuteDecreaseKillfeedOffsetX" />
+                                                        <ButtonWidget
+                                                            DoNotPassEventsToChildren="true"
+                                                            WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                            SuggestedWidth="20" SuggestedHeight="28"
+                                                            Brush="KillfeedOffsetMinusButton"
+                                                            Command.Click="ExecuteDecreaseKillfeedOffsetX"/>
+
+                                                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                SuggestedWidth="60" SuggestedHeight="28">
+                                                            <Children>
+                                                                <TextWidget Text="@KillfeedOffsetXText"
+                                                                            WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                            Brush.FontSize="13" Brush.FontColor="#FFFFFFFF"
+                                                                            Brush.TextHorizontalAlignment="Center"
+                                                                            Brush.TextVerticalAlignment="Center"/>
+                                                            </Children>
+                                                        </Widget>
+
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="20" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetPlusButton"
+                                                                      Command.Click="ExecuteIncreaseKillfeedOffsetX">
+                                                        </ButtonWidget>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="28" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetXLPlusButton"
+                                                                      Command.Click="ExecuteIncreaseKillfeedOffsetX">
+                                                        </ButtonWidget>
+                                                    </Children>
+                                                </ListPanel>
+
+                                                <!-- Killfeed Y Offset Control -->
+                                                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                                           StackLayout.LayoutMethod="HorizontalLeftToRight"
+                                                           MarginBottom="8">
+                                                    <Children>
+                                                        <TextWidget Text="Y Offset:"
+                                                                    WidthSizePolicy="Fixed" SuggestedWidth="80"
+                                                                    HeightSizePolicy="CoverChildren"
+                                                                    VerticalAlignment="Center"
+                                                                    Brush.FontSize="15" Brush.FontColor="#FFFFFFFF"/>
+
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="28" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetXLMinusButton"
+                                                                      Command.Click="ExecuteDecreaseKillfeedOffsetY">
+                                                        </ButtonWidget>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="20" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetMinusButton"
+                                                                      Command.Click="ExecuteDecreaseKillfeedOffsetY">
+                                                        </ButtonWidget>
+
+                                                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                SuggestedWidth="60" SuggestedHeight="28">
+                                                            <Children>
+                                                                <TextWidget Text="@KillfeedOffsetYText"
+                                                                            WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                            Brush.FontSize="13" Brush.FontColor="#FFFFFFFF"
+                                                                            Brush.TextHorizontalAlignment="Center"
+                                                                            Brush.TextVerticalAlignment="Center"/>
+                                                            </Children>
+                                                        </Widget>
+
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="20" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetPlusButton"
+                                                                      Command.Click="ExecuteIncreaseKillfeedOffsetY">
+                                                        </ButtonWidget>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="28" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetXLPlusButton"
+                                                                      Command.Click="ExecuteIncreaseKillfeedOffsetY">
+                                                        </ButtonWidget>
+                                                    </Children>
+                                                </ListPanel>
+
+                                                <!-- Killfeed Scale Control -->
+                                                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                                           StackLayout.LayoutMethod="HorizontalLeftToRight"
+                                                           MarginBottom="8">
+                                                    <Children>
+                                                        <TextWidget Text="Scale:"
+                                                                    WidthSizePolicy="Fixed" SuggestedWidth="80"
+                                                                    HeightSizePolicy="CoverChildren"
+                                                                    VerticalAlignment="Center"
+                                                                    Brush.FontSize="15" Brush.FontColor="#FFFFFFFF"/>
+
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="28" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetXLMinusButton"
+                                                                      Command.Click="ExecuteDecreaseKillfeedScale">
+                                                        </ButtonWidget>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="20" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetMinusButton"
+                                                                      Command.Click="ExecuteDecreaseKillfeedScale">
+                                                        </ButtonWidget>
+
+                                                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                SuggestedWidth="60" SuggestedHeight="28">
+                                                            <Children>
+                                                                <TextWidget Text="@KillfeedScaleText"
+                                                                            WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                            Brush.FontSize="13" Brush.FontColor="#FFFFFFFF"
+                                                                            Brush.TextHorizontalAlignment="Center"
+                                                                            Brush.TextVerticalAlignment="Center"/>
+                                                            </Children>
+                                                        </Widget>
+
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="20" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetPlusButton"
+                                                                      Command.Click="ExecuteIncreaseKillfeedScale">
+                                                        </ButtonWidget>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="28" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetXLPlusButton"
+                                                                      Command.Click="ExecuteIncreaseKillfeedScale">
+                                                        </ButtonWidget>
+                                                    </Children>
+                                                </ListPanel>
+
+                                                <!-- Killfeed Reset Button -->
+                                                <ButtonWidget DoNotPassEventsToChildren="true"
+                                                              WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                              SuggestedWidth="120" SuggestedHeight="30"
+                                                              HorizontalAlignment="Left" MarginTop="5"
+                                                              Brush="HUDButton"
+                                                              Command.Click="ExecuteResetKillfeed">
+                                                    <Children>
+                                                        <TextWidget Text="Reset Position"
+                                                                    WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                    Brush.FontSize="13" Brush.FontColor="#FFFFFFFF"
+                                                                    Brush.TextHorizontalAlignment="Center"
+                                                                    Brush.TextVerticalAlignment="Center"/>
+                                                    </Children>
+                                                </ButtonWidget>
+
+                                            </Children>
+                                        </ListPanel>
+
+                                        <!-- ========== TOP BAR PAGE (Sub-menu selection) ========== -->
+                                        <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                   StackLayout.LayoutMethod="VerticalBottomToTop"
+                                                   IsVisible="@IsTopBarPageOpen"
+                                                   MarginTop="20" MarginLeft="20" MarginRight="20">
+                                            <Children>
+
+                                                <TextWidget Text="Top Bar Options"
+                                                            WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                            HorizontalAlignment="Left" MarginBottom="30"
+                                                            Brush.FontSize="22" Brush.FontColor="#FFD700FF"/>
+
+                                                <!-- Visibility Button -->
+                                                <ButtonWidget DoNotPassEventsToChildren="true"
+                                                              WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                              SuggestedWidth="250" SuggestedHeight="50"
+                                                              HorizontalAlignment="Center"
+                                                              Brush="HUDNavigationButton"
+                                                              Command.Click="ExecuteOpenVisibilityPage">
+                                                    <Children>
+                                                        <TextWidget Text="Visibility"
+                                                                    WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                    Brush.FontSize="20" Brush.FontColor="#FFFFFFFF"
+                                                                    Brush.TextHorizontalAlignment="Center"
+                                                                    Brush.TextVerticalAlignment="Center"
+                                                                    PositionYOffset="-8"/>
+                                                    </Children>
+                                                </ButtonWidget>
+
+                                                <!-- Customize Button -->
+                                                <ButtonWidget DoNotPassEventsToChildren="true"
+                                                              WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                              SuggestedWidth="250" SuggestedHeight="50"
+                                                              HorizontalAlignment="Center"
+                                                              Brush="HUDNavigationButton"
+                                                              Command.Click="ExecuteOpenCustomizePage">
+                                                    <Children>
+                                                        <TextWidget Text="Customize"
+                                                                    WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                    Brush.FontSize="20" Brush.FontColor="#FFFFFFFF"
+                                                                    Brush.TextHorizontalAlignment="Center"
+                                                                    Brush.TextVerticalAlignment="Center"
+                                                                    PositionYOffset="-8"/>
+                                                    </Children>
+                                                </ButtonWidget>
+
+                                            </Children>
+                                        </ListPanel>
+
+                                        <!-- ========== VISIBILITY PAGE ========== -->
+                                        <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                   StackLayout.LayoutMethod="VerticalBottomToTop"
+                                                   IsVisible="@IsVisibilityPageOpen"
+                                                   MarginTop="20" MarginLeft="20" MarginRight="20">
+                                            <Children>
+
+                                                <TextWidget Text="Visibility Settings"
+                                                            WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                            HorizontalAlignment="Left" MarginBottom="20"
+                                                            Brush.FontSize="22" Brush.FontColor="#FFD700FF"/>
+
+                                                <!-- Show Time & Scores Toggle -->
+                                                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                                           StackLayout.LayoutMethod="HorizontalLeftToRight"
+                                                           MarginBottom="12">
+                                                    <Children>
+                                                        <TextWidget Text="Show Time &amp; Scores"
+                                                                    WidthSizePolicy="Fixed" SuggestedWidth="200"
+                                                                    HeightSizePolicy="CoverChildren"
+                                                                    VerticalAlignment="Center"
+                                                                    Brush.FontSize="16" Brush.FontColor="#FFFFFFFF"/>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="25" SuggestedHeight="25"
+                                                                      Brush="HUDCheckboxUnticked"
+                                                                      ButtonType="Toggle"
+                                                                      IsSelected="@ShowTimeAndScores"
+                                                                      ToggleIndicator="ToggleIndicator"
+                                                                      UpdateChildrenStates="true">
+                                                            <Children>
+                                                                <BrushWidget Id="ToggleIndicator"
+                                                                             WidthSizePolicy="StretchToParent"
+                                                                             HeightSizePolicy="StretchToParent"
+                                                                             Brush="HUDCheckboxTicked"/>
+                                                            </Children>
+                                                        </ButtonWidget>
+                                                    </Children>
+                                                </ListPanel>
+
+                                                <!-- Show Team Avatars Toggle -->
+                                                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                                           StackLayout.LayoutMethod="HorizontalLeftToRight"
+                                                           MarginBottom="12">
+                                                    <Children>
+                                                        <TextWidget Text="Show Team Avatars"
+                                                                    WidthSizePolicy="Fixed" SuggestedWidth="200"
+                                                                    HeightSizePolicy="CoverChildren"
+                                                                    VerticalAlignment="Center"
+                                                                    Brush.FontSize="16" Brush.FontColor="#FFFFFFFF"/>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="25" SuggestedHeight="25"
+                                                                      Brush="HUDCheckboxUnticked"
+                                                                      ButtonType="Toggle"
+                                                                      IsSelected="@ShowAvatars"
+                                                                      ToggleIndicator="ToggleIndicator"
+                                                                      UpdateChildrenStates="true">
+                                                            <Children>
+                                                                <BrushWidget Id="ToggleIndicator"
+                                                                             WidthSizePolicy="StretchToParent"
+                                                                             HeightSizePolicy="StretchToParent"
+                                                                             Brush="HUDCheckboxTicked"/>
+                                                            </Children>
+                                                        </ButtonWidget>
+                                                    </Children>
+                                                </ListPanel>
+
+                                                <!-- Show Enemy Score Toggle -->
+                                                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                                           StackLayout.LayoutMethod="HorizontalLeftToRight"
+                                                           MarginBottom="12">
+                                                    <Children>
+                                                        <TextWidget Text="Show Enemy Score"
+                                                                    WidthSizePolicy="Fixed" SuggestedWidth="200"
+                                                                    HeightSizePolicy="CoverChildren"
+                                                                    VerticalAlignment="Center"
+                                                                    Brush.FontSize="16" Brush.FontColor="#FFFFFFFF"/>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="25" SuggestedHeight="25"
+                                                                      Brush="HUDCheckboxUnticked"
+                                                                      ButtonType="Toggle"
+                                                                      IsSelected="@ShowEnemyScore"
+                                                                      ToggleIndicator="ToggleIndicator"
+                                                                      UpdateChildrenStates="true">
+                                                            <Children>
+                                                                <BrushWidget Id="ToggleIndicator"
+                                                                             WidthSizePolicy="StretchToParent"
+                                                                             HeightSizePolicy="StretchToParent"
+                                                                             Brush="HUDCheckboxTicked"/>
+                                                            </Children>
+                                                        </ButtonWidget>
+                                                    </Children>
+                                                </ListPanel>
+
+                                                <!-- Show Banners Toggle -->
+                                                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                                           StackLayout.LayoutMethod="HorizontalLeftToRight"
+                                                           MarginBottom="12">
+                                                    <Children>
+                                                        <TextWidget Text="Show Banners"
+                                                                    WidthSizePolicy="Fixed" SuggestedWidth="200"
+                                                                    HeightSizePolicy="CoverChildren"
+                                                                    VerticalAlignment="Center"
+                                                                    Brush.FontSize="16" Brush.FontColor="#FFFFFFFF"/>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="25" SuggestedHeight="25"
+                                                                      Brush="HUDCheckboxUnticked"
+                                                                      ButtonType="Toggle"
+                                                                      IsSelected="@ShowBanners"
+                                                                      ToggleIndicator="ToggleIndicator"
+                                                                      UpdateChildrenStates="true">
+                                                            <Children>
+                                                                <BrushWidget Id="ToggleIndicator"
+                                                                             WidthSizePolicy="StretchToParent"
+                                                                             HeightSizePolicy="StretchToParent"
+                                                                             Brush="HUDCheckboxTicked"/>
+                                                            </Children>
+                                                        </ButtonWidget>
+                                                    </Children>
+                                                </ListPanel>
+
+                                                <!-- Show Morale Toggle -->
+                                                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                                           StackLayout.LayoutMethod="HorizontalLeftToRight"
+                                                           MarginBottom="12">
+                                                    <Children>
+                                                        <TextWidget Text="Show Morale"
+                                                                    WidthSizePolicy="Fixed" SuggestedWidth="200"
+                                                                    HeightSizePolicy="CoverChildren"
+                                                                    VerticalAlignment="Center"
+                                                                    Brush.FontSize="16" Brush.FontColor="#FFFFFFFF"/>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="25" SuggestedHeight="25"
+                                                                      Brush="HUDCheckboxUnticked"
+                                                                      ButtonType="Toggle"
+                                                                      IsSelected="@ShowMorale"
+                                                                      ToggleIndicator="ToggleIndicator"
+                                                                      UpdateChildrenStates="true">
+                                                            <Children>
+                                                                <BrushWidget Id="ToggleIndicator"
+                                                                             WidthSizePolicy="StretchToParent"
+                                                                             HeightSizePolicy="StretchToParent"
+                                                                             Brush="HUDCheckboxTicked"/>
+                                                            </Children>
+                                                        </ButtonWidget>
+                                                    </Children>
+                                                </ListPanel>
+
+                                                <!-- Back Button -->
+                                                <ButtonWidget DoNotPassEventsToChildren="true"
+                                                              WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                              SuggestedWidth="120" SuggestedHeight="35"
+                                                              HorizontalAlignment="Left" MarginTop="20"
+                                                              Brush="HUDButton"
+                                                              Command.Click="ExecuteBackToTopBar">
+                                                    <Children>
+                                                        <TextWidget Text="← Back"
+                                                                    WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                    Brush.FontSize="16" Brush.FontColor="#FFFFFFFF"
+                                                                    Brush.TextHorizontalAlignment="Center"
+                                                                    Brush.TextVerticalAlignment="Center"/>
+                                                    </Children>
+                                                </ButtonWidget>
+
+                                            </Children>
+                                        </ListPanel>
+
+                                        <!-- ========== CUSTOMIZE PAGE ========== -->
+                                        <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                   StackLayout.LayoutMethod="VerticalBottomToTop"
+                                                   IsVisible="@IsCustomizePageOpen"
+                                                   MarginTop="15" MarginLeft="20" MarginRight="20">
+                                            <Children>
+
+                                                <TextWidget Text="Customize Position &amp; Scale"
+                                                            WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                            HorizontalAlignment="Left" MarginBottom="15"
+                                                            Brush.FontSize="20" Brush.FontColor="#FFD700FF"/>
+
+                                                <!-- Element Selection -->
+                                                <TextWidget Text="Select Element:"
+                                                            WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                            HorizontalAlignment="Left" MarginBottom="8"
+                                                            Brush.FontSize="14" Brush.FontColor="#CCCCCCFF"/>
+
+                                                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                                           StackLayout.LayoutMethod="HorizontalLeftToRight"
+                                                           MarginBottom="15">
+                                                    <Children>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="130" SuggestedHeight="35"
+                                                                      MarginRight="8"
+                                                                      Brush="HUDButton"
+                                                                      Command.Click="ExecuteSelectTimeAndScores">
+                                                            <Children>
+                                                                <TextWidget Text="Time &amp; Scores"
+                                                                            WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                            Brush.FontSize="13" Brush.FontColor="#FFFFFFFF"
+                                                                            Brush.TextHorizontalAlignment="Center"
+                                                                            Brush.TextVerticalAlignment="Center"/>
+                                                            </Children>
+                                                        </ButtonWidget>
+
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="120" SuggestedHeight="35"
+                                                                      MarginRight="8"
+                                                                      Brush="HUDButton"
+                                                                      Command.Click="ExecuteSelectTeamAvatars">
+                                                            <Children>
+                                                                <TextWidget Text="Team Avatars"
+                                                                            WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                            Brush.FontSize="13" Brush.FontColor="#FFFFFFFF"
+                                                                            Brush.TextHorizontalAlignment="Center"
+                                                                            Brush.TextVerticalAlignment="Center"/>
+                                                            </Children>
+                                                        </ButtonWidget>
+
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="90" SuggestedHeight="35"
+                                                                      Brush="HUDButton"
+                                                                      Command.Click="ExecuteSelectMorale">
+                                                            <Children>
+                                                                <TextWidget Text="Morale"
+                                                                            WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                            Brush.FontSize="13" Brush.FontColor="#FFFFFFFF"
+                                                                            Brush.TextHorizontalAlignment="Center"
+                                                                            Brush.TextVerticalAlignment="Center"/>
+                                                            </Children>
+                                                        </ButtonWidget>
+                                                    </Children>
+                                                </ListPanel>
+
+                                                <!-- Selected Element Display -->
+                                                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                                           StackLayout.LayoutMethod="HorizontalLeftToRight"
+                                                           MarginBottom="15">
+                                                    <Children>
+                                                        <TextWidget Text="Editing: "
+                                                                    WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                                    Brush.FontSize="16" Brush.FontColor="#AAAAAAFF"/>
+                                                        <TextWidget Text="@SelectedElementName"
+                                                                    WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                                    Brush.FontSize="16" Brush.FontColor="#FFD700FF"/>
+                                                    </Children>
+                                                </ListPanel>
+
+                                                <!-- X Offset Control -->
+                                                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                                           StackLayout.LayoutMethod="HorizontalLeftToRight"
+                                                           MarginBottom="10">
+                                                    <Children>
+                                                        <TextWidget Text="X Offset:"
+                                                                    WidthSizePolicy="Fixed" SuggestedWidth="80"
+                                                                    HeightSizePolicy="CoverChildren"
+                                                                    VerticalAlignment="Center"
+                                                                    Brush.FontSize="15" Brush.FontColor="#FFFFFFFF"/>
+
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="28" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetXLMinusButton"
+                                                                      Command.Click="ExecuteDecreaseOffsetX">
+                                                        </ButtonWidget>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="20" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetMinusButton"
+                                                                      Command.Click="ExecuteDecreaseOffsetX">
+                                                        </ButtonWidget>
+
+                                                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                SuggestedWidth="70" SuggestedHeight="30">
+                                                            <Children>
+                                                                <TextWidget Text="@CurrentOffsetXText"
+                                                                            WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                            Brush.FontSize="14" Brush.FontColor="#FFFFFFFF"
+                                                                            Brush.TextHorizontalAlignment="Center"
+                                                                            Brush.TextVerticalAlignment="Center"/>
+                                                            </Children>
+                                                        </Widget>
+
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="20" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetPlusButton"
+                                                                      Command.Click="ExecuteIncreaseOffsetX">
+                                                        </ButtonWidget>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="28" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetXLPlusButton"
+                                                                      Command.Click="ExecuteIncreaseOffsetX">
+                                                        </ButtonWidget>
+                                                    </Children>
+                                                </ListPanel>
+
+                                                <!-- Y Offset Control -->
+                                                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                                           StackLayout.LayoutMethod="HorizontalLeftToRight"
+                                                           MarginBottom="10">
+                                                    <Children>
+                                                        <TextWidget Text="Y Offset:"
+                                                                    WidthSizePolicy="Fixed" SuggestedWidth="80"
+                                                                    HeightSizePolicy="CoverChildren"
+                                                                    VerticalAlignment="Center"
+                                                                    Brush.FontSize="15" Brush.FontColor="#FFFFFFFF"/>
+
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="28" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetXLMinusButton"
+                                                                      Command.Click="ExecuteDecreaseOffsetY">
+                                                        </ButtonWidget>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="20" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetMinusButton"
+                                                                      Command.Click="ExecuteDecreaseOffsetY">
+                                                        </ButtonWidget>
+
+                                                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                SuggestedWidth="70" SuggestedHeight="30">
+                                                            <Children>
+                                                                <TextWidget Text="@CurrentOffsetYText"
+                                                                            WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                            Brush.FontSize="14" Brush.FontColor="#FFFFFFFF"
+                                                                            Brush.TextHorizontalAlignment="Center"
+                                                                            Brush.TextVerticalAlignment="Center"/>
+                                                            </Children>
+                                                        </Widget>
+
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="20" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetPlusButton"
+                                                                      Command.Click="ExecuteIncreaseOffsetY">
+                                                        </ButtonWidget>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="28" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetXLPlusButton"
+                                                                      Command.Click="ExecuteIncreaseOffsetY">
+                                                        </ButtonWidget>
+                                                    </Children>
+                                                </ListPanel>
+
+                                                <!-- Scale Control -->
+                                                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                                           StackLayout.LayoutMethod="HorizontalLeftToRight"
+                                                           MarginBottom="15">
+                                                    <Children>
+                                                        <TextWidget Text="Scale:"
+                                                                    WidthSizePolicy="Fixed" SuggestedWidth="80"
+                                                                    HeightSizePolicy="CoverChildren"
+                                                                    VerticalAlignment="Center"
+                                                                    Brush.FontSize="15" Brush.FontColor="#FFFFFFFF"/>
+
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="28" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetXLMinusButton"
+                                                                      Command.Click="ExecuteDecreaseScale">
+                                                        </ButtonWidget>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="20" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetMinusButton"
+                                                                      Command.Click="ExecuteDecreaseScale">
+                                                        </ButtonWidget>
+
+                                                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                SuggestedWidth="70" SuggestedHeight="30">
+                                                            <Children>
+                                                                <TextWidget Text="@CurrentScaleText"
+                                                                            WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                            Brush.FontSize="14" Brush.FontColor="#FFFFFFFF"
+                                                                            Brush.TextHorizontalAlignment="Center"
+                                                                            Brush.TextVerticalAlignment="Center"/>
+                                                            </Children>
+                                                        </Widget>
+
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="20" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetPlusButton"
+                                                                      Command.Click="ExecuteIncreaseScale">
+                                                        </ButtonWidget>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="28" SuggestedHeight="28"
+                                                                      Brush="KillfeedOffsetXLPlusButton"
+                                                                      Command.Click="ExecuteIncreaseScale">
+                                                        </ButtonWidget>
+                                                    </Children>
+                                                </ListPanel>
+
+                                                <!-- Reset Buttons -->
+                                                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                                           StackLayout.LayoutMethod="HorizontalLeftToRight"
+                                                           MarginBottom="15">
+                                                    <Children>
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="130" SuggestedHeight="32"
+                                                                      MarginRight="10"
+                                                                      Brush="HUDButton"
+                                                                      Command.Click="ExecuteResetElement">
+                                                            <Children>
+                                                                <TextWidget Text="Reset Element"
+                                                                            WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                            Brush.FontSize="13" Brush.FontColor="#FFFFFFFF"
+                                                                            Brush.TextHorizontalAlignment="Center"
+                                                                            Brush.TextVerticalAlignment="Center"/>
+                                                            </Children>
+                                                        </ButtonWidget>
+
+                                                        <ButtonWidget DoNotPassEventsToChildren="true"
+                                                                      WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                      SuggestedWidth="130" SuggestedHeight="32"
+                                                                      Brush="HUDButton"
+                                                                      Command.Click="ExecuteResetAllElements">
+                                                            <Children>
+                                                                <TextWidget Text="Reset All"
+                                                                            WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                            Brush.FontSize="13" Brush.FontColor="#FF6666FF"
+                                                                            Brush.TextHorizontalAlignment="Center"
+                                                                            Brush.TextVerticalAlignment="Center"/>
+                                                            </Children>
+                                                        </ButtonWidget>
+                                                    </Children>
+                                                </ListPanel>
+
+                                                <!-- Back Button -->
+                                                <ButtonWidget DoNotPassEventsToChildren="true"
+                                                              WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                              SuggestedWidth="120" SuggestedHeight="35"
+                                                              HorizontalAlignment="Left" MarginTop="10"
+                                                              Brush="HUDButton"
+                                                              Command.Click="ExecuteBackToTopBar">
+                                                    <Children>
+                                                        <TextWidget Text="← Back"
+                                                                    WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                    Brush.FontSize="16" Brush.FontColor="#FFFFFFFF"
+                                                                    Brush.TextHorizontalAlignment="Center"
+                                                                    Brush.TextVerticalAlignment="Center"/>
+                                                    </Children>
+                                                </ButtonWidget>
+
+                                            </Children>
+                                        </ListPanel>
+
+                                        <!-- ========== CHAT PAGE (Coming Soon) ========== -->
+                                        <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                   StackLayout.LayoutMethod="VerticalBottomToTop"
+                                                   IsVisible="@IsChatPageOpen"
+                                                   MarginTop="20" MarginLeft="20" MarginRight="20">
+                                            <Children>
+                                                <TextWidget Text="Chat Settings"
+                                                            WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                            HorizontalAlignment="Left" MarginBottom="25"
+                                                            Brush.FontSize="22" Brush.FontColor="#FFD700FF"/>
+
+                                                <TextWidget Text="Coming Soon..."
+                                                            WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                            Brush.FontSize="18" Brush.FontColor="#888888FF"/>
+                                            </Children>
+                                        </ListPanel>
+
+                                        <!-- ========== LEADERBOARD PAGE (Coming Soon) ========== -->
+                                        <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                   StackLayout.LayoutMethod="VerticalBottomToTop"
+                                                   IsVisible="@IsLeaderboardPageOpen"
+                                                   MarginTop="20" MarginLeft="20" MarginRight="20">
+                                            <Children>
+                                                <TextWidget Text="Leaderboard Settings"
+                                                            WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                            HorizontalAlignment="Left" MarginBottom="25"
+                                                            Brush.FontSize="22" Brush.FontColor="#FFD700FF"/>
+
+                                                <TextWidget Text="Coming Soon..."
+                                                            WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                            Brush.FontSize="18" Brush.FontColor="#888888FF"/>
+                                            </Children>
+                                        </ListPanel>
+
+                                        <!-- ========== HP PAGE (Coming Soon) ========== -->
+                                        <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                   StackLayout.LayoutMethod="VerticalBottomToTop"
+                                                   IsVisible="@IsHPPageOpen"
+                                                   MarginTop="20" MarginLeft="20" MarginRight="20">
+                                            <Children>
+                                                <TextWidget Text="HP Settings"
+                                                            WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                            HorizontalAlignment="Left" MarginBottom="25"
+                                                            Brush.FontSize="22" Brush.FontColor="#FFD700FF"/>
+
+                                                <TextWidget Text="Coming Soon..."
+                                                            WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                            Brush.FontSize="18" Brush.FontColor="#888888FF"/>
+                                            </Children>
+                                        </ListPanel>
+
+                                        <!-- ========== CROSSHAIR PAGE (Coming Soon) ========== -->
+                                        <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                   StackLayout.LayoutMethod="VerticalBottomToTop"
+                                                   IsVisible="@IsCrosshairPageOpen"
+                                                   MarginTop="20" MarginLeft="20" MarginRight="20">
+                                            <Children>
+                                                <TextWidget Text="Crosshair Settings"
+                                                            WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                            HorizontalAlignment="Left" MarginBottom="25"
+                                                            Brush.FontSize="22" Brush.FontColor="#FFD700FF"/>
+
+                                                <TextWidget Text="Coming Soon..."
+                                                            WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                            Brush.FontSize="18" Brush.FontColor="#888888FF"/>
+                                            </Children>
+                                        </ListPanel>
+
+                                    </Children>
+                                </Widget>
+
+                            </Children>
+                        </ListPanel>
+
+                        <!-- (Removed) Close Button at Bottom -->
+
+                    </Children>
+                </Widget>
+            </Children>
+        </Widget>
+    </Window>
+</Prefab>

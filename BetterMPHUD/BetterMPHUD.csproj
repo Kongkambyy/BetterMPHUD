@@ -231,6 +231,32 @@
         <Compile Include="ViewModels\KillfeedItemVM.cs" />
         <Compile Include="ViewModels\KillfeedVM.cs" />
     </ItemGroup>
+    <ItemGroup>
+      <Content Include="GUI\BetterMPHUDSpriteData.xml" />
+      <Content Include="GUI\Brushes\HUDBrushes.xml" />
+      <Content Include="GUI\Prefabs\HudConfig.xml" />
+      <Content Include="GUI\Prefabs\PopupCloseButton.xml" />
+      <Content Include="GUI\Prefabs\WarbandKillfeed.xml" />
+      <Content Include="GUI\SpriteParts\Config.xml" />
+      <Content Include="GUI\SpriteParts\ui_hudmenu\hud_background.png" />
+      <Content Include="GUI\SpriteParts\ui_hudmenu\hud_button.png" />
+      <Content Include="GUI\SpriteParts\ui_hudmenu\hud_buttonleft.png" />
+      <Content Include="GUI\SpriteParts\ui_hudmenu\hud_buttonright.png" />
+      <Content Include="GUI\SpriteParts\ui_hudmenu\hud_checkbox_ticked.png" />
+      <Content Include="GUI\SpriteParts\ui_hudmenu\hud_checkbox_unticked.png" />
+      <Content Include="GUI\SpriteParts\ui_hudmenu\hud_close.png" />
+      <Content Include="GUI\SpriteParts\ui_hudmenu\hud_close_hover.png" />
+      <Content Include="GUI\SpriteParts\ui_hudmenu\hud_close_pressed.png" />
+      <Content Include="GUI\SpriteParts\ui_hudmenu\hud_navigation.png" />
+      <Content Include="GUI\SpriteParts\ui_hudmenu\hud_navoption.png" />
+      <Content Include="GUI\SpriteParts\ui_hudmenu\hud_xlbuttonleft.png" />
+      <Content Include="GUI\SpriteParts\ui_hudmenu\hud_xlbuttonright.png" />
+      <Content Include="GUI\SpriteParts\ui_warbandkillfeed\icon_bow.png" />
+      <Content Include="GUI\SpriteParts\ui_warbandkillfeed\icon_death.png" />
+      <Content Include="GUI\SpriteParts\ui_warbandkillfeed\icon_horse.png" />
+      <Content Include="GUI\SpriteParts\ui_warbandkillfeed\icon_kill.png" />
+      <Content Include="GUI\SpriteParts\ui_warbandkillfeed\icon_sword.png" />
+    </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.

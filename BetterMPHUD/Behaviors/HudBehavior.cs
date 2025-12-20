@@ -49,7 +49,6 @@ namespace BetterMPHUD
         private const string SPRITE_SWORD = "icon_sword";
         private const string SPRITE_BOW = "icon_bow";
         private const string SPRITE_HORSE = "icon_horse";
-        private const string SPRITE_KILL = "icon_kill";   
         private const string SPRITE_DEATH = "icon_death";    
         
         private const bool DEBUG_KILLFEED = false;
@@ -104,7 +103,7 @@ namespace BetterMPHUD
                     if (affectedAgent.Team == playerTeam)
                     {
                         rowColor = EnemyKillColor;
-                        killIconSprite = SPRITE_KILL;
+                        killIconSprite = SPRITE_DEATH;
                     }
                     else
                     {
@@ -395,7 +394,13 @@ namespace BetterMPHUD
             if (widget.WidthSizePolicy == SizePolicy.Fixed && widget.HeightSizePolicy == SizePolicy.Fixed && widget.SuggestedWidth >= 49 && widget.SuggestedWidth <= 51 && widget.SuggestedHeight >= 49 && widget.SuggestedHeight <= 51)
             {
                 bool hasBannerChild = false;
-                for (int i = 0; i < widget.ChildCount; i++) { if (widget.GetChild(i).GetType().Name.Contains("MaskedTextureWidget")) { hasBannerChild = true; break; } }
+                for (int i = 0; i < widget.ChildCount; i++)
+                {
+                    if (widget.GetChild(i).GetType().Name.Contains("MaskedTextureWidget"))
+                    {
+                        hasBannerChild = true; break;
+                    }
+                }
                 if (hasBannerChild && !_bannerWidgets.Contains(widget)) _bannerWidgets.Add(widget);
             }
 
@@ -408,12 +413,6 @@ namespace BetterMPHUD
             }
 
             for (int i = 0; i < widget.ChildCount; i++) SearchWidgetsRecursively(widget.GetChild(i), depth + 1, widget);
-        }
-
-        public void InvalidateWidgetCache()
-        {
-            _widgetsCached = false; _timeAndScoresWidget = null; _avatarsWidget = null;
-            _enemyScoreWidget = null; _bannerWidgets.Clear(); _moraleWidget = null; _childOriginals.Clear();
         }
 
         private void OnWarbandKillfeedToggled(bool enabled)

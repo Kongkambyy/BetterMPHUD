@@ -1,0 +1,8 @@
+<Config>
+  <SpriteCategory Name="ui_warbandkillfeed">
+    <AlwaysLoad />
+  </SpriteCategory>
+  <SpriteCategory Name="ui_hudmenu">
+    <AlwaysLoad />
+  </SpriteCategory>
+</Config>
