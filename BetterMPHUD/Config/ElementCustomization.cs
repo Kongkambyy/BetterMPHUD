@@ -31,6 +31,13 @@ namespace BetterMPHUD
         TimeAndScores,
         TeamAvatars,
         Morale,
-        Killfeed
+        Killfeed,
+        AgentHealth,
+        MountHealth,
+        ShieldHealth,
+        WeaponInfo,
+        GoldAmount,
+        TroopCount,
+        DamageFeed
     }
 }

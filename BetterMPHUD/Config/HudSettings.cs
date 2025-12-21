@@ -23,11 +23,31 @@ namespace BetterMPHUD
         
         public bool CameraSnapbackEnabled { get; set; } = false;
 
+        // Agent Status HUD Settings
+        public bool ShowAgentHealth { get; set; } = true;
+        public bool ShowMountHealth { get; set; } = true;
+        public bool ShowShieldHealth { get; set; } = true;
+        public bool ShowWeaponInfo { get; set; } = true;
+        public bool ShowAmmoCount { get; set; } = true;
+        public bool ShowGoldAmount { get; set; } = true;
+        public bool ShowTroopCount { get; set; } = true;
+        public bool ShowCouchLanceState { get; set; } = true;
+        public bool ShowDamageFeed { get; set; } = true;
+
         public ElementCustomization TimeAndScoresCustom { get; set; }
         public ElementCustomization TeamAvatarsCustom { get; set; }
         public ElementCustomization MoraleCustom { get; set; }
         public ElementCustomization KillfeedCustom { get; set; }
         public ElementCustomization ChatCustom { get; set; }
+        
+        // Agent Status Customizations
+        public ElementCustomization AgentHealthCustom { get; set; }
+        public ElementCustomization MountHealthCustom { get; set; }
+        public ElementCustomization ShieldHealthCustom { get; set; }
+        public ElementCustomization WeaponInfoCustom { get; set; }
+        public ElementCustomization GoldAmountCustom { get; set; }
+        public ElementCustomization TroopCountCustom { get; set; }
+        public ElementCustomization DamageFeedCustom { get; set; }
         
         public HudSettings() 
         {
@@ -36,6 +56,14 @@ namespace BetterMPHUD
             MoraleCustom = new ElementCustomization();
             KillfeedCustom = new ElementCustomization();
             ChatCustom = new ElementCustomization();
+            
+            AgentHealthCustom = new ElementCustomization();
+            MountHealthCustom = new ElementCustomization();
+            ShieldHealthCustom = new ElementCustomization();
+            WeaponInfoCustom = new ElementCustomization();
+            GoldAmountCustom = new ElementCustomization();
+            TroopCountCustom = new ElementCustomization();
+            DamageFeedCustom = new ElementCustomization();
         }
 
         public ElementCustomization GetCustomization(HudElement element)
@@ -46,6 +74,13 @@ namespace BetterMPHUD
                 case HudElement.TeamAvatars: return TeamAvatarsCustom ?? (TeamAvatarsCustom = new ElementCustomization());
                 case HudElement.Morale: return MoraleCustom ?? (MoraleCustom = new ElementCustomization());
                 case HudElement.Killfeed: return KillfeedCustom ?? (KillfeedCustom = new ElementCustomization());
+                case HudElement.AgentHealth: return AgentHealthCustom ?? (AgentHealthCustom = new ElementCustomization());
+                case HudElement.MountHealth: return MountHealthCustom ?? (MountHealthCustom = new ElementCustomization());
+                case HudElement.ShieldHealth: return ShieldHealthCustom ?? (ShieldHealthCustom = new ElementCustomization());
+                case HudElement.WeaponInfo: return WeaponInfoCustom ?? (WeaponInfoCustom = new ElementCustomization());
+                case HudElement.GoldAmount: return GoldAmountCustom ?? (GoldAmountCustom = new ElementCustomization());
+                case HudElement.TroopCount: return TroopCountCustom ?? (TroopCountCustom = new ElementCustomization());
+                case HudElement.DamageFeed: return DamageFeedCustom ?? (DamageFeedCustom = new ElementCustomization());
                 default: return new ElementCustomization();
             }
         }
@@ -57,6 +92,14 @@ namespace BetterMPHUD
             if (MoraleCustom == null) MoraleCustom = new ElementCustomization();
             if (KillfeedCustom == null) KillfeedCustom = new ElementCustomization();
             if (ChatCustom == null) ChatCustom = new ElementCustomization();
+            
+            if (AgentHealthCustom == null) AgentHealthCustom = new ElementCustomization();
+            if (MountHealthCustom == null) MountHealthCustom = new ElementCustomization();
+            if (ShieldHealthCustom == null) ShieldHealthCustom = new ElementCustomization();
+            if (WeaponInfoCustom == null) WeaponInfoCustom = new ElementCustomization();
+            if (GoldAmountCustom == null) GoldAmountCustom = new ElementCustomization();
+            if (TroopCountCustom == null) TroopCountCustom = new ElementCustomization();
+            if (DamageFeedCustom == null) DamageFeedCustom = new ElementCustomization();
         }
     }
     
