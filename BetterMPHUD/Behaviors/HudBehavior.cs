@@ -46,7 +46,6 @@ namespace BetterMPHUD
         private Widget _couchLanceWidget;
         private Widget _spearBraceWidget;
         private Widget _damageFeedWidget;
-        private Widget _agentStatusParentWidget;
         private bool _agentStatusWidgetsCached = false;
 
         private WidgetOriginalValues _timeAndScoresOriginal;
@@ -511,52 +510,54 @@ namespace BetterMPHUD
 
         private void ApplyAgentStatusVisibility()
         {
-            var settings = _dataSource.GetSettings();
+            // IMPORTANT: We simply "restore" the widgets here.
+            // The logic to "hide" them is handled in ApplyWidgetCustomization by moving them far away.
+            // We set them to visible and fully opaque so that if we DO want to see them (and the position is correct), they appear.
             
-            if (_agentHealthWidget != null) 
-                SetWidgetVisibility(_agentHealthWidget, settings.ShowAgentHealth);
-            if (_mountHealthWidget != null) 
-                SetWidgetVisibility(_mountHealthWidget, settings.ShowMountHealth);
-            if (_shieldHealthWidget != null) 
-                SetWidgetVisibility(_shieldHealthWidget, settings.ShowShieldHealth);
-            if (_weaponInfoWidget != null) 
-                SetWidgetVisibility(_weaponInfoWidget, settings.ShowWeaponInfo);
-            if (_goldAmountWidget != null) 
-                SetWidgetVisibility(_goldAmountWidget, settings.ShowGoldAmount);
-            if (_troopCountWidget != null) 
-                SetWidgetVisibility(_troopCountWidget, settings.ShowTroopCount);
-            if (_couchLanceWidget != null) 
-                SetWidgetVisibility(_couchLanceWidget, settings.ShowCouchLanceState);
-            if (_spearBraceWidget != null) 
-                SetWidgetVisibility(_spearBraceWidget, settings.ShowCouchLanceState);
-            if (_damageFeedWidget != null) 
-                SetWidgetVisibility(_damageFeedWidget, settings.ShowDamageFeed);
+            RestoreWidgetState(_agentHealthWidget);
+            RestoreWidgetState(_mountHealthWidget);
+            RestoreWidgetState(_shieldHealthWidget);
+            RestoreWidgetState(_weaponInfoWidget);
+            RestoreWidgetState(_goldAmountWidget);
+            RestoreWidgetState(_troopCountWidget);
+            RestoreWidgetState(_couchLanceWidget);
+            RestoreWidgetState(_spearBraceWidget);
+            RestoreWidgetState(_damageFeedWidget);
         }
 
-        private void SetWidgetVisibility(Widget widget, bool visible)
+        private void RestoreWidgetState(Widget widget)
         {
             if (widget == null) return;
-            widget.IsVisible = visible;
+            // Ensure we aren't fighting the VM with broken states
+            widget.AlphaFactor = 1.0f;
+            widget.DoNotAcceptEvents = false;
         }
 
         private void ApplyAgentStatusCustomization()
         {
             var settings = _dataSource.GetSettings();
             
+            // PASS THE VISIBILITY BOOLEAN INTO THE CUSTOMIZATION METHOD
             if (_agentHealthWidget != null && _agentHealthOriginal.IsValid)
-                ApplyWidgetCustomization(_agentHealthWidget, _agentHealthOriginal, settings.AgentHealthCustom);
+                ApplyWidgetCustomization(_agentHealthWidget, _agentHealthOriginal, settings.AgentHealthCustom, settings.ShowAgentHealth);
+            
             if (_mountHealthWidget != null && _mountHealthOriginal.IsValid)
-                ApplyWidgetCustomization(_mountHealthWidget, _mountHealthOriginal, settings.MountHealthCustom);
+                ApplyWidgetCustomization(_mountHealthWidget, _mountHealthOriginal, settings.MountHealthCustom, settings.ShowMountHealth);
+            
             if (_shieldHealthWidget != null && _shieldHealthOriginal.IsValid)
-                ApplyWidgetCustomization(_shieldHealthWidget, _shieldHealthOriginal, settings.ShieldHealthCustom);
+                ApplyWidgetCustomization(_shieldHealthWidget, _shieldHealthOriginal, settings.ShieldHealthCustom, settings.ShowShieldHealth);
+            
             if (_weaponInfoWidget != null && _weaponInfoOriginal.IsValid)
-                ApplyWidgetCustomization(_weaponInfoWidget, _weaponInfoOriginal, settings.WeaponInfoCustom);
+                ApplyWidgetCustomization(_weaponInfoWidget, _weaponInfoOriginal, settings.WeaponInfoCustom, settings.ShowWeaponInfo);
+            
             if (_goldAmountWidget != null && _goldAmountOriginal.IsValid)
-                ApplyWidgetCustomization(_goldAmountWidget, _goldAmountOriginal, settings.GoldAmountCustom);
+                ApplyWidgetCustomization(_goldAmountWidget, _goldAmountOriginal, settings.GoldAmountCustom, settings.ShowGoldAmount);
+            
             if (_troopCountWidget != null && _troopCountOriginal.IsValid)
-                ApplyWidgetCustomization(_troopCountWidget, _troopCountOriginal, settings.TroopCountCustom);
+                ApplyWidgetCustomization(_troopCountWidget, _troopCountOriginal, settings.TroopCountCustom, settings.ShowTroopCount);
+            
             if (_damageFeedWidget != null && _damageFeedOriginal.IsValid)
-                ApplyWidgetCustomization(_damageFeedWidget, _damageFeedOriginal, settings.DamageFeedCustom);
+                ApplyWidgetCustomization(_damageFeedWidget, _damageFeedOriginal, settings.DamageFeedCustom, settings.ShowDamageFeed);
         }
 
         private void ApplyKillfeedCustomization()
@@ -621,16 +622,32 @@ namespace BetterMPHUD
         private void ApplyCustomizationSettings()
         {
             var settings = _dataSource.GetSettings();
-            if (_timeAndScoresWidget != null && _timeAndScoresOriginal.IsValid) ApplyWidgetCustomization(_timeAndScoresWidget, _timeAndScoresOriginal, settings.TimeAndScoresCustom);
-            if (_avatarsWidget != null && _avatarsOriginal.IsValid) ApplyWidgetCustomization(_avatarsWidget, _avatarsOriginal, settings.TeamAvatarsCustom);
-            if (_moraleWidget != null && _moraleOriginal.IsValid) ApplyWidgetCustomization(_moraleWidget, _moraleOriginal, settings.MoraleCustom);
-            if (_controlPointsWidget != null && _controlPointsOriginal.IsValid) ApplyWidgetCustomization(_controlPointsWidget, _controlPointsOriginal, settings.MoraleCustom);
+            // Top bar elements use standard behavior (pass true for isVisible because they use actual IsVisible toggle)
+            if (_timeAndScoresWidget != null && _timeAndScoresOriginal.IsValid) ApplyWidgetCustomization(_timeAndScoresWidget, _timeAndScoresOriginal, settings.TimeAndScoresCustom, true);
+            if (_avatarsWidget != null && _avatarsOriginal.IsValid) ApplyWidgetCustomization(_avatarsWidget, _avatarsOriginal, settings.TeamAvatarsCustom, true);
+            if (_moraleWidget != null && _moraleOriginal.IsValid) ApplyWidgetCustomization(_moraleWidget, _moraleOriginal, settings.MoraleCustom, true);
+            if (_controlPointsWidget != null && _controlPointsOriginal.IsValid) ApplyWidgetCustomization(_controlPointsWidget, _controlPointsOriginal, settings.MoraleCustom, true);
         }
 
-        private void ApplyWidgetCustomization(Widget widget, WidgetOriginalValues original, ElementCustomization custom)
+        // ==========================================
+        // === UPDATED "MOVE TO NARNIA" LOGIC ===
+        // ==========================================
+        private void ApplyWidgetCustomization(Widget widget, WidgetOriginalValues original, ElementCustomization custom, bool isVisible)
         {
-            widget.PositionXOffset = original.X + custom.OffsetX;
-            widget.PositionYOffset = original.Y + custom.OffsetY;
+            float targetX = original.X + custom.OffsetX;
+            float targetY = original.Y + custom.OffsetY;
+
+            // If the widget is supposed to be hidden, we add a massive offset
+            // to move it completely off-screen.
+            if (!isVisible)
+            {
+                targetX += 10000f; // To Narnia!
+                targetY += 10000f;
+            }
+
+            widget.PositionXOffset = targetX;
+            widget.PositionYOffset = targetY;
+
             if (custom.Scale != 1f)
             {
                 if (widget.WidthSizePolicy == SizePolicy.Fixed && original.Width > 0) widget.SuggestedWidth = original.Width * custom.Scale;
