@@ -1,0 +1,46 @@
+﻿<Prefab>
+    <Window>
+        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+            <Children>
+                <!-- Player Health Number -->
+                <TextWidget WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                            HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                            PositionYOffset="@PlayerHealthOffsetY" PositionXOffset="@PlayerHealthOffsetX"
+                            MarginBottom="116" MarginRight="150"
+                            Text="@PlayerHealth"
+                            IsVisible="@ShowPlayerHealth"
+                            Brush.FontSize="20"
+                            Brush.FontColor="#FFFFFFFF"
+                            Brush.TextHorizontalAlignment="Center"
+                            Brush.TextShadowOffset="2"
+                            Brush.TextShadowColor="#000000FF"/>
+
+                <!-- Shield Health Number -->
+                <TextWidget WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                            HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                            PositionYOffset="@ShieldHealthOffsetY" PositionXOffset="@ShieldHealthOffsetX"
+                            MarginBottom="141" MarginRight="150"
+                            Text="@ShieldHealth"
+                            IsVisible="@ShowShieldHealth"
+                            Brush.FontSize="20"
+                            Brush.FontColor="#FFFFFFFF"
+                            Brush.TextHorizontalAlignment="Center"
+                            Brush.TextShadowOffset="2"
+                            Brush.TextShadowColor="#000000FF"/>
+
+                <!-- Mount Health Number -->
+                <TextWidget WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                            HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                            PositionYOffset="@MountHealthOffsetY" PositionXOffset="@MountHealthOffsetX"
+                            MarginBottom="92" MarginRight="150"
+                            Text="@MountHealth"
+                            IsVisible="@ShowMountHealth"
+                            Brush.FontSize="20"
+                            Brush.FontColor="#FFFFFFFF"
+                            Brush.TextHorizontalAlignment="Center"
+                            Brush.TextShadowOffset="2"
+                            Brush.TextShadowColor="#000000FF"/>
+            </Children>
+        </Widget>
+    </Window>
+</Prefab>

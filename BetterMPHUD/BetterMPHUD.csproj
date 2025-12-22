@@ -225,8 +225,21 @@
         <Compile Include="Behaviors\HudBehavior.cs" />
         <Compile Include="Config\ElementCustomization.cs" />
         <Compile Include="Config\HudSettings.cs" />
+        <Compile Include="Core\Constants.cs" />
+        <Compile Include="Core\WidgetData.cs" />
+        <Compile Include="Handlers\AgentStatusHandler.cs" />
+        <Compile Include="Handlers\CameraSnapbackHandler.cs" />
+        <Compile Include="Handlers\HealthNumbersHandler.cs" />
+        <Compile Include="Handlers\KillfeedHandler.cs" />
+        <Compile Include="Handlers\TopBarHandler.cs" />
+        <Compile Include="Services\AgentHelper.cs" />
+        <Compile Include="Services\LayerFinder.cs" />
+        <Compile Include="Services\WidgetCustomizer.cs" />
+        <Compile Include="Services\WidgetFinder.cs" />
         <Compile Include="SubModule.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
+        <Compile Include="ViewModels\ElementEditorVM.cs" />
+        <Compile Include="ViewModels\HealthNumbersVM.cs" />
         <Compile Include="ViewModels\HudMenuVM.cs" />
         <Compile Include="ViewModels\KillfeedItemVM.cs" />
         <Compile Include="ViewModels\KillfeedVM.cs" />
@@ -234,6 +247,7 @@
     <ItemGroup>
       <Content Include="GUI\BetterMPHUDSpriteData.xml" />
       <Content Include="GUI\Brushes\HUDBrushes.xml" />
+      <Content Include="GUI\Prefabs\HealthNumbers.xml" />
       <Content Include="GUI\Prefabs\HudConfig.xml" />
       <Content Include="GUI\Prefabs\PopupCloseButton.xml" />
       <Content Include="GUI\Prefabs\WarbandKillfeed.xml" />

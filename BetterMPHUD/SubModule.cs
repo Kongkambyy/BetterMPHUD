@@ -1,4 +1,5 @@
-﻿using TaleWorlds.Core;
+﻿using BetterMPHUD.Behaviors;
+using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 

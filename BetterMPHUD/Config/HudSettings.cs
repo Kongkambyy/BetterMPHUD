@@ -34,6 +34,11 @@ namespace BetterMPHUD
         public bool ShowCouchLanceState { get; set; } = true;
         public bool ShowDamageFeed { get; set; } = true;
 
+        // Health Numbers Settings (NEW)
+        public bool ShowHealthNumbers { get; set; } = true;
+        public bool ShowMountHealthNumbers { get; set; } = true;
+        public bool ShowShieldHealthNumbers { get; set; } = true;
+
         public ElementCustomization TimeAndScoresCustom { get; set; }
         public ElementCustomization TeamAvatarsCustom { get; set; }
         public ElementCustomization MoraleCustom { get; set; }
@@ -145,7 +150,7 @@ namespace BetterMPHUD
             }
             catch (Exception ex)
             {
-                InformationManager.DisplayMessage(new InformationMessage($"[BetterMPHUD] Failed to load config: {ex.Message}", Colors.Red));
+                InformationManager.DisplayMessage(new InformationMessage("[BetterMPHUD] Failed to load config: " + ex.Message, Colors.Red));
             }
             return new HudSettings();
         }
@@ -163,7 +168,7 @@ namespace BetterMPHUD
             }
             catch (Exception ex)
             {
-                InformationManager.DisplayMessage(new InformationMessage($"[BetterMPHUD] Failed to save config: {ex.Message}", Colors.Red));
+                InformationManager.DisplayMessage(new InformationMessage("[BetterMPHUD] Failed to save config: " + ex.Message, Colors.Red));
             }
         }
     }
