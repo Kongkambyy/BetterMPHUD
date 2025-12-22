@@ -35,9 +35,7 @@ namespace BetterMPHUD
                 await Task.Delay(1);
 
             field.SetValue(NetworkMain.GameClient, moduleList.Where(m => m.Id != "BetterMPHUD").ToList());
-
-            InformationManager.DisplayMessage(new InformationMessage("Fuck anime"));
-
+            
         }
     }
 }

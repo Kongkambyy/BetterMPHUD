@@ -1,5 +1,4 @@
 <Prefab>
-
   <Parameters>
     <Parameter Name="ButtonText" DefaultValue="- Missing -" />
     <Parameter Name="ButtonAction" DefaultValue="" />
@@ -7,14 +6,11 @@
     <Parameter Name="InputKeyDataSource" DefaultValue="" />
     <Parameter Name="DisabledHintDataSource" DefaultValue="" />
   </Parameters>
-
   <Window>
     <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
             SuggestedWidth="42" SuggestedHeight="42"
             HorizontalAlignment="Center" VerticalAlignment="Top">
-
       <Children>
-
         <ButtonWidget Id="ButtonWidget"
                       DoNotPassEventsToChildren="true"
                       Command.Click="*ButtonAction"
@@ -24,7 +20,6 @@
                       Brush="HUDCloseButton"
                       UpdateChildrenStates="true">
         </ButtonWidget>
-
         <Widget WidthSizePolicy="StretchToParent"
                 HeightSizePolicy="StretchToParent"
                 IsDisabled="*IsEnabled">
@@ -36,9 +31,7 @@
                         Command.HoverEnd="ExecuteEndHint" />
           </Children>
         </Widget>
-
       </Children>
     </Widget>
   </Window>
-
 </Prefab>
