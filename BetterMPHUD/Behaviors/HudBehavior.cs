@@ -25,6 +25,7 @@ namespace BetterMPHUD.Behaviors
         private KillfeedHandler _killfeed;
         private CameraSnapbackHandler _camera;
         private HealthNumbersHandler _healthNumbers;
+        private CrosshairHandler _crosshair;
 
         public HudBehavior()
         {
@@ -33,6 +34,7 @@ namespace BetterMPHUD.Behaviors
             _killfeed = new KillfeedHandler();
             _camera = new CameraSnapbackHandler();
             _healthNumbers = new HealthNumbersHandler();
+            _crosshair = new CrosshairHandler();
         }
 
         public override MissionBehaviorType BehaviorType 
@@ -53,6 +55,9 @@ namespace BetterMPHUD.Behaviors
             PeriodicSettingsEnforce(dt);
             UpdateKillfeed();
             UpdateHealthNumbers();
+            
+            UpdateCrosshair();
+            
             HandleCameraSnapback();
         }
 
@@ -78,6 +83,16 @@ namespace BetterMPHUD.Behaviors
         {
             if (_menuVM == null) return;
             _healthNumbers.Update(_menuVM.GetSettings());
+        }
+
+        private void UpdateCrosshair()
+        {
+            if (_menuVM == null || Mission.Current == null) return;
+
+            MissionScreen screen = ScreenManager.TopScreen as MissionScreen;
+            if (screen == null) return;
+
+            _crosshair.Update(_menuVM.GetSettings(), screen);
         }
 
         private void HandleCameraSnapback()
@@ -113,9 +128,12 @@ namespace BetterMPHUD.Behaviors
                     return;
 
                 InitializeConfigMenu(screen);
+                
                 _killfeed.Initialize(screen);
                 _killfeed.SetEnabled(_menuVM.WarbandKillfeedEnabled);
                 _healthNumbers.Initialize(screen);
+                
+                _crosshair.Initialize(screen);
 
                 _initialized = true;
                 ApplyAllSettings();
@@ -125,7 +143,7 @@ namespace BetterMPHUD.Behaviors
                 InformationManager.DisplayMessage(new InformationMessage("UI Init Error: " + ex.Message, Colors.Red));
             }
         }
-
+        
         private void InitializeConfigMenu(MissionScreen screen)
         {
             _menuVM = new HudMenuVM();
@@ -149,9 +167,16 @@ namespace BetterMPHUD.Behaviors
                 return;
 
             HudSettings settings = _menuVM.GetSettings();
+            
             _killfeed.ApplySettings(settings);
             _topBar.Apply(settings, Mission.Current);
             _agentStatus.Apply(settings, Mission.Current);
+            
+            MissionScreen screen = ScreenManager.TopScreen as MissionScreen;
+            if (screen != null)
+            {
+                _crosshair.Update(settings, screen);
+            }
         }
 
         private void ToggleMenu()
@@ -188,6 +213,7 @@ namespace BetterMPHUD.Behaviors
             ManagedOptions.SetConfig(ManagedOptions.ManagedOptionsType.ReportCasualtiesType, 0f);
 
             MissionScreen screen = ScreenManager.TopScreen as MissionScreen;
+            
             if (screen != null && _configLayer != null)
                 screen.RemoveLayer(_configLayer);
             
@@ -196,6 +222,8 @@ namespace BetterMPHUD.Behaviors
             _topBar.Reset();
             _agentStatus.Reset();
             _camera.Reset();
+            
+            _crosshair.Cleanup(screen);
             
             _menuVM = null;
             _initialized = false;

@@ -229,6 +229,90 @@ namespace BetterMPHUD.ViewModels
             OnSettingsChanged();
         }
 
+        // Crosshair methods
+        private void AdjustCrosshairWidth(int delta)
+        {
+            int newValue = _settings.CrosshairSettings.SizeHorizontal + delta;
+            if (newValue >= 1 && newValue <= 75)
+            {
+                _settings.CrosshairSettings.SizeHorizontal = newValue;
+                RefreshCrosshairDisplay();
+            }
+        }
+
+        private void AdjustCrosshairLength(int delta)
+        {
+            int newValue = _settings.CrosshairSettings.SizeVertical + delta;
+            if (newValue >= 1 && newValue <= 75)
+            {
+                _settings.CrosshairSettings.SizeVertical = newValue;
+                RefreshCrosshairDisplay();
+            }
+        }
+
+        private void AdjustCrosshairOffset(int delta)
+        {
+            int newValue = _settings.CrosshairSettings.Offset + delta;
+            if (newValue >= 0 && newValue <= 30)
+            {
+                _settings.CrosshairSettings.Offset = newValue;
+                RefreshCrosshairDisplay();
+            }
+        }
+
+        private void AdjustCrosshairOpacity(float delta)
+        {
+            float newValue = _settings.CrosshairSettings.Opacity + delta;
+            if (newValue >= 0f && newValue <= 1f)
+            {
+                _settings.CrosshairSettings.Opacity = (float)Math.Round(newValue, 2);
+                RefreshCrosshairDisplay();
+            }
+        }
+
+        public void ExecuteIncreaseCrosshairWidth() { AdjustCrosshairWidth(1); }
+        public void ExecuteDecreaseCrosshairWidth() { AdjustCrosshairWidth(-1); }
+        public void ExecuteIncreaseCrosshairWidthLarge() { AdjustCrosshairWidth(5); }
+        public void ExecuteDecreaseCrosshairWidthLarge() { AdjustCrosshairWidth(-5); }
+        public void ExecuteIncreaseCrosshairLength() { AdjustCrosshairLength(1); }
+        public void ExecuteDecreaseCrosshairLength() { AdjustCrosshairLength(-1); }
+        public void ExecuteIncreaseCrosshairLengthLarge() { AdjustCrosshairLength(5); }
+        public void ExecuteDecreaseCrosshairLengthLarge() { AdjustCrosshairLength(-5); }
+        public void ExecuteIncreaseCrosshairOffset() { AdjustCrosshairOffset(1); }
+        public void ExecuteDecreaseCrosshairOffset() { AdjustCrosshairOffset(-1); }
+        public void ExecuteIncreaseCrosshairOffsetLarge() { AdjustCrosshairOffset(5); }
+        public void ExecuteDecreaseCrosshairOffsetLarge() { AdjustCrosshairOffset(-5); }
+        public void ExecuteIncreaseCrosshairOpacity() { AdjustCrosshairOpacity(0.05f); }
+        public void ExecuteDecreaseCrosshairOpacity() { AdjustCrosshairOpacity(-0.05f); }
+        public void ExecuteIncreaseCrosshairOpacityLarge() { AdjustCrosshairOpacity(0.1f); }
+        public void ExecuteDecreaseCrosshairOpacityLarge() { AdjustCrosshairOpacity(-0.1f); }
+
+        public void ExecuteSetCrosshairColorRed() { _settings.CrosshairSettings.Color = "#FF0000FF"; RefreshCrosshairDisplay(); }
+        public void ExecuteSetCrosshairColorGreen() { _settings.CrosshairSettings.Color = "#00FF00FF"; RefreshCrosshairDisplay(); }
+        public void ExecuteSetCrosshairColorBlue() { _settings.CrosshairSettings.Color = "#0000FFFF"; RefreshCrosshairDisplay(); }
+        public void ExecuteSetCrosshairColorWhite() { _settings.CrosshairSettings.Color = "#FFFFFFFF"; RefreshCrosshairDisplay(); }
+        public void ExecuteSetCrosshairColorYellow() { _settings.CrosshairSettings.Color = "#FFFF00FF"; RefreshCrosshairDisplay(); }
+        public void ExecuteSetCrosshairColorCyan() { _settings.CrosshairSettings.Color = "#00FFFFFF"; RefreshCrosshairDisplay(); }
+        public void ExecuteSetCrosshairColorMagenta() { _settings.CrosshairSettings.Color = "#FF00FFFF"; RefreshCrosshairDisplay(); }
+        public void ExecuteSetCrosshairColorOrange() { _settings.CrosshairSettings.Color = "#FFA500FF"; RefreshCrosshairDisplay(); }
+
+        public void ExecuteResetCrosshair()
+        {
+            _settings.CrosshairSettings.Reset();
+            RefreshCrosshairDisplay();
+        }
+
+        private void RefreshCrosshairDisplay()
+        {
+            OnPropertyChangedWithValue(CrosshairWidthText, "CrosshairWidthText");
+            OnPropertyChangedWithValue(CrosshairLengthText, "CrosshairLengthText");
+            OnPropertyChangedWithValue(CrosshairOffsetText, "CrosshairOffsetText");
+            OnPropertyChangedWithValue(CrosshairOpacityText, "CrosshairOpacityText");
+            OnPropertyChangedWithValue(CrosshairColorText, "CrosshairColorText");
+            OnPropertyChangedWithValue(CustomCrosshairEnabled, "CustomCrosshairEnabled");
+            OnSettingsChanged();
+        }
+
         [DataSourceProperty]
         public bool IsConfigMenuOpen 
         { 
@@ -322,6 +406,9 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty]
         public bool CameraSnapbackEnabled { get { return _settings.CameraSnapbackEnabled; } set { if (_settings.CameraSnapbackEnabled != value) { _settings.CameraSnapbackEnabled = value; OnPropertyChangedWithValue(value, "CameraSnapbackEnabled"); OnSettingsChanged(); } } }
 
+        [DataSourceProperty]
+        public bool CustomCrosshairEnabled { get { return _settings.CrosshairSettings.CustomCrosshairEnabled; } set { if (_settings.CrosshairSettings.CustomCrosshairEnabled != value) { _settings.CrosshairSettings.CustomCrosshairEnabled = value; OnPropertyChangedWithValue(value, "CustomCrosshairEnabled"); OnSettingsChanged(); } } }
+
         [DataSourceProperty] public int SelectedElementIndex { get { return _topBarEditor.SelectedIndex; } }
         [DataSourceProperty] public string SelectedElementName { get { return _topBarEditor.SelectedName; } }
         [DataSourceProperty] public string CurrentOffsetXText { get { return _topBarEditor.OffsetXText; } }
@@ -338,5 +425,11 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty] public string KillfeedOffsetYText { get { return _settings.KillfeedCustom.OffsetY.ToString("F0"); } }
         [DataSourceProperty] public string KillfeedScaleText { get { return (_settings.KillfeedCustom.Scale * 100).ToString("F0") + "%"; } }
         [DataSourceProperty] public string KillfeedFadeoutTimeText { get { return _settings.KillfeedFadeoutTime.ToString("F0") + "s"; } }
+
+        [DataSourceProperty] public string CrosshairWidthText { get { return _settings.CrosshairSettings.SizeHorizontal.ToString(); } }
+        [DataSourceProperty] public string CrosshairLengthText { get { return _settings.CrosshairSettings.SizeVertical.ToString(); } }
+        [DataSourceProperty] public string CrosshairOffsetText { get { return _settings.CrosshairSettings.Offset.ToString(); } }
+        [DataSourceProperty] public string CrosshairOpacityText { get { return (_settings.CrosshairSettings.Opacity * 100).ToString("F0") + "%"; } }
+        [DataSourceProperty] public string CrosshairColorText { get { return _settings.CrosshairSettings.Color; } }
     }
 }

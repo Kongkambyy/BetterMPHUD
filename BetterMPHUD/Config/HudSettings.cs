@@ -50,6 +50,8 @@ namespace BetterMPHUD
         public ElementCustomization GoldAmountCustom { get; set; }
         public ElementCustomization TroopCountCustom { get; set; }
         public ElementCustomization DamageFeedCustom { get; set; }
+
+        public CrosshairSettings CrosshairSettings { get; set; }
         
         public HudSettings() 
         {
@@ -66,6 +68,8 @@ namespace BetterMPHUD
             GoldAmountCustom = new ElementCustomization();
             TroopCountCustom = new ElementCustomization();
             DamageFeedCustom = new ElementCustomization();
+
+            CrosshairSettings = new CrosshairSettings();
         }
 
         public ElementCustomization GetCustomization(HudElement element)
@@ -102,6 +106,8 @@ namespace BetterMPHUD
             if (GoldAmountCustom == null) GoldAmountCustom = new ElementCustomization();
             if (TroopCountCustom == null) TroopCountCustom = new ElementCustomization();
             if (DamageFeedCustom == null) DamageFeedCustom = new ElementCustomization();
+
+            if (CrosshairSettings == null) CrosshairSettings = new CrosshairSettings();
         }
     }
     
