@@ -13,9 +13,9 @@ namespace BetterMPHUD
         private string _killIconSprite;
         
         private int _fontSize;
-        private int _iconSize;
-        private int _skullSize;
-        private int _rowHeight;
+        private float _iconSize;
+        private float _skullSize;
+        private float _rowHeight;
 
         private readonly Action<KillfeedItemVM> _onRemove;
         public float ExpireTime { get; set; }
@@ -40,7 +40,7 @@ namespace BetterMPHUD
             _onRemove = onRemove;
         }
 
-        public void UpdateSizes(int fontSize, int iconSize, int skullSize, int rowHeight)
+        public void UpdateSizes(int fontSize, float iconSize, float skullSize, float rowHeight)
         {
             FontSize = fontSize;
             IconSize = iconSize;
@@ -100,21 +100,21 @@ namespace BetterMPHUD
         }
 
         [DataSourceProperty]
-        public int IconSize 
+        public float IconSize 
         { 
             get => _iconSize; 
             set { if (_iconSize != value) { _iconSize = value; OnPropertyChangedWithValue(value, "IconSize"); } } 
         }
 
         [DataSourceProperty]
-        public int SkullSize 
+        public float SkullSize 
         { 
             get => _skullSize; 
             set { if (_skullSize != value) { _skullSize = value; OnPropertyChangedWithValue(value, "SkullSize"); } } 
         }
 
         [DataSourceProperty]
-        public int RowHeight 
+        public float RowHeight 
         { 
             get => _rowHeight; 
             set { if (_rowHeight != value) { _rowHeight = value; OnPropertyChangedWithValue(value, "RowHeight"); } } 

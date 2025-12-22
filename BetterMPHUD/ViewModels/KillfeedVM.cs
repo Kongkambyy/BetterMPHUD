@@ -24,10 +24,10 @@ namespace BetterMPHUD.ViewModels
         {
             if (scale < 0.1f) scale = 0.1f;
 
-            int newFont = Math.Max(1, (int)(BASE_FONT * scale));
-            int newIcon = Math.Max(1, (int)(BASE_ICON * scale));
-            int newSkull = Math.Max(1, (int)(BASE_SKULL * scale));
-            int newRow = Math.Max(1, (int)(BASE_ROW * scale));
+            int newFont = (int)Math.Max(1, BASE_FONT * scale);
+            float newIcon = Math.Max(1, BASE_ICON * scale);
+            float newSkull = Math.Max(1, BASE_SKULL * scale);
+            float newRow = Math.Max(1, BASE_ROW * scale);
 
 
             foreach (var item in _killList.ToList())
@@ -36,14 +36,14 @@ namespace BetterMPHUD.ViewModels
             }
         }
         
-        public void GetScaledSizes(float scale, out int font, out int icon, out int skull, out int row)
+        public void GetScaledSizes(float scale, out int font, out float icon, out float skull, out float row)
         {
             if (scale < 0.1f) scale = 0.1f;
             
-            font = Math.Max(1, (int)(BASE_FONT * scale));
-            icon = Math.Max(1, (int)(BASE_ICON * scale));
-            skull = Math.Max(1, (int)(BASE_SKULL * scale));
-            row = Math.Max(1, (int)(BASE_ROW * scale));
+            font = (int)Math.Max(1, BASE_FONT * scale);
+            icon = Math.Max(1, BASE_ICON * scale);
+            skull = Math.Max(1, BASE_SKULL * scale);
+            row = Math.Max(1, BASE_ROW * scale);
         }
 
         public void AddKill(KillfeedItemVM item)

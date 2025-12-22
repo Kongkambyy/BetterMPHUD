@@ -51,9 +51,8 @@ namespace BetterMPHUD.Handlers
             float currentTime = Mission.Current != null ? Mission.Current.CurrentTime : 0f;
             float expireTime = currentTime + settings.KillfeedFadeoutTime;
             float scale = settings.KillfeedCustom.Scale;
-            
-            int font, icon, skull, row;
-            _viewModel.GetScaledSizes(scale, out font, out icon, out skull, out row);
+
+            _viewModel.GetScaledSizes(scale, out int font, out float icon, out float skull, out float row);
 
             KillfeedItemVM item = new KillfeedItemVM(
                 killer.Name, 
