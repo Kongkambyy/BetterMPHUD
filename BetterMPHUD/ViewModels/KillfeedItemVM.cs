@@ -12,7 +12,6 @@ namespace BetterMPHUD
         private string _victimClassSprite;
         private string _killIconSprite;
         
-        // NEW: Scaling Properties
         private int _fontSize;
         private int _iconSize;
         private int _skullSize;
@@ -41,7 +40,6 @@ namespace BetterMPHUD
             _onRemove = onRemove;
         }
 
-        // NEW: Method to update sizes dynamically
         public void UpdateSizes(int fontSize, int iconSize, int skullSize, int rowHeight)
         {
             FontSize = fontSize;
@@ -94,7 +92,6 @@ namespace BetterMPHUD
             set { if (_killIconSprite != value) { _killIconSprite = value; OnPropertyChangedWithValue(value, "KillIconSprite"); } } 
         }
 
-        // NEW: Bindable Size Properties
         [DataSourceProperty]
         public int FontSize 
         { 

@@ -46,7 +46,6 @@ namespace BetterMPHUD.ViewModels
 
         public HudSettings GetSettings() { return _settings; }
 
-        // Navigation
         public void ExecuteClose() 
         { 
             if (OnCloseConfigMenu != null) 
@@ -88,12 +87,10 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(IsMiscPageOpen, "IsMiscPageOpen");
         }
 
-        // Top Bar Element Selection - pass the actual customization object
         public void ExecuteSelectTimeAndScores() { _topBarEditor.SelectElement(0, "Time & Scores", _settings.TimeAndScoresCustom); RefreshTopBarDisplay(); }
         public void ExecuteSelectTeamAvatars() { _topBarEditor.SelectElement(1, "Team Avatars", _settings.TeamAvatarsCustom); RefreshTopBarDisplay(); }
         public void ExecuteSelectMorale() { _topBarEditor.SelectElement(2, "Morale", _settings.MoraleCustom); RefreshTopBarDisplay(); }
 
-        // HP Element Selection - pass the actual customization object
         public void ExecuteSelectAgentHealth() { _hpEditor.SelectElement(0, "Agent Health", _settings.AgentHealthCustom); RefreshHPDisplay(); }
         public void ExecuteSelectMountHealth() { _hpEditor.SelectElement(1, "Mount Health", _settings.MountHealthCustom); RefreshHPDisplay(); }
         public void ExecuteSelectShieldHealth() { _hpEditor.SelectElement(2, "Shield Health", _settings.ShieldHealthCustom); RefreshHPDisplay(); }
@@ -120,7 +117,6 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(CurrentHPScaleText, "CurrentHPScaleText");
         }
 
-        // Top Bar Offset/Scale
         public void ExecuteIncreaseOffsetX() { _topBarEditor.AdjustOffsetX(Constants.Adjustment.PositionStep); RefreshTopBarDisplay(); }
         public void ExecuteDecreaseOffsetX() { _topBarEditor.AdjustOffsetX(-Constants.Adjustment.PositionStep); RefreshTopBarDisplay(); }
         public void ExecuteIncreaseOffsetY() { _topBarEditor.AdjustOffsetY(Constants.Adjustment.PositionStep); RefreshTopBarDisplay(); }
@@ -144,7 +140,6 @@ namespace BetterMPHUD.ViewModels
             OnSettingsChanged();
         }
 
-        // HP Offset/Scale
         public void ExecuteIncreaseHPOffsetX() { _hpEditor.AdjustOffsetX(Constants.Adjustment.PositionStep); RefreshHPDisplay(); }
         public void ExecuteDecreaseHPOffsetX() { _hpEditor.AdjustOffsetX(-Constants.Adjustment.PositionStep); RefreshHPDisplay(); }
         public void ExecuteIncreaseHPOffsetY() { _hpEditor.AdjustOffsetY(Constants.Adjustment.PositionStep); RefreshHPDisplay(); }
@@ -172,7 +167,6 @@ namespace BetterMPHUD.ViewModels
             OnSettingsChanged();
         }
 
-        // Killfeed Controls
         private void AdjustFadeout(float delta)
         {
             float newTime = _settings.KillfeedFadeoutTime + delta;
@@ -235,7 +229,6 @@ namespace BetterMPHUD.ViewModels
             OnSettingsChanged();
         }
 
-        // Page Visibility Properties
         [DataSourceProperty]
         public bool IsConfigMenuOpen 
         { 
@@ -255,7 +248,6 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty] public bool IsCrosshairPageOpen { get { return _currentPage == "Crosshair"; } }
         [DataSourceProperty] public bool IsMiscPageOpen { get { return _currentPage == "Misc"; } }
 
-        // Settings Properties
         [DataSourceProperty]
         public bool NativeKillfeedEnabled 
         { 
@@ -312,7 +304,6 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty]
         public bool ShowDamageFeed { get { return _settings.ShowDamageFeed; } set { if (_settings.ShowDamageFeed != value) { _settings.ShowDamageFeed = value; OnPropertyChangedWithValue(value, "ShowDamageFeed"); OnSettingsChanged(); } } }
         
-        // Health Numbers Properties
         [DataSourceProperty]
         public bool ShowHealthNumbers { get { return _settings.ShowHealthNumbers; } set { if (_settings.ShowHealthNumbers != value) { _settings.ShowHealthNumbers = value; OnPropertyChangedWithValue(value, "ShowHealthNumbers"); OnSettingsChanged(); } } }
         
@@ -331,7 +322,6 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty]
         public bool CameraSnapbackEnabled { get { return _settings.CameraSnapbackEnabled; } set { if (_settings.CameraSnapbackEnabled != value) { _settings.CameraSnapbackEnabled = value; OnPropertyChangedWithValue(value, "CameraSnapbackEnabled"); OnSettingsChanged(); } } }
 
-        // Element Editor Delegation
         [DataSourceProperty] public int SelectedElementIndex { get { return _topBarEditor.SelectedIndex; } }
         [DataSourceProperty] public string SelectedElementName { get { return _topBarEditor.SelectedName; } }
         [DataSourceProperty] public string CurrentOffsetXText { get { return _topBarEditor.OffsetXText; } }
@@ -344,7 +334,6 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty] public string CurrentHPOffsetYText { get { return _hpEditor.OffsetYText; } }
         [DataSourceProperty] public string CurrentHPScaleText { get { return _hpEditor.ScaleText; } }
 
-        // Killfeed Display
         [DataSourceProperty] public string KillfeedOffsetXText { get { return _settings.KillfeedCustom.OffsetX.ToString("F0"); } }
         [DataSourceProperty] public string KillfeedOffsetYText { get { return _settings.KillfeedCustom.OffsetY.ToString("F0"); } }
         [DataSourceProperty] public string KillfeedScaleText { get { return (_settings.KillfeedCustom.Scale * 100).ToString("F0") + "%"; } }

@@ -36,21 +36,19 @@ namespace BetterMPHUD.Handlers
                 return;
             }
 
-            // Update visibility based on settings
+            // her opdatere vi viewmodel med de nyeste settings og health værdier, derudover viser vi synlighed og offsets for de 3 elementer
             _viewModel.UpdateVisibility(
                 settings.ShowHealthNumbers && settings.ShowAgentHealth,
                 settings.ShowMountHealthNumbers && settings.ShowMountHealth,
                 settings.ShowShieldHealthNumbers && settings.ShowShieldHealth
             );
-
-            // Update offsets to follow the health bars
+            
             _viewModel.UpdateOffsets(
                 settings.AgentHealthCustom,
                 settings.MountHealthCustom,
                 settings.ShieldHealthCustom
             );
-
-            // Update health values
+            
             _viewModel.PlayerHealth = GetHealthDisplay(mainAgent);
             _viewModel.MountHealth = GetMountHealthDisplay(mainAgent.MountAgent);
             _viewModel.ShieldHealth = GetShieldHealthDisplay(mainAgent);

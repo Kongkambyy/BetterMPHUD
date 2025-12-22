@@ -23,7 +23,6 @@ namespace BetterMPHUD
         
         public bool CameraSnapbackEnabled { get; set; } = false;
 
-        // Agent Status HUD Settings
         public bool ShowAgentHealth { get; set; } = true;
         public bool ShowMountHealth { get; set; } = true;
         public bool ShowShieldHealth { get; set; } = true;
@@ -34,7 +33,6 @@ namespace BetterMPHUD
         public bool ShowCouchLanceState { get; set; } = true;
         public bool ShowDamageFeed { get; set; } = true;
 
-        // Health Numbers Settings (NEW)
         public bool ShowHealthNumbers { get; set; } = true;
         public bool ShowMountHealthNumbers { get; set; } = true;
         public bool ShowShieldHealthNumbers { get; set; } = true;
@@ -45,7 +43,6 @@ namespace BetterMPHUD
         public ElementCustomization KillfeedCustom { get; set; }
         public ElementCustomization ChatCustom { get; set; }
         
-        // Agent Status Customizations
         public ElementCustomization AgentHealthCustom { get; set; }
         public ElementCustomization MountHealthCustom { get; set; }
         public ElementCustomization ShieldHealthCustom { get; set; }
