@@ -68,9 +68,12 @@ namespace BetterMPHUD.ViewModels
         public void ExecuteOpenHPVisibilityPage() { SetPage("HPVisibility"); }
         public void ExecuteOpenHPCustomizePage() { SetPage("HPCustomize"); }
         public void ExecuteOpenCrosshairPage() { SetPage("Crosshair"); }
+        public void ExecuteOpenCrosshairSettingsPage() { SetPage("CrosshairSettings"); }
+        public void ExecuteOpenDotSettingsPage() { SetPage("DotSettings"); }
         public void ExecuteOpenMiscPage() { SetPage("Misc"); }
         public void ExecuteBackToTopBar() { SetPage("TopBar"); }
         public void ExecuteBackToHP() { SetPage("HP"); }
+        public void ExecuteBackToCrosshair() { SetPage("Crosshair"); }
 
         private void RefreshPageVisibility()
         {
@@ -84,7 +87,11 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(IsHPVisibilityPageOpen, "IsHPVisibilityPageOpen");
             OnPropertyChangedWithValue(IsHPCustomizePageOpen, "IsHPCustomizePageOpen");
             OnPropertyChangedWithValue(IsCrosshairPageOpen, "IsCrosshairPageOpen");
+            OnPropertyChangedWithValue(IsCrosshairSettingsPageOpen, "IsCrosshairSettingsPageOpen");
+            OnPropertyChangedWithValue(IsDotSettingsPageOpen, "IsDotSettingsPageOpen");
             OnPropertyChangedWithValue(IsMiscPageOpen, "IsMiscPageOpen");
+            OnPropertyChangedWithValue(ShouldShiftMenuRight, "ShouldShiftMenuRight");
+            OnPropertyChangedWithValue(MenuHorizontalOffset, "MenuHorizontalOffset");
         }
 
         public void ExecuteSelectTimeAndScores() { _topBarEditor.SelectElement(0, "Time & Scores", _settings.TimeAndScoresCustom); RefreshTopBarDisplay(); }
@@ -270,6 +277,26 @@ namespace BetterMPHUD.ViewModels
             }
         }
 
+        private void AdjustDotWidth(int delta)
+        {
+            int newValue = _settings.CrosshairSettings.DotSizeWidth + delta;
+            if (newValue >= 1 && newValue <= 20)
+            {
+                _settings.CrosshairSettings.DotSizeWidth = newValue;
+                RefreshCrosshairDisplay();
+            }
+        }
+
+        private void AdjustDotHeight(int delta)
+        {
+            int newValue = _settings.CrosshairSettings.DotSizeHeight + delta;
+            if (newValue >= 1 && newValue <= 20)
+            {
+                _settings.CrosshairSettings.DotSizeHeight = newValue;
+                RefreshCrosshairDisplay();
+            }
+        }
+
         public void ExecuteIncreaseCrosshairWidth() { AdjustCrosshairWidth(1); }
         public void ExecuteDecreaseCrosshairWidth() { AdjustCrosshairWidth(-1); }
         public void ExecuteIncreaseCrosshairWidthLarge() { AdjustCrosshairWidth(5); }
@@ -296,6 +323,24 @@ namespace BetterMPHUD.ViewModels
         public void ExecuteSetCrosshairColorMagenta() { _settings.CrosshairSettings.Color = "#FF00FFFF"; RefreshCrosshairDisplay(); }
         public void ExecuteSetCrosshairColorOrange() { _settings.CrosshairSettings.Color = "#FFA500FF"; RefreshCrosshairDisplay(); }
 
+        public void ExecuteIncreaseDotWidth() { AdjustDotWidth(1); }
+        public void ExecuteDecreaseDotWidth() { AdjustDotWidth(-1); }
+        public void ExecuteIncreaseDotWidthLarge() { AdjustDotWidth(2); }
+        public void ExecuteDecreaseDotWidthLarge() { AdjustDotWidth(-2); }
+        public void ExecuteIncreaseDotHeight() { AdjustDotHeight(1); }
+        public void ExecuteDecreaseDotHeight() { AdjustDotHeight(-1); }
+        public void ExecuteIncreaseDotHeightLarge() { AdjustDotHeight(2); }
+        public void ExecuteDecreaseDotHeightLarge() { AdjustDotHeight(-2); }
+
+        public void ExecuteSetDotColorRed() { _settings.CrosshairSettings.DotColor = "#FF0000FF"; RefreshCrosshairDisplay(); }
+        public void ExecuteSetDotColorGreen() { _settings.CrosshairSettings.DotColor = "#00FF00FF"; RefreshCrosshairDisplay(); }
+        public void ExecuteSetDotColorBlue() { _settings.CrosshairSettings.DotColor = "#0000FFFF"; RefreshCrosshairDisplay(); }
+        public void ExecuteSetDotColorWhite() { _settings.CrosshairSettings.DotColor = "#FFFFFFFF"; RefreshCrosshairDisplay(); }
+        public void ExecuteSetDotColorYellow() { _settings.CrosshairSettings.DotColor = "#FFFF00FF"; RefreshCrosshairDisplay(); }
+        public void ExecuteSetDotColorCyan() { _settings.CrosshairSettings.DotColor = "#00FFFFFF"; RefreshCrosshairDisplay(); }
+        public void ExecuteSetDotColorMagenta() { _settings.CrosshairSettings.DotColor = "#FF00FFFF"; RefreshCrosshairDisplay(); }
+        public void ExecuteSetDotColorOrange() { _settings.CrosshairSettings.DotColor = "#FFA500FF"; RefreshCrosshairDisplay(); }
+
         public void ExecuteResetCrosshair()
         {
             _settings.CrosshairSettings.Reset();
@@ -310,6 +355,10 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(CrosshairOpacityText, "CrosshairOpacityText");
             OnPropertyChangedWithValue(CrosshairColorText, "CrosshairColorText");
             OnPropertyChangedWithValue(CustomCrosshairEnabled, "CustomCrosshairEnabled");
+            OnPropertyChangedWithValue(DotEnabled, "DotEnabled");
+            OnPropertyChangedWithValue(DotColorText, "DotColorText");
+            OnPropertyChangedWithValue(DotWidthText, "DotWidthText");
+            OnPropertyChangedWithValue(DotHeightText, "DotHeightText");
             OnSettingsChanged();
         }
 
@@ -330,7 +379,15 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty] public bool IsHPVisibilityPageOpen { get { return _currentPage == "HPVisibility"; } }
         [DataSourceProperty] public bool IsHPCustomizePageOpen { get { return _currentPage == "HPCustomize"; } }
         [DataSourceProperty] public bool IsCrosshairPageOpen { get { return _currentPage == "Crosshair"; } }
+        [DataSourceProperty] public bool IsCrosshairSettingsPageOpen { get { return _currentPage == "CrosshairSettings"; } }
+        [DataSourceProperty] public bool IsDotSettingsPageOpen { get { return _currentPage == "DotSettings"; } }
         [DataSourceProperty] public bool IsMiscPageOpen { get { return _currentPage == "Misc"; } }
+
+        [DataSourceProperty] 
+        public bool ShouldShiftMenuRight 
+        { 
+            get { return IsCrosshairSettingsPageOpen || IsDotSettingsPageOpen; } 
+        }
 
         [DataSourceProperty]
         public bool NativeKillfeedEnabled 
@@ -431,5 +488,38 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty] public string CrosshairOffsetText { get { return _settings.CrosshairSettings.Offset.ToString(); } }
         [DataSourceProperty] public string CrosshairOpacityText { get { return (_settings.CrosshairSettings.Opacity * 100).ToString("F0") + "%"; } }
         [DataSourceProperty] public string CrosshairColorText { get { return _settings.CrosshairSettings.Color; } }
+
+        [DataSourceProperty]
+        public bool DotEnabled 
+        { 
+            get { return _settings.CrosshairSettings.DotEnabled; } 
+            set 
+            { 
+                if (_settings.CrosshairSettings.DotEnabled != value) 
+                { 
+                    _settings.CrosshairSettings.DotEnabled = value; 
+                    OnPropertyChangedWithValue(value, "DotEnabled"); 
+                    OnSettingsChanged(); 
+                } 
+            } 
+        }
+
+        [DataSourceProperty] 
+        public string DotColorText { get { return _settings.CrosshairSettings.DotColor; } }
+
+        [DataSourceProperty] 
+        public string DotWidthText { get { return _settings.CrosshairSettings.DotSizeWidth.ToString(); } }
+        
+        [DataSourceProperty] 
+        public string DotHeightText { get { return _settings.CrosshairSettings.DotSizeHeight.ToString(); } }
+
+        public void ExecuteSetDotCircular() { _settings.CrosshairSettings.DotIsCircular = true; RefreshCrosshairDisplay(); }
+        public void ExecuteSetDotSquare() { _settings.CrosshairSettings.DotIsCircular = false; RefreshCrosshairDisplay(); }
+        
+        [DataSourceProperty]
+        public float MenuHorizontalOffset
+        {
+            get { return ShouldShiftMenuRight ? 610f : 0f; }
+        }
     }
 }

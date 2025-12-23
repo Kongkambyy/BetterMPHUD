@@ -45,29 +45,45 @@
                             </Children>
                         </ValueBasedVisibilityWidget>
 
-                        <ValueBasedVisibilityWidget WidthSizePolicy="StretchToParent"
+						<ValueBasedVisibilityWidget WidthSizePolicy="StretchToParent"
                                                     HeightSizePolicy="StretchToParent" WatchType="Equal"
                                                     IndexToBeVisible="1" IndexToWatch="@CrosshairType">
-                            <Children>
-                                <BrushWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+							<Children>
+								<BrushWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
                                              SuggestedWidth="@CrosshairSizeHorFloat" SuggestedHeight="@CrosshairSizeVertFloat"
                                              HorizontalAlignment="Center" VerticalAlignment="Top"
                                              Sprite="BlankWhiteSquare_9" Brush.Color="@CrosshairColor"
                                              Brush.AlphaFactor="@CrosshairOpacity"/>
-                                <BrushWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+								<BrushWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
                                              SuggestedWidth="@CrosshairSizeHorFloat" SuggestedHeight="@CrosshairSizeVertFloat"
                                              HorizontalAlignment="Left" VerticalAlignment="Bottom"
                                              Sprite="BlankWhiteSquare_9" Brush.Color="@CrosshairColor"
                                              Brush.AlphaFactor="@CrosshairOpacity"/>
-                                <BrushWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+								<BrushWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
                                              SuggestedWidth="@CrosshairSizeHorFloat" SuggestedHeight="@CrosshairSizeVertFloat"
                                              HorizontalAlignment="Right" VerticalAlignment="Bottom"
                                              Sprite="BlankWhiteSquare_9" Brush.Color="@CrosshairColor"
                                              Brush.AlphaFactor="@CrosshairOpacity"/>
-                            </Children>
-                        </ValueBasedVisibilityWidget>
+							</Children>
+						</ValueBasedVisibilityWidget>
                     </Children>
                 </CrosshairWidget>
+
+                <!-- CENTER DOT - Circular version (TESTING WITH SIMPLE SPRITE) -->
+                <BrushWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                             SuggestedWidth="@DotSizeWidthFloat" SuggestedHeight="@DotSizeHeightFloat"
+                             HorizontalAlignment="Center" VerticalAlignment="Center"
+                             Sprite="BlankWhiteCircle"
+                             Brush.Color="@DotColor"
+                             IsVisible="@DotIsCircularVisible" />
+                
+                <!-- CENTER DOT - Square version -->
+                <BrushWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                             SuggestedWidth="@DotSizeWidthFloat" SuggestedHeight="@DotSizeHeightFloat"
+                             HorizontalAlignment="Center" VerticalAlignment="Center"
+                             Sprite="BlankWhiteSquare_9"
+                             Brush.Color="@DotColor"
+                             IsVisible="@DotIsSquareVisible" />
 
                 <BrushWidget Id="TopArrow" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
                              SuggestedWidth="31" SuggestedHeight="131"

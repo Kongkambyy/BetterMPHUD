@@ -63,6 +63,11 @@ namespace BetterMPHUD.Handlers
                 _viewModel.CrosshairSizeHor = cs.SizeHorizontal;
                 _viewModel.CrosshairSizeVert = cs.SizeVertical;
                 _viewModel.CrosshairOffset = cs.Offset;
+                _viewModel.IsDotEnabled = cs.DotEnabled;
+                _viewModel.DotColor = cs.DotColor;
+                _viewModel.DotSizeWidth = cs.DotSizeWidth;
+                _viewModel.DotSizeHeight = cs.DotSizeHeight;
+                _viewModel.DotIsCircular = cs.DotIsCircular;
 
                 UpdateVisibility(screen);
                 UpdateCrosshairProperties(screen);
@@ -90,32 +95,43 @@ namespace BetterMPHUD.Handlers
             if (!_viewModel.CustomEnabled) 
             {
                 _viewModel.IsVisible = false;
+                _viewModel.IsDotVisible = false;
                 return;
             }
 
             if (Mission.Current == null || Mission.Current.MainAgent == null)
             {
                 _viewModel.IsVisible = false;
+                _viewModel.IsDotVisible = false;
                 return;
             }
 
             Agent mainAgent = Mission.Current.MainAgent;
             MissionWeapon wieldedWeapon = mainAgent.WieldedWeapon;
 
-            bool shouldShow = BannerlordConfig.DisplayTargetingReticule &&
-                              Mission.Current.Mode != MissionMode.Conversation &&
-                              Mission.Current.Mode != MissionMode.CutScene &&
-                              !wieldedWeapon.IsEmpty &&
-                              wieldedWeapon.CurrentUsageItem != null &&
-                              wieldedWeapon.CurrentUsageItem.IsRangedWeapon &&
-                              !screen.IsViewingCharacter() &&
-                              screen.CustomCamera == null;
+            bool isRangedWeapon = !wieldedWeapon.IsEmpty &&
+                                  wieldedWeapon.CurrentUsageItem != null &&
+                                  wieldedWeapon.CurrentUsageItem.IsRangedWeapon;
+
+            bool baseConditions = BannerlordConfig.DisplayTargetingReticule &&
+                                  Mission.Current.Mode != MissionMode.Conversation &&
+                                  Mission.Current.Mode != MissionMode.CutScene &&
+                                  !screen.IsViewingCharacter() &&
+                                  screen.CustomCamera == null;
+
+            // CROSSHAIR visibility: Only show with ranged weapons
+            bool shouldShowCrosshair = baseConditions && isRangedWeapon;
 
             // Handle Crossbow specific reload visibility logic
-            if (shouldShow && wieldedWeapon.CurrentUsageItem.WeaponClass == WeaponClass.Crossbow)
-                shouldShow = !wieldedWeapon.IsReloading;
+            if (shouldShowCrosshair && wieldedWeapon.CurrentUsageItem.WeaponClass == WeaponClass.Crossbow)
+                shouldShowCrosshair = !wieldedWeapon.IsReloading;
 
-            _viewModel.IsVisible = shouldShow;
+            _viewModel.IsVisible = shouldShowCrosshair;
+
+            // DOT visibility: Show when dot is enabled AND NOT using ranged weapons
+            bool shouldShowDot = _viewModel.IsDotEnabled && baseConditions && !isRangedWeapon;
+            
+            _viewModel.IsDotVisible = shouldShowDot;
         }
 
         private void UpdateCrosshairProperties(MissionScreen screen)

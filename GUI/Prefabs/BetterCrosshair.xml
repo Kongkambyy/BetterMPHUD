@@ -1,0 +1,10 @@
+<!-- Add this inside your crosshair container, centered -->
+<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+        SuggestedWidth="6" SuggestedHeight="6"
+        HorizontalAlignment="Center" VerticalAlignment="Center"
+        IsVisible="@IsDotEnabled">
+  <BrushWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+               Brush="Brush.WhiteDot"
+               Color="@DotColor"
+               IsVisible="@IsDotEnabled" />
+</Widget>

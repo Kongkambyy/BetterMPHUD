@@ -11,6 +11,8 @@ namespace BetterMPHUD.ViewModels
         private bool _isHitMarkerVisible;
         private bool _isVictimDead;
         private bool _isHumanoidHeadshot;
+        private bool _isDotEnabled;
+        private bool _isDotVisible;
 
         private double _crosshairAccuracy;
         private double _crosshairScale = 1.0;
@@ -26,6 +28,12 @@ namespace BetterMPHUD.ViewModels
         private double _bottomArrowOpacity;
         private double _leftArrowOpacity;
         private double _rightArrowOpacity;
+
+        private string _dotColor = "#FFFFFFFF";
+
+        private int _dotSizeWidth = 4;
+        private int _dotSizeHeight = 4;
+        private bool _dotIsCircular = true;
 
         public void ShowHitMarker(bool isFatal, bool isHeadshot)
         {
@@ -170,6 +178,93 @@ namespace BetterMPHUD.ViewModels
         {
             get { return _rightArrowOpacity; }
             set { if (_rightArrowOpacity != value) { _rightArrowOpacity = value; OnPropertyChangedWithValue(value, "RightArrowOpacity"); } }
+        }
+
+        [DataSourceProperty]
+        public bool IsDotEnabled
+        {
+            get { return _isDotEnabled; }
+            set 
+            { 
+                if (_isDotEnabled != value) 
+                { 
+                    _isDotEnabled = value; 
+                    OnPropertyChangedWithValue(value, "IsDotEnabled");
+                    OnPropertyChangedWithValue(DotIsCircularVisible, "DotIsCircularVisible");
+                    OnPropertyChangedWithValue(DotIsSquareVisible, "DotIsSquareVisible");
+                } 
+            }
+        }
+
+        [DataSourceProperty]
+        public string DotColor
+        {
+            get { return _dotColor; }
+            set { if (_dotColor != value) { _dotColor = value; OnPropertyChangedWithValue(value, "DotColor"); } }
+        }
+
+        [DataSourceProperty]
+        public int DotSizeWidth
+        {
+            get { return _dotSizeWidth; }
+            set { if (_dotSizeWidth != value) { _dotSizeWidth = value; OnPropertyChangedWithValue(value, "DotSizeWidth"); OnPropertyChangedWithValue((float)value, "DotSizeWidthFloat"); } }
+        }
+
+        [DataSourceProperty]
+        public int DotSizeHeight
+        {
+            get { return _dotSizeHeight; }
+            set { if (_dotSizeHeight != value) { _dotSizeHeight = value; OnPropertyChangedWithValue(value, "DotSizeHeight"); OnPropertyChangedWithValue((float)value, "DotSizeHeightFloat"); } }
+        }
+
+        [DataSourceProperty]
+        public float DotSizeWidthFloat { get { return _dotSizeWidth; } }
+
+        [DataSourceProperty]
+        public float DotSizeHeightFloat { get { return _dotSizeHeight; } }
+
+        [DataSourceProperty]
+        public bool IsDotVisible
+        {
+            get { return _isDotVisible; }
+            set 
+            { 
+                if (_isDotVisible != value) 
+                { 
+                    _isDotVisible = value; 
+                    OnPropertyChangedWithValue(value, "IsDotVisible");
+                    OnPropertyChangedWithValue(DotIsCircularVisible, "DotIsCircularVisible");
+                    OnPropertyChangedWithValue(DotIsSquareVisible, "DotIsSquareVisible");
+                } 
+            }
+        }
+
+        [DataSourceProperty]
+        public bool DotIsCircular
+        {
+            get { return _dotIsCircular; }
+            set 
+            { 
+                if (_dotIsCircular != value) 
+                { 
+                    _dotIsCircular = value; 
+                    OnPropertyChangedWithValue(value, "DotIsCircular");
+                    OnPropertyChangedWithValue(DotIsCircularVisible, "DotIsCircularVisible");
+                    OnPropertyChangedWithValue(DotIsSquareVisible, "DotIsSquareVisible");
+                } 
+            }
+        }
+
+        [DataSourceProperty]
+        public bool DotIsCircularVisible
+        {
+            get { return _isDotVisible && _dotIsCircular; }
+        }
+
+        [DataSourceProperty]
+        public bool DotIsSquareVisible
+        {
+            get { return _isDotVisible && !_dotIsCircular; }
         }
     }
 }
