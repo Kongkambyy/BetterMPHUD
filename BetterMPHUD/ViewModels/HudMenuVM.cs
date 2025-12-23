@@ -10,6 +10,8 @@ namespace BetterMPHUD.ViewModels
         private HudSettings _settings;
         private ElementEditorVM _topBarEditor;
         private ElementEditorVM _hpEditor;
+        private int _selectedProfileIndex;
+        private int _newProfileCounter = 1;
 
         private bool _isConfigMenuOpen;
         private string _currentPage = "Killfeed";
@@ -27,6 +29,7 @@ namespace BetterMPHUD.ViewModels
 
             _hpEditor = new ElementEditorVM(0, _settings.AgentHealthCustom, "Agent Health");
             _hpEditor.SetOnChanged(OnSettingsChanged);
+            _selectedProfileIndex = ProfileManager.GetActiveProfileIndex();
 
             ApplyNativeKillfeedSetting();
         }
@@ -74,6 +77,8 @@ namespace BetterMPHUD.ViewModels
         public void ExecuteBackToTopBar() { SetPage("TopBar"); }
         public void ExecuteBackToHP() { SetPage("HP"); }
         public void ExecuteBackToCrosshair() { SetPage("Crosshair"); }
+        public void ExecuteOpenProfilesPage() { SetPage("Profiles"); }
+
 
         private void RefreshPageVisibility()
         {
@@ -92,6 +97,7 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(IsMiscPageOpen, "IsMiscPageOpen");
             OnPropertyChangedWithValue(ShouldShiftMenuRight, "ShouldShiftMenuRight");
             OnPropertyChangedWithValue(MenuHorizontalOffset, "MenuHorizontalOffset");
+            OnPropertyChangedWithValue(IsProfilesPageOpen, "IsProfilesPageOpen");
         }
 
         public void ExecuteSelectTimeAndScores() { _topBarEditor.SelectElement(0, "Time & Scores", _settings.TimeAndScoresCustom); RefreshTopBarDisplay(); }
@@ -570,6 +576,24 @@ namespace BetterMPHUD.ViewModels
         { 
             get { return _settings.KillfeedBackgroundColor; } 
         }
+        
+        [DataSourceProperty] 
+        public bool IsProfilesPageOpen { get { return _currentPage == "Profiles"; } }
+
+        [DataSourceProperty]
+        public string CurrentProfileName { get { return ProfileManager.GetActiveProfile().Name; } }
+
+        [DataSourceProperty]
+        public string ProfileCountText 
+        { 
+            get 
+            { 
+                return (_selectedProfileIndex + 1) + "/" + ProfileManager.GetProfileCount(); 
+            } 
+        }
+
+        [DataSourceProperty]
+        public bool CanDeleteProfile { get { return ProfileManager.GetProfileCount() > 1; } }
 
         public void ExecuteSetKillfeedBackgroundColorBlack() 
         { 
@@ -610,6 +634,126 @@ namespace BetterMPHUD.ViewModels
                 OnPropertyChangedWithValue(KillfeedMaxEntriesText, "KillfeedMaxEntriesText");
                 OnSettingsChanged();
             }
+        }
+        
+        public void ExecuteNextProfile()
+        {
+            int count = ProfileManager.GetProfileCount();
+            if (count <= 1) return;
+    
+            _selectedProfileIndex = (_selectedProfileIndex + 1) % count;
+            ProfileManager.SetActiveProfileByIndex(_selectedProfileIndex);
+            ReloadSettingsFromProfile();
+        }
+        
+        public void ExecutePreviousProfile()
+        {
+            int count = ProfileManager.GetProfileCount();
+            if (count <= 1) return;
+    
+            _selectedProfileIndex = (_selectedProfileIndex - 1 + count) % count;
+            ProfileManager.SetActiveProfileByIndex(_selectedProfileIndex);
+            ReloadSettingsFromProfile();
+        }
+        
+        public void ExecuteCreateProfile()
+        {
+            string newName = "Profile " + _newProfileCounter;
+            while (ProfileManager.GetProfileNames().Contains(newName))
+            {
+                _newProfileCounter++;
+                newName = "Profile " + _newProfileCounter;
+            }
+    
+            if (ProfileManager.CreateProfile(newName))
+            {
+                _newProfileCounter++;
+                RefreshProfileDisplay();
+            }
+        }
+        
+        public void ExecuteDuplicateProfile()
+        {
+            string currentName = ProfileManager.GetActiveProfile().Name;
+            string newName = currentName + " Copy";
+            int copyNum = 1;
+    
+            while (ProfileManager.GetProfileNames().Contains(newName))
+            {
+                copyNum++;
+                newName = currentName + " Copy " + copyNum;
+            }
+    
+            if (ProfileManager.DuplicateProfile(currentName, newName))
+            {
+                ProfileManager.SetActiveProfile(newName);
+                _selectedProfileIndex = ProfileManager.GetActiveProfileIndex();
+                ReloadSettingsFromProfile();
+            }
+        }
+        
+        public void ExecuteDeleteProfile()
+        {
+            string currentName = ProfileManager.GetActiveProfile().Name;
+            if (ProfileManager.DeleteProfile(currentName))
+            {
+                _selectedProfileIndex = ProfileManager.GetActiveProfileIndex();
+                ReloadSettingsFromProfile();
+            }
+        }
+        
+        private void ReloadSettingsFromProfile()
+        {
+            _settings = ProfileManager.GetActiveSettings();
+    
+            _topBarEditor = new ElementEditorVM(0, _settings.TimeAndScoresCustom, "Time & Scores");
+            _topBarEditor.SetOnChanged(OnSettingsChanged);
+            _hpEditor = new ElementEditorVM(0, _settings.AgentHealthCustom, "Agent Health");
+            _hpEditor.SetOnChanged(OnSettingsChanged);
+    
+            ApplyNativeKillfeedSetting();
+            RefreshProfileDisplay();
+            RefreshAllSettingsDisplay();
+    
+            if (OnHudSettingsChanged != null)
+                OnHudSettingsChanged();
+        }
+        
+        private void RefreshProfileDisplay()
+        {
+            OnPropertyChangedWithValue(CurrentProfileName, "CurrentProfileName");
+            OnPropertyChangedWithValue(ProfileCountText, "ProfileCountText");
+            OnPropertyChangedWithValue(CanDeleteProfile, "CanDeleteProfile");
+        }
+        
+        private void RefreshAllSettingsDisplay()
+        {
+            OnPropertyChangedWithValue(NativeKillfeedEnabled, "NativeKillfeedEnabled");
+            OnPropertyChangedWithValue(WarbandKillfeedEnabled, "WarbandKillfeedEnabled");
+            OnPropertyChangedWithValue(ShowTimeAndScores, "ShowTimeAndScores");
+            OnPropertyChangedWithValue(ShowAvatars, "ShowAvatars");
+            OnPropertyChangedWithValue(ShowEnemyScore, "ShowEnemyScore");
+            OnPropertyChangedWithValue(ShowBanners, "ShowBanners");
+            OnPropertyChangedWithValue(ShowMorale, "ShowMorale");
+            OnPropertyChangedWithValue(ShowAgentHealth, "ShowAgentHealth");
+            OnPropertyChangedWithValue(ShowMountHealth, "ShowMountHealth");
+            OnPropertyChangedWithValue(ShowShieldHealth, "ShowShieldHealth");
+            OnPropertyChangedWithValue(ShowWeaponInfo, "ShowWeaponInfo");
+            OnPropertyChangedWithValue(ShowGoldAmount, "ShowGoldAmount");
+            OnPropertyChangedWithValue(ShowTroopCount, "ShowTroopCount");
+            OnPropertyChangedWithValue(ShowCouchLanceState, "ShowCouchLanceState");
+            OnPropertyChangedWithValue(ShowDamageFeed, "ShowDamageFeed");
+            OnPropertyChangedWithValue(CustomCrosshairEnabled, "CustomCrosshairEnabled");
+            OnPropertyChangedWithValue(DotEnabled, "DotEnabled");
+            OnPropertyChangedWithValue(CameraSnapbackEnabled, "CameraSnapbackEnabled");
+            OnPropertyChangedWithValue(KillfeedFadeoutTimeText, "KillfeedFadeoutTimeText");
+            OnPropertyChangedWithValue(KillfeedMaxEntriesText, "KillfeedMaxEntriesText");
+            OnPropertyChangedWithValue(KillfeedBackgroundEnabled, "KillfeedBackgroundEnabled");
+            OnPropertyChangedWithValue(KillfeedBackgroundOpacityText, "KillfeedBackgroundOpacityText");
+            RefreshCrosshairDisplay();
+            RefreshTopBarDisplay();
+            RefreshHPDisplay();
+            RefreshKillfeedDisplay();
         }
 
         public void ExecuteIncreaseKillfeedMaxEntries() { AdjustKillfeedMaxEntries(1); }

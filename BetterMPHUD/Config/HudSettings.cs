@@ -138,46 +138,16 @@ namespace BetterMPHUD
         
         public static HudSettings LoadSettings()
         {
-            try
-            {
-                if (File.Exists(ConfigPath))
-                {
-                    XmlSerializer serializer = new XmlSerializer(typeof(HudSettings));
-                    using (FileStream stream = new FileStream(ConfigPath, FileMode.Open))
-                    {
-                        HudSettings settings = (HudSettings)serializer.Deserialize(stream);
-                        settings.EnsureCustomizationsExist();
-                        
-                        if (settings.KillfeedFadeoutTime <= 0f) 
-                            settings.KillfeedFadeoutTime = 8f;
-                        
-                        InformationManager.DisplayMessage(new InformationMessage("[BetterMPHUD] Settings loaded.", Colors.Green));
-                        return settings;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                InformationManager.DisplayMessage(new InformationMessage("[BetterMPHUD] Failed to load config: " + ex.Message, Colors.Red));
-            }
-            return new HudSettings();
+            var settings = ProfileManager.GetActiveSettings();
+            if (settings.KillfeedFadeoutTime <= 0f)
+                settings.KillfeedFadeoutTime = 8f;
+            return settings;
         }
         
         public static void SaveSettings(HudSettings settings)
         {
-            try
-            {
-                settings.EnsureCustomizationsExist();
-                XmlSerializer serializer = new XmlSerializer(typeof(HudSettings));
-                using (FileStream stream = new FileStream(ConfigPath, FileMode.Create))
-                {
-                    serializer.Serialize(stream, settings);
-                }
-            }
-            catch (Exception ex)
-            {
-                InformationManager.DisplayMessage(new InformationMessage("[BetterMPHUD] Failed to save config: " + ex.Message, Colors.Red));
-            }
+            settings.EnsureCustomizationsExist();
+            ProfileManager.SaveProfiles();
         }
     }
 }

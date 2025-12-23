@@ -64,6 +64,7 @@
     <Compile Include="Config\CrosshairSettings.cs" />
     <Compile Include="Config\ElementCustomization.cs" />
     <Compile Include="Config\HudSettings.cs" />
+    <Compile Include="Config\ProfileManager.cs" />
     <Compile Include="Core\Constants.cs" />
     <Compile Include="Core\WidgetData.cs" />
     <Compile Include="Handlers\AgentStatusHandler.cs" />
