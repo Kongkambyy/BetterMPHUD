@@ -65,7 +65,14 @@ namespace BetterMPHUD.Handlers
                 delegate(KillfeedItemVM vm) { _viewModel.RemoveKill(vm); });
 
             item.UpdateSizes(font, icon, skull, row);
-            _viewModel.AddKill(item);
+            
+            // NEW: Apply background settings
+            item.UpdateBackground(
+                settings.KillfeedBackgroundEnabled, 
+                settings.KillfeedBackgroundColor, 
+                settings.KillfeedBackgroundOpacity);
+            
+            _viewModel.AddKill(item, settings.KillfeedMaxEntries);
         }
 
         public void UpdateExpiredEntries(float currentTime)
@@ -80,7 +87,15 @@ namespace BetterMPHUD.Handlers
         public void ApplySettings(HudSettings settings)
         {
             if (_viewModel != null)
+            {
                 _viewModel.IsVisible = settings.WarbandKillfeedEnabled;
+                
+                // Apply background settings to all existing items
+                _viewModel.UpdateBackgrounds(
+                    settings.KillfeedBackgroundEnabled,
+                    settings.KillfeedBackgroundColor,
+                    settings.KillfeedBackgroundOpacity);
+            }
 
             ApplyCustomization(settings);
         }

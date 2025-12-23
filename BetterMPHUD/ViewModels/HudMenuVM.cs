@@ -220,6 +220,24 @@ namespace BetterMPHUD.ViewModels
         public void ExecuteIncreaseKillfeedScaleLarge() { AdjustKillfeedScale(Constants.Adjustment.ScaleStepLarge); }
         public void ExecuteDecreaseKillfeedScaleLarge() { AdjustKillfeedScale(-Constants.Adjustment.ScaleStepLarge); }
 
+        private void AdjustKillfeedBackgroundOpacity(float delta)
+        {
+            float newValue = _settings.KillfeedBackgroundOpacity + delta;
+            if (newValue >= 0f && newValue <= 1f)
+            {
+                _settings.KillfeedBackgroundOpacity = (float)Math.Round(newValue, 2);
+                RefreshKillfeedDisplay();
+                
+                if (OnHudSettingsChanged != null)
+                    OnHudSettingsChanged();
+            }
+        }
+
+        public void ExecuteIncreaseKillfeedBackgroundOpacity() { AdjustKillfeedBackgroundOpacity(0.05f); }
+        public void ExecuteDecreaseKillfeedBackgroundOpacity() { AdjustKillfeedBackgroundOpacity(-0.05f); }
+        public void ExecuteIncreaseKillfeedBackgroundOpacityLarge() { AdjustKillfeedBackgroundOpacity(0.1f); }
+        public void ExecuteDecreaseKillfeedBackgroundOpacityLarge() { AdjustKillfeedBackgroundOpacity(-0.1f); }
+
         public void ExecuteResetKillfeed()
         {
             _settings.KillfeedCustom.Reset();
@@ -233,6 +251,10 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(KillfeedOffsetXText, "KillfeedOffsetXText");
             OnPropertyChangedWithValue(KillfeedOffsetYText, "KillfeedOffsetYText");
             OnPropertyChangedWithValue(KillfeedScaleText, "KillfeedScaleText");
+            OnPropertyChangedWithValue(KillfeedBackgroundOpacityText, "KillfeedBackgroundOpacityText");
+            OnPropertyChangedWithValue(KillfeedBackgroundColorText, "KillfeedBackgroundColorText");
+            OnPropertyChangedWithValue(KillfeedBackgroundEnabled, "KillfeedBackgroundEnabled");
+            OnPropertyChangedWithValue(KillfeedMaxEntriesText, "KillfeedMaxEntriesText");  // ADD THIS LINE
             OnSettingsChanged();
         }
 
@@ -260,7 +282,7 @@ namespace BetterMPHUD.ViewModels
         private void AdjustCrosshairOffset(int delta)
         {
             int newValue = _settings.CrosshairSettings.Offset + delta;
-            if (newValue >= 0 && newValue <= 30)
+            if (newValue >= 0 && newValue <= 15)
             {
                 _settings.CrosshairSettings.Offset = newValue;
                 RefreshCrosshairDisplay();
@@ -520,6 +542,85 @@ namespace BetterMPHUD.ViewModels
         public float MenuHorizontalOffset
         {
             get { return ShouldShiftMenuRight ? 610f : 0f; }
+        }
+
+        [DataSourceProperty]
+        public bool KillfeedBackgroundEnabled 
+        { 
+            get { return _settings.KillfeedBackgroundEnabled; } 
+            set 
+            { 
+                if (_settings.KillfeedBackgroundEnabled != value) 
+                { 
+                    _settings.KillfeedBackgroundEnabled = value; 
+                    OnPropertyChangedWithValue(value, "KillfeedBackgroundEnabled"); 
+                    OnSettingsChanged(); 
+                } 
+            } 
+        }
+
+        [DataSourceProperty] 
+        public string KillfeedBackgroundOpacityText 
+        { 
+            get { return (_settings.KillfeedBackgroundOpacity * 100).ToString("F0") + "%"; } 
+        }
+
+        [DataSourceProperty] 
+        public string KillfeedBackgroundColorText 
+        { 
+            get { return _settings.KillfeedBackgroundColor; } 
+        }
+
+        public void ExecuteSetKillfeedBackgroundColorBlack() 
+        { 
+            _settings.KillfeedBackgroundColor = "#000000FF"; 
+            RefreshKillfeedDisplay();
+            
+            // Force immediate update
+            if (OnHudSettingsChanged != null)
+                OnHudSettingsChanged();
+        }
+
+        public void ExecuteSetKillfeedBackgroundColorGray() 
+        { 
+            _settings.KillfeedBackgroundColor = "#808080FF"; 
+            RefreshKillfeedDisplay();
+            
+            // Force immediate update
+            if (OnHudSettingsChanged != null)
+                OnHudSettingsChanged();
+        }
+
+        public void ExecuteSetKillfeedBackgroundColorDarkGray() 
+        { 
+            _settings.KillfeedBackgroundColor = "#404040FF"; 
+            RefreshKillfeedDisplay();
+            
+            // Force immediate update
+            if (OnHudSettingsChanged != null)
+                OnHudSettingsChanged();
+        }
+
+        private void AdjustKillfeedMaxEntries(int delta)
+        {
+            int newValue = _settings.KillfeedMaxEntries + delta;
+            if (newValue >= 1 && newValue <= 15)
+            {
+                _settings.KillfeedMaxEntries = newValue;
+                OnPropertyChangedWithValue(KillfeedMaxEntriesText, "KillfeedMaxEntriesText");
+                OnSettingsChanged();
+            }
+        }
+
+        public void ExecuteIncreaseKillfeedMaxEntries() { AdjustKillfeedMaxEntries(1); }
+        public void ExecuteDecreaseKillfeedMaxEntries() { AdjustKillfeedMaxEntries(-1); }
+        public void ExecuteIncreaseKillfeedMaxEntriesLarge() { AdjustKillfeedMaxEntries(5); }
+        public void ExecuteDecreaseKillfeedMaxEntriesLarge() { AdjustKillfeedMaxEntries(-5); }
+
+        [DataSourceProperty] 
+        public string KillfeedMaxEntriesText 
+        { 
+            get { return _settings.KillfeedMaxEntries.ToString(); } 
         }
     }
 }

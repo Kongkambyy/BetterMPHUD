@@ -11,6 +11,11 @@ namespace BetterMPHUD
         public bool NativeKillfeedEnabled { get; set; } = false;
         public bool WarbandKillfeedEnabled { get; set; } = true;
         public float KillfeedFadeoutTime { get; set; } = 8f;
+        public int KillfeedMaxEntries { get; set; } = 15;
+
+        public bool KillfeedBackgroundEnabled { get; set; } = true;
+        public float KillfeedBackgroundOpacity { get; set; } = 0.7f;
+        public string KillfeedBackgroundColor { get; set; } = "#000000FF";
 
         public bool ShowTimeAndScores { get; set; } = true;
         public bool ShowAvatars { get; set; } = true;

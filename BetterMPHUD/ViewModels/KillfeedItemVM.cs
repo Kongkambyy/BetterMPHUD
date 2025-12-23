@@ -16,6 +16,10 @@ namespace BetterMPHUD
         private float _iconSize;
         private float _skullSize;
         private float _rowHeight;
+        
+        private bool _showBackground;
+        private string _backgroundColor;
+        private float _backgroundOpacity;
 
         private readonly Action<KillfeedItemVM> _onRemove;
         public float ExpireTime { get; set; }
@@ -38,6 +42,11 @@ namespace BetterMPHUD
             _killIconSprite = killIconSprite;
             ExpireTime = expireTime;
             _onRemove = onRemove;
+            
+            // Default background values
+            _showBackground = true;
+            _backgroundColor = "#000000FF";
+            _backgroundOpacity = 0.7f;
         }
 
         public void UpdateSizes(int fontSize, float iconSize, float skullSize, float rowHeight)
@@ -46,6 +55,14 @@ namespace BetterMPHUD
             IconSize = iconSize;
             SkullSize = skullSize;
             RowHeight = rowHeight;
+        }
+        
+        // Update background settings
+        public void UpdateBackground(bool show, string color, float opacity)
+        {
+            ShowBackground = show;
+            BackgroundColor = color;
+            BackgroundOpacity = opacity;
         }
 
         public void ExecuteRemove() => _onRemove?.Invoke(this);
@@ -118,6 +135,28 @@ namespace BetterMPHUD
         { 
             get => _rowHeight; 
             set { if (_rowHeight != value) { _rowHeight = value; OnPropertyChangedWithValue(value, "RowHeight"); } } 
+        }
+        
+        // Background properties
+        [DataSourceProperty]
+        public bool ShowBackground 
+        { 
+            get => _showBackground; 
+            set { if (_showBackground != value) { _showBackground = value; OnPropertyChangedWithValue(value, "ShowBackground"); } } 
+        }
+
+        [DataSourceProperty]
+        public string BackgroundColor 
+        { 
+            get => _backgroundColor; 
+            set { if (_backgroundColor != value) { _backgroundColor = value; OnPropertyChangedWithValue(value, "BackgroundColor"); } } 
+        }
+
+        [DataSourceProperty]
+        public float BackgroundOpacity 
+        { 
+            get => _backgroundOpacity; 
+            set { if (_backgroundOpacity != value) { _backgroundOpacity = value; OnPropertyChangedWithValue(value, "BackgroundOpacity"); } } 
         }
     }
 }

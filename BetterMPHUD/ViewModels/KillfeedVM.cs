@@ -46,9 +46,9 @@ namespace BetterMPHUD.ViewModels
             row = Math.Max(1, BASE_ROW * scale);
         }
 
-        public void AddKill(KillfeedItemVM item)
+        public void AddKill(KillfeedItemVM item, int maxEntries)
         {
-            if (_killList.Count >= 15)
+            if (_killList.Count >= maxEntries)
             {
                 _killList.RemoveAt(0);
             }
@@ -93,6 +93,14 @@ namespace BetterMPHUD.ViewModels
                     _isVisible = value;
                     OnPropertyChangedWithValue(value, "IsVisible");
                 }
+            }
+        }
+
+        public void UpdateBackgrounds(bool show, string color, float opacity)
+        {
+            foreach (var item in _killList)
+            {
+                item.UpdateBackground(show, color, opacity);
             }
         }
     }
