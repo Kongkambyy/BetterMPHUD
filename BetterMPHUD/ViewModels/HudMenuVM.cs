@@ -12,6 +12,7 @@ namespace BetterMPHUD.ViewModels
         private ElementEditorVM _hpEditor;
         private int _selectedProfileIndex;
         private int _newProfileCounter = 1;
+        private string _tempProfileName;
 
         private bool _isConfigMenuOpen;
         private string _currentPage = "Killfeed";
@@ -30,6 +31,7 @@ namespace BetterMPHUD.ViewModels
             _hpEditor = new ElementEditorVM(0, _settings.AgentHealthCustom, "Agent Health");
             _hpEditor.SetOnChanged(OnSettingsChanged);
             _selectedProfileIndex = ProfileManager.GetActiveProfileIndex();
+            _tempProfileName = ProfileManager.GetActiveProfile().Name;
 
             ApplyNativeKillfeedSetting();
         }
@@ -581,7 +583,35 @@ namespace BetterMPHUD.ViewModels
         public bool IsProfilesPageOpen { get { return _currentPage == "Profiles"; } }
 
         [DataSourceProperty]
-        public string CurrentProfileName { get { return ProfileManager.GetActiveProfile().Name; } }
+        public string CurrentProfileName
+        {
+            get 
+            { 
+                return _tempProfileName; 
+            }
+            set
+            {
+                if (_tempProfileName != value)
+                {
+                    // Just update the variable in memory. 
+                    // NO saving to disk happens here. No crashing.
+                    _tempProfileName = value;
+                    OnPropertyChanged("CurrentProfileName");
+            
+                    // Show the save button if the text differs from the saved name
+                    OnPropertyChanged("IsSaveNameButtonVisible"); 
+                }
+            }
+        }
+        
+        [DataSourceProperty]
+        public bool IsSaveNameButtonVisible
+        {
+            get 
+            { 
+                return _tempProfileName != ProfileManager.GetActiveProfile().Name; 
+            }
+        }
 
         [DataSourceProperty]
         public string ProfileCountText 
@@ -603,6 +633,27 @@ namespace BetterMPHUD.ViewModels
             // Force immediate update
             if (OnHudSettingsChanged != null)
                 OnHudSettingsChanged();
+        }
+        
+        public void ExecuteSaveProfileName()
+        {
+            string currentRealName = ProfileManager.GetActiveProfile().Name;
+    
+            // Attempt to rename
+            bool success = ProfileManager.RenameProfile(currentRealName, _tempProfileName);
+    
+            if (success)
+            {
+                // If it worked, hide the button (because temp name now equals real name)
+                OnPropertyChanged("IsSaveNameButtonVisible");
+            }
+            else
+            {
+                // If it failed (e.g. name taken), revert text back to the real name
+                _tempProfileName = currentRealName;
+                OnPropertyChanged("CurrentProfileName");
+                OnPropertyChanged("IsSaveNameButtonVisible");
+            }
         }
 
         public void ExecuteSetKillfeedBackgroundColorGray() 
@@ -721,9 +772,12 @@ namespace BetterMPHUD.ViewModels
         
         private void RefreshProfileDisplay()
         {
+            _tempProfileName = ProfileManager.GetActiveProfile().Name;
+    
             OnPropertyChangedWithValue(CurrentProfileName, "CurrentProfileName");
             OnPropertyChangedWithValue(ProfileCountText, "ProfileCountText");
             OnPropertyChangedWithValue(CanDeleteProfile, "CanDeleteProfile");
+            OnPropertyChangedWithValue(IsSaveNameButtonVisible, "IsSaveNameButtonVisible");
         }
         
         private void RefreshAllSettingsDisplay()

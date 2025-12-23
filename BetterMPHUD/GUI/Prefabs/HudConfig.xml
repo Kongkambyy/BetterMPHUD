@@ -767,12 +767,25 @@
 												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="20">
 													<Children>
 														<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="35" Brush="KillfeedOffsetMinusButton" Command.Click="ExecutePreviousProfile"/>
+
 														<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="200" SuggestedHeight="35">
 															<Children>
-																<TextWidget Text="@CurrentProfileName" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="18" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+																<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#00000055" MarginTop="3" MarginBottom="3"/>
+																<EditableTextWidget Text="@CurrentProfileName" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+																					Brush.FontSize="18" Brush.FontColor="#FFFFFFFF"
+																					Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
 															</Children>
 														</Widget>
-														<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="35" Brush="KillfeedOffsetPlusButton" Command.Click="ExecuteNextProfile"/>
+
+														<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="60" SuggestedHeight="35"
+																	  Brush="HUDButton" Command.Click="ExecuteSaveProfileName" IsVisible="@IsSaveNameButtonVisible" MarginLeft="5">
+															<Children>
+																<TextWidget Text="Save" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#00FF00FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+															</Children>
+														</ButtonWidget>
+
+														<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="35" Brush="KillfeedOffsetPlusButton" Command.Click="ExecuteNextProfile" MarginLeft="5"/>
+
 														<TextWidget Text="@ProfileCountText" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" MarginLeft="15" Brush.FontSize="14" Brush.FontColor="#888888FF"/>
 													</Children>
 												</ListPanel>
