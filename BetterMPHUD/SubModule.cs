@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using TaleWorlds.Core;
+using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.MountAndBlade.Diamond;
@@ -16,6 +17,7 @@ namespace BetterMPHUD
         {
             base.OnSubModuleLoad();
             InformationManager.DisplayMessage(new InformationMessage("BetterMPHUD Loaded", Colors.Cyan));
+            UIConfig.DoNotUseGeneratedPrefabs = true;
         }
 
         public override void OnMissionBehaviorInitialize(Mission mission)
