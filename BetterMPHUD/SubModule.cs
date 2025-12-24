@@ -17,7 +17,6 @@ namespace BetterMPHUD
         {
             base.OnSubModuleLoad();
             InformationManager.DisplayMessage(new InformationMessage("BetterMPHUD Loaded", Colors.Cyan));
-            UIConfig.DoNotUseGeneratedPrefabs = true;
         }
 
         public override void OnMissionBehaviorInitialize(Mission mission)

@@ -85,6 +85,7 @@
     <Compile Include="ViewModels\HudMenuVM.cs" />
     <Compile Include="ViewModels\KillfeedItemVM.cs" />
     <Compile Include="ViewModels\KillfeedVM.cs" />
+    <Compile Include="ViewModels\ReloadPhaseItemVM.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="GUI\BetterMPHUDSpriteData.xml" />

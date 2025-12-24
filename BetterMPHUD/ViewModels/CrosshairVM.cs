@@ -1,4 +1,5 @@
 ﻿using System;
+using TaleWorlds.Core;
 using TaleWorlds.Library;
 
 namespace BetterMPHUD.ViewModels
@@ -13,6 +14,7 @@ namespace BetterMPHUD.ViewModels
         private bool _isHumanoidHeadshot;
         private bool _isDotEnabled;
         private bool _isDotVisible;
+        private bool _isReloadPhasesVisible;
 
         private double _crosshairAccuracy;
         private double _crosshairScale = 1.0;
@@ -30,16 +32,70 @@ namespace BetterMPHUD.ViewModels
         private double _rightArrowOpacity;
 
         private string _dotColor = "#FFFFFFFF";
-
         private int _dotSizeWidth = 4;
         private int _dotSizeHeight = 4;
         private bool _dotIsCircular = true;
 
+        private MBBindingList<ReloadPhaseItemVM> _reloadPhases;
+
+        public CrosshairVM()
+        {
+            _reloadPhases = new MBBindingList<ReloadPhaseItemVM>();
+        }
+
+        public void SetReloadProperties(in StackArray.StackArray10FloatFloatTuple reloadPhases, int reloadPhaseCount)
+        {
+            if (reloadPhaseCount == 0)
+            {
+                IsReloadPhasesVisible = false;
+                ReloadPhases.Clear();
+                return;
+            }
+            
+            IsReloadPhasesVisible = true;
+            PopulateReloadPhases(in reloadPhases, reloadPhaseCount);
+        }
+
+        private void PopulateReloadPhases(in StackArray.StackArray10FloatFloatTuple reloadPhases, int reloadPhaseCount)
+        {
+            if (reloadPhaseCount != ReloadPhases.Count)
+            {
+                ReloadPhases.Clear();
+                for (int i = 0; i < reloadPhaseCount; i++)
+                {
+                    ReloadPhases.Add(new ReloadPhaseItemVM(reloadPhases[i].Item1, reloadPhases[i].Item2));
+                }
+            }
+            else
+            {
+                for (int i = 0; i < reloadPhaseCount; i++)
+                {
+                    ReloadPhases[i].Update(reloadPhases[i].Item1, reloadPhases[i].Item2);
+                }
+            }
+        }
+
+        public void ClearReloadPhases()
+        {
+            IsReloadPhasesVisible = false;
+            ReloadPhases.Clear();
+        }
+
         public void ShowHitMarker(bool isFatal, bool isHeadshot)
         {
-            IsHitMarkerVisible = true;
             IsVictimDead = isFatal;
+            IsHitMarkerVisible = false;
+            IsHitMarkerVisible = true;
+            IsHumanoidHeadshot = false;
             IsHumanoidHeadshot = isHeadshot;
+        }
+
+        public void SetArrowOpacities(double top, double right, double bottom, double left)
+        {
+            TopArrowOpacity = top;
+            RightArrowOpacity = right;
+            BottomArrowOpacity = bottom;
+            LeftArrowOpacity = left;
         }
 
         [DataSourceProperty]
@@ -54,6 +110,20 @@ namespace BetterMPHUD.ViewModels
         {
             get { return _isVisible; }
             set { if (_isVisible != value) { _isVisible = value; OnPropertyChangedWithValue(value, "IsVisible"); } }
+        }
+
+        [DataSourceProperty]
+        public bool IsReloadPhasesVisible
+        {
+            get { return _isReloadPhasesVisible; }
+            set { if (_isReloadPhasesVisible != value) { _isReloadPhasesVisible = value; OnPropertyChangedWithValue(value, "IsReloadPhasesVisible"); } }
+        }
+
+        [DataSourceProperty]
+        public MBBindingList<ReloadPhaseItemVM> ReloadPhases
+        {
+            get { return _reloadPhases; }
+            set { if (_reloadPhases != value) { _reloadPhases = value; OnPropertyChangedWithValue(value, "ReloadPhases"); } }
         }
 
         [DataSourceProperty]
@@ -256,15 +326,9 @@ namespace BetterMPHUD.ViewModels
         }
 
         [DataSourceProperty]
-        public bool DotIsCircularVisible
-        {
-            get { return _isDotVisible && _dotIsCircular; }
-        }
+        public bool DotIsCircularVisible { get { return _isDotVisible && _dotIsCircular; } }
 
         [DataSourceProperty]
-        public bool DotIsSquareVisible
-        {
-            get { return _isDotVisible && !_dotIsCircular; }
-        }
+        public bool DotIsSquareVisible { get { return _isDotVisible && !_dotIsCircular; } }
     }
 }

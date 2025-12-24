@@ -12,27 +12,24 @@ namespace BetterMPHUD.Handlers
     public class CrosshairHandler
     {
         private GauntletLayer _customLayer;
-        private GauntletLayer _nativeLayer; // Store reference to native layer
+        private GauntletLayer _nativeLayer;
         private CrosshairVM _viewModel;
+        private double[] _targetGadgetOpacities = new double[4];
 
         public bool IsInitialized { get { return _customLayer != null; } }
 
         public void Initialize(MissionScreen screen)
         {
-            // 1. Find and Cache the Native Layer (Do not remove it)
             try 
             {
                 var nativeBehavior = LayerFinder.FindBehaviorByName(Mission.Current, "MissionGauntletCrosshair");
                 if (nativeBehavior != null)
-                {
                     _nativeLayer = LayerFinder.FindInBehavior(nativeBehavior);
-                }
             }
-            catch (Exception) { /* Native layer not found, harmless */ }
+            catch (Exception) { }
 
-            // 2. Initialize Custom Layer
             _viewModel = new CrosshairVM();
-            _customLayer = new GauntletLayer("GauntletLayer", 3, false);
+            _customLayer = new GauntletLayer("BetterCrosshairLayer", 3, false);
             _customLayer.LoadMovie("BetterCrosshair", _viewModel);
             screen.AddLayer(_customLayer);
 
@@ -45,18 +42,11 @@ namespace BetterMPHUD.Handlers
 
             CrosshairSettings cs = settings.CrosshairSettings;
 
-            // --- TOGGLE LOGIC START ---
             if (cs.CustomCrosshairEnabled)
             {
-                // MODE: Custom Crosshair Active
-                
-                // 1. Hide Native Layer (Set Alpha to 0)
                 if (_nativeLayer != null && _nativeLayer.UIContext != null)
-                {
                     _nativeLayer.UIContext.ContextAlpha = 0f;
-                }
 
-                // 2. Enable Custom Logic
                 _viewModel.CustomEnabled = true;
                 _viewModel.CrosshairColor = cs.Color;
                 _viewModel.CrosshairOpacity = cs.Opacity;
@@ -71,27 +61,22 @@ namespace BetterMPHUD.Handlers
 
                 UpdateVisibility(screen);
                 UpdateCrosshairProperties(screen);
+                UpdateReloadPhase();
+                UpdateMeleeDirections();
             }
             else
             {
-                // MODE: Native Crosshair Active (Custom Disabled)
-
-                // 1. Show Native Layer (Restore Alpha to 1)
                 if (_nativeLayer != null && _nativeLayer.UIContext != null)
-                {
                     _nativeLayer.UIContext.ContextAlpha = 1f;
-                }
 
-                // 2. Hide Custom Layer
                 _viewModel.IsVisible = false;
                 _viewModel.CustomEnabled = false;
+                _viewModel.ClearReloadPhases();
             }
-            // --- TOGGLE LOGIC END ---
         }
 
         private void UpdateVisibility(MissionScreen screen)
         {
-            // Double check CustomEnabled to ensure we don't accidentally show it
             if (!_viewModel.CustomEnabled) 
             {
                 _viewModel.IsVisible = false;
@@ -119,29 +104,24 @@ namespace BetterMPHUD.Handlers
                                   !screen.IsViewingCharacter() &&
                                   screen.CustomCamera == null;
 
-            // CROSSHAIR visibility: Only show with ranged weapons
             bool shouldShowCrosshair = baseConditions && isRangedWeapon;
 
-            // Handle Crossbow specific reload visibility logic
             if (shouldShowCrosshair && wieldedWeapon.CurrentUsageItem.WeaponClass == WeaponClass.Crossbow)
                 shouldShowCrosshair = !wieldedWeapon.IsReloading;
 
             _viewModel.IsVisible = shouldShowCrosshair;
 
-            // DOT visibility: Show when dot is enabled AND NOT using ranged weapons
             bool shouldShowDot = _viewModel.IsDotEnabled && baseConditions && !isRangedWeapon;
-            
             _viewModel.IsDotVisible = shouldShowDot;
         }
 
         private void UpdateCrosshairProperties(MissionScreen screen)
         {
-            if (!_viewModel.IsVisible) return;
+            if (Mission.Current == null || Mission.Current.MainAgent == null) return;
 
             Agent mainAgent = Mission.Current.MainAgent;
             double fovAngle = screen.CameraViewAngle * (Math.PI / 180.0);
             
-            // Calculate accuracy using native math logic
             double accuracy = 2.0 * Math.Tan(
                 (mainAgent.CurrentAimingError + mainAgent.CurrentAimingTurbulance) *
                 (0.5 / Math.Tan(fovAngle * 0.5)));
@@ -151,6 +131,186 @@ namespace BetterMPHUD.Handlers
             _viewModel.CrosshairAccuracy = accuracy;
             _viewModel.CrosshairScale = scale;
             _viewModel.CrosshairType = BannerlordConfig.CrosshairType;
+        }
+
+        private void UpdateReloadPhase()
+        {
+            if (Mission.Current == null || Mission.Current.MainAgent == null)
+            {
+                _viewModel.ClearReloadPhases();
+                return;
+            }
+
+            Agent mainAgent = Mission.Current.MainAgent;
+            WeaponInfo wieldedWeaponInfo = mainAgent.GetWieldedWeaponInfo(Agent.HandIndex.MainHand);
+            
+            if (!wieldedWeaponInfo.IsValid || !wieldedWeaponInfo.IsRangedWeapon || !BannerlordConfig.DisplayTargetingReticule)
+            {
+                _viewModel.ClearReloadPhases();
+                return;
+            }
+
+            MissionWeapon wieldedWeapon = mainAgent.WieldedWeapon;
+
+            if (wieldedWeapon.ReloadPhaseCount <= 1 || !wieldedWeapon.IsReloading)
+            {
+                _viewModel.ClearReloadPhases();
+                return;
+            }
+
+            Agent.ActionCodeType currentActionType = mainAgent.GetCurrentActionType(1);
+            
+            StackArray.StackArray10FloatFloatTuple reloadPhases = new StackArray.StackArray10FloatFloatTuple();
+            
+            ActionIndexCache reloadActionCode = MBItem.GetItemUsageReloadActionCode(
+                wieldedWeapon.CurrentUsageItem.ItemUsage,
+                9,
+                mainAgent.HasMount,
+                -1,
+                mainAgent.GetIsLeftStance(),
+                mainAgent.IsLookDirectionLow
+            );
+
+            FillReloadDurationsFromActions(ref reloadPhases, wieldedWeapon.ReloadPhaseCount, mainAgent, reloadActionCode);
+
+            short reloadPhase = wieldedWeapon.ReloadPhase;
+            
+            for (int i = 0; i < reloadPhase; i++)
+                reloadPhases[i] = (1f, reloadPhases[i].Item2);
+
+            float phaseProgress = 0f;
+
+            if (currentActionType == Agent.ActionCodeType.Reload)
+            {
+                ActionIndexCache currentActionValue = mainAgent.GetCurrentAction(1);
+                
+                if (currentActionValue != ActionIndexCache.act_none)
+                {
+                    float currentActionProgress = mainAgent.GetCurrentActionProgress(1);
+                    
+                    float animationParameter2 = MBAnimation.GetAnimationParameter2(
+                        mainAgent.AgentVisuals.GetSkeleton().GetAnimationAtChannel(1));
+                    
+                    if (animationParameter2 > 0.00001f)
+                    {
+                        phaseProgress = Math.Min(currentActionProgress / animationParameter2, 1f);
+                    }
+                }
+            }
+
+            if (reloadPhase < wieldedWeapon.ReloadPhaseCount)
+                reloadPhases[reloadPhase] = (phaseProgress, reloadPhases[reloadPhase].Item2);
+
+            _viewModel.SetReloadProperties(in reloadPhases, wieldedWeapon.ReloadPhaseCount);
+        }
+
+        private void UpdateMeleeDirections()
+        {
+            for (int i = 0; i < _targetGadgetOpacities.Length; i++)
+                _targetGadgetOpacities[i] = 0.0;
+
+            if (Mission.Current == null || Mission.Current.MainAgent == null)
+            {
+                _viewModel.SetArrowOpacities(0, 0, 0, 0);
+                return;
+            }
+
+            Agent mainAgent = Mission.Current.MainAgent;
+            WeaponInfo wieldedWeaponInfo = mainAgent.GetWieldedWeaponInfo(Agent.HandIndex.MainHand);
+            
+            bool isTargetInvalid = false;
+
+            if (wieldedWeaponInfo.IsValid && wieldedWeaponInfo.IsRangedWeapon)
+            {
+                Agent.ActionCodeType currentActionType = mainAgent.GetCurrentActionType(1);
+                if (currentActionType == Agent.ActionCodeType.ReadyRanged)
+                {
+                    Vec2 rotationConstraint = mainAgent.GetBodyRotationConstraint();
+                    float angle = MBMath.WrapAngle(mainAgent.LookDirection.AsVec2.RotationInRadians - 
+                                                   mainAgent.GetMovementDirection().RotationInRadians);
+                    
+                    isTargetInvalid = Mission.Current.MainAgent.MountAgent != null &&
+                                     !MBMath.IsBetween(angle, rotationConstraint.x, rotationConstraint.y) &&
+                                     (rotationConstraint.x < -0.1f || rotationConstraint.y > 0.1f);
+                }
+            }
+            else if (!wieldedWeaponInfo.IsValid || wieldedWeaponInfo.IsMeleeWeapon)
+            {
+                Agent.ActionCodeType currentActionType = mainAgent.GetCurrentActionType(1);
+                Agent.UsageDirection currentActionDirection = mainAgent.GetCurrentActionDirection(1);
+                
+                if (BannerlordConfig.DisplayAttackDirection &&
+                    (currentActionType == Agent.ActionCodeType.ReadyMelee || MBMath.IsBetween((int)currentActionType, 1, 15)))
+                {
+                    if (currentActionType == Agent.ActionCodeType.ReadyMelee)
+                    {
+                        switch (mainAgent.AttackDirection)
+                        {
+                            case Agent.UsageDirection.AttackUp: _targetGadgetOpacities[0] = 0.7; break;
+                            case Agent.UsageDirection.AttackDown: _targetGadgetOpacities[2] = 0.7; break;
+                            case Agent.UsageDirection.AttackLeft: _targetGadgetOpacities[3] = 0.7; break;
+                            case Agent.UsageDirection.AttackRight: _targetGadgetOpacities[1] = 0.7; break;
+                        }
+                    }
+                    else
+                    {
+                        isTargetInvalid = true;
+                        switch (currentActionDirection)
+                        {
+                            case Agent.UsageDirection.AttackEnd: _targetGadgetOpacities[0] = 0.7; break;
+                            case Agent.UsageDirection.DefendDown: _targetGadgetOpacities[2] = 0.7; break;
+                            case Agent.UsageDirection.DefendLeft: _targetGadgetOpacities[3] = 0.7; break;
+                            case Agent.UsageDirection.DefendRight: _targetGadgetOpacities[1] = 0.7; break;
+                        }
+                    }
+                }
+                else if (BannerlordConfig.DisplayAttackDirection)
+                {
+                    switch (mainAgent.PlayerAttackDirection())
+                    {
+                        case Agent.UsageDirection.AttackUp: _targetGadgetOpacities[0] = 0.7; break;
+                        case Agent.UsageDirection.AttackDown: _targetGadgetOpacities[2] = 0.7; break;
+                        case Agent.UsageDirection.AttackLeft: _targetGadgetOpacities[3] = 0.7; break;
+                        case Agent.UsageDirection.AttackRight: _targetGadgetOpacities[1] = 0.7; break;
+                    }
+                }
+            }
+
+            _viewModel.SetArrowOpacities(_targetGadgetOpacities[0], _targetGadgetOpacities[1], 
+                                         _targetGadgetOpacities[2], _targetGadgetOpacities[3]);
+            _viewModel.IsTargetInvalid = isTargetInvalid;
+        }
+
+        private void FillReloadDurationsFromActions(
+            ref StackArray.StackArray10FloatFloatTuple reloadPhases,
+            int reloadPhaseCount,
+            Agent mainAgent,
+            ActionIndexCache reloadAction)
+        {
+            float maxDuration = 0f;
+            
+            for (int i = 0; i < reloadPhaseCount; i++)
+            {
+                if (reloadAction != ActionIndexCache.act_none)
+                {
+                    float duration = MBAnimation.GetAnimationParameter2(
+                        MBActionSet.GetAnimationIndexOfAction(mainAgent.ActionSet, reloadAction)) *
+                        MBActionSet.GetActionAnimationDuration(mainAgent.ActionSet, reloadAction);
+
+                    reloadPhases[i] = (reloadPhases[i].Item1, duration);
+                    
+                    if (duration > maxDuration)
+                        maxDuration = duration;
+                    
+                    reloadAction = MBActionSet.GetActionAnimationContinueToAction(mainAgent.ActionSet, reloadAction);
+                }
+            }
+
+            if (maxDuration <= 0.00001f)
+                return;
+
+            for (int i = 0; i < reloadPhaseCount; i++)
+                reloadPhases[i] = (reloadPhases[i].Item1, reloadPhases[i].Item2 / maxDuration);
         }
 
         private void OnCombatLogGenerated(CombatLogData logData)
@@ -169,11 +329,8 @@ namespace BetterMPHUD.Handlers
         {
             CombatLogManager.OnGenerateCombatLog -= OnCombatLogGenerated;
 
-            // Ensure native layer is visible again when our mod unloads/mission ends
             if (_nativeLayer != null && _nativeLayer.UIContext != null)
-            {
                 _nativeLayer.UIContext.ContextAlpha = 1f;
-            }
 
             if (screen != null && _customLayer != null)
                 screen.RemoveLayer(_customLayer);

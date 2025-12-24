@@ -25,11 +25,19 @@ namespace BetterMPHUD
     public class ProfileData
     {
         public string ActiveProfileName { get; set; } = "Default";
-        public List<HudProfile> Profiles { get; set; } = new List<HudProfile>();
+        public List<HudProfile> Profiles { get; set; }
         
         public ProfileData()
         {
-            Profiles.Add(new HudProfile("Default", new HudSettings()));
+            Profiles = new List<HudProfile>();
+        }
+        
+        public void EnsureDefaultExists()
+        {
+            if (Profiles == null)
+                Profiles = new List<HudProfile>();
+            if (Profiles.Count == 0)
+                Profiles.Add(new HudProfile("Default", new HudSettings()));
         }
     }
 
@@ -72,6 +80,7 @@ namespace BetterMPHUD
                     using (FileStream stream = new FileStream(ProfilePath, FileMode.Open))
                     {
                         _profileData = (ProfileData)serializer.Deserialize(stream);
+                        _profileData.EnsureDefaultExists();
                         
                         foreach (var profile in _profileData.Profiles)
                             profile.Settings.EnsureCustomizationsExist();
@@ -89,6 +98,7 @@ namespace BetterMPHUD
             }
             
             _profileData = new ProfileData();
+            _profileData.EnsureDefaultExists();
             SaveProfiles();
         }
 
