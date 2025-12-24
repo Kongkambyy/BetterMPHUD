@@ -17,7 +17,7 @@
                             <Children>
                                 <!-- Rounded background - using proper 9-slice sprite with margins -->
                                 <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
-                                        Sprite="BlankWhiteSquare_9"
+                                        Sprite="background_shadow"
                                         Color="@BackgroundColor"
                                         AlphaFactor="@BackgroundOpacity"
                                         IsVisible="@ShowBackground"
