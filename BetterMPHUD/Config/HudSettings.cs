@@ -24,6 +24,9 @@ namespace BetterMPHUD
         public bool ShowMorale { get; set; } = true;
         public bool TeamAvatarsVertical { get; set; } = false;
         public bool ShowPowerLevel { get; set; } = true;
+        
+        public bool AllyAvatarsVertical { get; set; } = false;
+        public bool EnemyAvatarsVertical { get; set; } = false;
 
         public bool ShowChat { get; set; } = true;
         public bool ChatAlwaysVisible { get; set; } = false;
@@ -43,12 +46,19 @@ namespace BetterMPHUD
         public bool ShowHealthNumbers { get; set; } = true;
         public bool ShowMountHealthNumbers { get; set; } = true;
         public bool ShowShieldHealthNumbers { get; set; } = true;
+        
+        public float AllyAvatarsSpacing { get; set; } = 0f;
+        public float EnemyAvatarsSpacing { get; set; } = 0f;
 
         public ElementCustomization TimeAndScoresCustom { get; set; }
         public ElementCustomization TeamAvatarsCustom { get; set; }
         public ElementCustomization MoraleCustom { get; set; }
         public ElementCustomization KillfeedCustom { get; set; }
         public ElementCustomization ChatCustom { get; set; }
+        
+        public ElementCustomization PowerLevelCustom { get; set; }
+        public ElementCustomization AllyAvatarsCustom { get; set; }
+        public ElementCustomization EnemyAvatarsCustom { get; set; }
         
         public ElementCustomization AgentHealthCustom { get; set; }
         public ElementCustomization MountHealthCustom { get; set; }
@@ -67,7 +77,7 @@ namespace BetterMPHUD
             MoraleCustom = new ElementCustomization();
             KillfeedCustom = new ElementCustomization();
             ChatCustom = new ElementCustomization();
-            
+    
             AgentHealthCustom = new ElementCustomization();
             MountHealthCustom = new ElementCustomization();
             ShieldHealthCustom = new ElementCustomization();
@@ -77,6 +87,11 @@ namespace BetterMPHUD
             DamageFeedCustom = new ElementCustomization();
 
             CrosshairSettings = new CrosshairSettings();
+    
+            // NEW
+            PowerLevelCustom = new ElementCustomization();
+            AllyAvatarsCustom = new ElementCustomization();
+            EnemyAvatarsCustom = new ElementCustomization();
         }
 
         public ElementCustomization GetCustomization(HudElement element)
@@ -115,6 +130,10 @@ namespace BetterMPHUD
             if (DamageFeedCustom == null) DamageFeedCustom = new ElementCustomization();
 
             if (CrosshairSettings == null) CrosshairSettings = new CrosshairSettings();
+            
+            if (PowerLevelCustom == null) PowerLevelCustom = new ElementCustomization();
+            if (AllyAvatarsCustom == null) AllyAvatarsCustom = new ElementCustomization();
+            if (EnemyAvatarsCustom == null) EnemyAvatarsCustom = new ElementCustomization();
         }
     }
     

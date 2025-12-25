@@ -13,9 +13,11 @@ namespace BetterMPHUD.ViewModels
         private int _selectedProfileIndex;
         private int _newProfileCounter = 1;
         private string _tempProfileName;
-
+        
         private bool _isConfigMenuOpen;
         private string _currentPage = "Killfeed";
+        private ElementEditorVM _avatarSideEditor;
+        private int _selectedAvatarSide = 0;
 
         public Action OnCloseConfigMenu;
         public Action<bool> OnWarbandKillfeedToggled;
@@ -32,6 +34,8 @@ namespace BetterMPHUD.ViewModels
             _hpEditor.SetOnChanged(OnSettingsChanged);
             _selectedProfileIndex = ProfileManager.GetActiveProfileIndex();
             _tempProfileName = ProfileManager.GetActiveProfile().Name;
+            _avatarSideEditor = new ElementEditorVM(0, _settings.AllyAvatarsCustom, "Ally (Left)");
+            _avatarSideEditor.SetOnChanged(OnSettingsChanged);
 
             ApplyNativeKillfeedSetting();
         }
@@ -80,6 +84,8 @@ namespace BetterMPHUD.ViewModels
         public void ExecuteBackToHP() { SetPage("HP"); }
         public void ExecuteBackToCrosshair() { SetPage("Crosshair"); }
         public void ExecuteOpenProfilesPage() { SetPage("Profiles"); }
+        public void ExecuteOpenAvatarSidesPage() { SetPage("AvatarSides"); }
+        public void ExecuteBackToCustomize() { SetPage("Customize"); }
 
 
         private void RefreshPageVisibility()
@@ -100,8 +106,8 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(ShouldShiftMenuRight, "ShouldShiftMenuRight");
             OnPropertyChangedWithValue(MenuHorizontalOffset, "MenuHorizontalOffset");
             OnPropertyChangedWithValue(IsProfilesPageOpen, "IsProfilesPageOpen");
-            OnPropertyChangedWithValue(IsAvatarsSelected, "IsAvatarsSelected");
-            OnPropertyChangedWithValue(AvatarOrientationText, "AvatarOrientationText");
+            OnPropertyChangedWithValue(IsAvatarSidesPageOpen, "IsAvatarSidesPageOpen");
+
         }
 
         public void ExecuteSelectTimeAndScores() { _topBarEditor.SelectElement(0, "Time & Scores", _settings.TimeAndScoresCustom); RefreshTopBarDisplay(); }
@@ -268,6 +274,32 @@ namespace BetterMPHUD.ViewModels
             OnSettingsChanged();
         }
 
+        
+        public void ExecuteSelectAllyAvatars() 
+        { 
+            _selectedAvatarSide = 0;
+            _avatarSideEditor.SelectElement(0, "Ally (Left)", _settings.AllyAvatarsCustom); 
+            RefreshAvatarSideDisplay(); 
+        }
+
+        public void ExecuteSelectEnemyAvatars() 
+        { 
+            _selectedAvatarSide = 1;
+            _avatarSideEditor.SelectElement(1, "Enemy (Right)", _settings.EnemyAvatarsCustom); 
+            RefreshAvatarSideDisplay(); 
+        }
+        
+        private void RefreshAvatarSideDisplay()
+        {
+            OnPropertyChangedWithValue(SelectedAvatarSideName, "SelectedAvatarSideName");
+            OnPropertyChangedWithValue(CurrentAvatarOffsetXText, "CurrentAvatarOffsetXText");
+            OnPropertyChangedWithValue(CurrentAvatarOffsetYText, "CurrentAvatarOffsetYText");
+            OnPropertyChangedWithValue(CurrentAvatarScaleText, "CurrentAvatarScaleText");
+            OnPropertyChangedWithValue(CurrentAvatarOrientationText, "CurrentAvatarOrientationText");
+            OnPropertyChangedWithValue(IsAllyAvatarSelected, "IsAllyAvatarSelected");
+            OnPropertyChangedWithValue(IsEnemyAvatarSelected, "IsEnemyAvatarSelected");
+        }
+        
         // Crosshair methods
         private void AdjustCrosshairWidth(int delta)
         {
@@ -378,6 +410,58 @@ namespace BetterMPHUD.ViewModels
             _settings.CrosshairSettings.Reset();
             RefreshCrosshairDisplay();
         }
+        
+        public void ExecuteIncreaseAvatarOffsetX() { _avatarSideEditor.AdjustOffsetX(Constants.Adjustment.PositionStep); RefreshAvatarSideDisplay(); }
+        public void ExecuteDecreaseAvatarOffsetX() { _avatarSideEditor.AdjustOffsetX(-Constants.Adjustment.PositionStep); RefreshAvatarSideDisplay(); }
+        public void ExecuteIncreaseAvatarOffsetY() { _avatarSideEditor.AdjustOffsetY(Constants.Adjustment.PositionStep); RefreshAvatarSideDisplay(); }
+        public void ExecuteDecreaseAvatarOffsetY() { _avatarSideEditor.AdjustOffsetY(-Constants.Adjustment.PositionStep); RefreshAvatarSideDisplay(); }
+        public void ExecuteIncreaseAvatarOffsetXLarge() { _avatarSideEditor.AdjustOffsetX(Constants.Adjustment.PositionStepLarge); RefreshAvatarSideDisplay(); }
+        public void ExecuteDecreaseAvatarOffsetXLarge() { _avatarSideEditor.AdjustOffsetX(-Constants.Adjustment.PositionStepLarge); RefreshAvatarSideDisplay(); }
+        public void ExecuteIncreaseAvatarOffsetYLarge() { _avatarSideEditor.AdjustOffsetY(Constants.Adjustment.PositionStepLarge); RefreshAvatarSideDisplay(); }
+        public void ExecuteDecreaseAvatarOffsetYLarge() { _avatarSideEditor.AdjustOffsetY(-Constants.Adjustment.PositionStepLarge); RefreshAvatarSideDisplay(); }
+        public void ExecuteIncreaseAvatarScale() { _avatarSideEditor.AdjustScale(Constants.Adjustment.ScaleStep); RefreshAvatarSideDisplay(); }
+        public void ExecuteDecreaseAvatarScale() { _avatarSideEditor.AdjustScale(-Constants.Adjustment.ScaleStep); RefreshAvatarSideDisplay(); }
+        public void ExecuteIncreaseAvatarScaleLarge() { _avatarSideEditor.AdjustScale(Constants.Adjustment.ScaleStepLarge); RefreshAvatarSideDisplay(); }
+        public void ExecuteDecreaseAvatarScaleLarge() { _avatarSideEditor.AdjustScale(-Constants.Adjustment.ScaleStepLarge); RefreshAvatarSideDisplay(); }
+        
+        public void ExecuteToggleAvatarSideOrientation()
+        {
+            if (_selectedAvatarSide == 0)
+                _settings.AllyAvatarsVertical = !_settings.AllyAvatarsVertical;
+            else
+                _settings.EnemyAvatarsVertical = !_settings.EnemyAvatarsVertical;
+    
+            RefreshAvatarSideDisplay();
+            OnSettingsChanged();
+        }
+
+        public void ExecuteResetAvatarSide() 
+        { 
+            _avatarSideEditor.Reset();
+            if (_selectedAvatarSide == 0)
+                _settings.AllyAvatarsVertical = false;
+            else
+                _settings.EnemyAvatarsVertical = false;
+            RefreshAvatarSideDisplay(); 
+        }
+
+        public void ExecuteResetAllAvatarSides()
+        {
+            _settings.AllyAvatarsCustom.Reset();
+            _settings.EnemyAvatarsCustom.Reset();
+            _settings.AllyAvatarsVertical = false;
+            _settings.EnemyAvatarsVertical = false;
+            ExecuteSelectAllyAvatars();
+            OnSettingsChanged();
+        }
+        
+        public void ExecuteSelectPowerLevel() 
+        { 
+            _topBarEditor.SelectElement(3, "Power Level", _settings.PowerLevelCustom); 
+            RefreshTopBarDisplay(); 
+        }
+        
+        
 
         private void RefreshCrosshairDisplay()
         {
@@ -414,6 +498,39 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty] public bool IsCrosshairSettingsPageOpen { get { return _currentPage == "CrosshairSettings"; } }
         [DataSourceProperty] public bool IsDotSettingsPageOpen { get { return _currentPage == "DotSettings"; } }
         [DataSourceProperty] public bool IsMiscPageOpen { get { return _currentPage == "Misc"; } }
+        
+        [DataSourceProperty] 
+        public bool IsAvatarSidesPageOpen { get { return _currentPage == "AvatarSides"; } }
+        
+        [DataSourceProperty]
+        public string SelectedAvatarSideName { get { return _avatarSideEditor.SelectedName; } }
+
+        [DataSourceProperty]
+        public string CurrentAvatarOffsetXText { get { return _avatarSideEditor.OffsetXText; } }
+
+        [DataSourceProperty]
+        public string CurrentAvatarOffsetYText { get { return _avatarSideEditor.OffsetYText; } }
+
+        [DataSourceProperty]
+        public string CurrentAvatarScaleText { get { return _avatarSideEditor.ScaleText; } }
+
+        [DataSourceProperty]
+        public string CurrentAvatarOrientationText 
+        { 
+            get 
+            { 
+                if (_selectedAvatarSide == 0)
+                    return _settings.AllyAvatarsVertical ? "Vertical" : "Horizontal";
+                else
+                    return _settings.EnemyAvatarsVertical ? "Vertical" : "Horizontal";
+            } 
+        }
+        
+        [DataSourceProperty]
+        public bool IsAllyAvatarSelected { get { return _selectedAvatarSide == 0; } }
+
+        [DataSourceProperty]
+        public bool IsEnemyAvatarSelected { get { return _selectedAvatarSide == 1; } }
 
         [DataSourceProperty] 
         public bool ShouldShiftMenuRight 
@@ -610,19 +727,6 @@ namespace BetterMPHUD.ViewModels
         }
         
         [DataSourceProperty]
-        public bool IsAvatarsSelected { get { return _topBarEditor.SelectedIndex == 1; } }
-
-        [DataSourceProperty]
-        public string AvatarOrientationText { get { return _settings.TeamAvatarsVertical ? "Vertical" : "Horizontal"; } }
-
-        public void ExecuteToggleAvatarOrientation() 
-        { 
-            _settings.TeamAvatarsVertical = !_settings.TeamAvatarsVertical; 
-            OnPropertyChangedWithValue(AvatarOrientationText, "AvatarOrientationText");
-            OnSettingsChanged();
-        }
-        
-        [DataSourceProperty]
         public bool IsSaveNameButtonVisible
         {
             get 
@@ -751,6 +855,9 @@ namespace BetterMPHUD.ViewModels
             _topBarEditor.SetOnChanged(OnSettingsChanged);
             _hpEditor = new ElementEditorVM(0, _settings.AgentHealthCustom, "Agent Health");
             _hpEditor.SetOnChanged(OnSettingsChanged);
+            
+            _avatarSideEditor = new ElementEditorVM(0, _settings.AllyAvatarsCustom, "Ally (Left)");
+            _avatarSideEditor.SetOnChanged(OnSettingsChanged);
     
             ApplyNativeKillfeedSetting();
             RefreshProfileDisplay();
@@ -794,6 +901,9 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(KillfeedMaxEntriesText, "KillfeedMaxEntriesText");
             OnPropertyChangedWithValue(KillfeedBackgroundEnabled, "KillfeedBackgroundEnabled");
             OnPropertyChangedWithValue(KillfeedBackgroundOpacityText, "KillfeedBackgroundOpacityText");
+            OnPropertyChangedWithValue(_settings.AllyAvatarsVertical, "AllyAvatarsVertical");
+            OnPropertyChangedWithValue(_settings.EnemyAvatarsVertical, "EnemyAvatarsVertical");
+            RefreshAvatarSideDisplay();
             RefreshCrosshairDisplay();
             RefreshTopBarDisplay();
             RefreshHPDisplay();

@@ -15,14 +15,17 @@ namespace BetterMPHUD.Handlers
         private readonly WidgetCustomizer _customizer = new WidgetCustomizer();
         
         private TrackedWidget _timeAndScores;
-        private TrackedWidget _avatars;
         private TrackedWidget _morale;
         private TrackedWidget _controlPoints;
+        private TrackedWidget _powerLevel;
+        private TrackedWidget _avatarsContainer;
+        
         private Widget _allyAvatarsSide;
         private Widget _enemyAvatarsSide;
-        private Dictionary<Widget, WidgetOriginalValues> _avatarOriginals = new Dictionary<Widget, WidgetOriginalValues>();
-        private TrackedWidget _powerLevel;
-
+        private WidgetOriginalValues _allyAvatarsOriginal;
+        private WidgetOriginalValues _enemyAvatarsOriginal;
+        private Dictionary<Widget, WidgetOriginalValues> _allyAvatarChildOriginals = new Dictionary<Widget, WidgetOriginalValues>();
+        private Dictionary<Widget, WidgetOriginalValues> _enemyAvatarChildOriginals = new Dictionary<Widget, WidgetOriginalValues>();
         
         private Widget _enemyScoreWidget;
         private readonly List<Widget> _bannerWidgets = new List<Widget>();
@@ -33,20 +36,14 @@ namespace BetterMPHUD.Handlers
         {
             ResetTrackedWidgets();
         }
-        
-        private void ApplyAvatarLayout(HudSettings settings)
-        {
-            ApplyLayoutToSide(_allyAvatarsSide, settings.TeamAvatarsVertical);
-            ApplyLayoutToSide(_enemyAvatarsSide, settings.TeamAvatarsVertical);
-        }
 
         private void ResetTrackedWidgets()
         {
             _timeAndScores = new TrackedWidget { Element = HudElement.TimeAndScores };
-            _avatars = new TrackedWidget { Element = HudElement.TeamAvatars };
             _morale = new TrackedWidget { Element = HudElement.Morale };
             _controlPoints = new TrackedWidget { Element = HudElement.Morale };
             _powerLevel = new TrackedWidget { Element = HudElement.Morale };
+            _avatarsContainer = new TrackedWidget { Element = HudElement.TeamAvatars };
         }
 
         public void Apply(HudSettings settings, Mission mission)
@@ -73,9 +70,9 @@ namespace BetterMPHUD.Handlers
             SearchWidgets(root, 0);
             
             if (_timeAndScores.Widget != null) _customizer.StoreChildrenOriginals(_timeAndScores.Widget);
-            if (_avatars.Widget != null) _customizer.StoreChildrenOriginals(_avatars.Widget);
             if (_morale.Widget != null) _customizer.StoreChildrenOriginals(_morale.Widget);
             if (_controlPoints.Widget != null) _customizer.StoreChildrenOriginals(_controlPoints.Widget);
+            if (_powerLevel.Widget != null) _customizer.StoreChildrenOriginals(_powerLevel.Widget);
         }
 
         private void SearchWidgets(Widget widget, int depth)
@@ -83,8 +80,8 @@ namespace BetterMPHUD.Handlers
             if (depth > Constants.UI.MaxWidgetSearchDepth) return;
 
             TryCacheTimeAndScores(widget);
-            TryCacheAvatars(widget);
-            TryCacheAvatarSides(widget); // Add this
+            TryCacheAvatarsContainer(widget);
+            TryCacheAvatarSides(widget);
             TryCacheEnemyScore(widget);
             TryCacheBanner(widget);
             TryCacheMorale(widget);
@@ -95,6 +92,19 @@ namespace BetterMPHUD.Handlers
                 SearchWidgets(widget.GetChild(i), depth + 1);
         }
         
+        private void TryCacheAvatarsContainer(Widget widget)
+        {
+            if (_avatarsContainer.Widget != null) return;
+            ListPanel listPanel = widget as ListPanel;
+            if (listPanel != null && 
+                widget.HeightSizePolicy == SizePolicy.Fixed &&
+                widget.SuggestedHeight >= 74 && widget.SuggestedHeight <= 76 &&
+                widget.ChildCount == 3)
+            {
+                _avatarsContainer.Cache(widget);
+            }
+        }
+
         private void TryCacheAvatarSides(Widget widget)
         {
             string typeName = widget.GetType().Name;
@@ -103,26 +113,25 @@ namespace BetterMPHUD.Handlers
     
             ListPanel listPanel = widget as ListPanel;
             if (listPanel == null) return;
-    
-            if (widget.HorizontalAlignment == HorizontalAlignment.Right || 
-                (widget.ParentWidget != null && widget.ParentWidget.GetChildIndex(widget) == 0))
+
+            if (widget.HorizontalAlignment == HorizontalAlignment.Right)
             {
                 if (_allyAvatarsSide == null)
                 {
                     _allyAvatarsSide = widget;
-                    _customizer.StoreChildrenOriginals(widget);
+                    _allyAvatarsOriginal = WidgetOriginalValues.Capture(widget);
                 }
             }
-            else
+            else if (widget.HorizontalAlignment == HorizontalAlignment.Left)
             {
                 if (_enemyAvatarsSide == null)
                 {
                     _enemyAvatarsSide = widget;
-                    _customizer.StoreChildrenOriginals(widget);
+                    _enemyAvatarsOriginal = WidgetOriginalValues.Capture(widget);
                 }
             }
         }
-        
+
         private void TryCachePowerLevel(Widget widget)
         {
             if (_powerLevel.Widget != null) return;
@@ -151,54 +160,6 @@ namespace BetterMPHUD.Handlers
             {
                 _timeAndScores.Cache(widget);
             }
-        }
-
-        private void TryCacheAvatars(Widget widget)
-        {
-            if (_avatars.Widget != null) return;
-            ListPanel listPanel = widget as ListPanel;
-            if (listPanel != null && 
-                widget.HeightSizePolicy == SizePolicy.Fixed &&
-                widget.SuggestedHeight >= 74 && widget.SuggestedHeight <= 76 &&
-                widget.ChildCount == 3)
-            {
-                _avatars.Cache(widget);
-            }
-        }
-        
-        private void ApplyAvatarScaling(float scale)
-        {
-            ApplyScaleRecursive(_allyAvatarsSide, scale);
-            ApplyScaleRecursive(_enemyAvatarsSide, scale);
-        }
-
-        private void ApplyScaleRecursive(Widget widget, float scale)
-        {
-            if (widget == null) return;
-    
-            if (!_avatarOriginals.ContainsKey(widget))
-                _avatarOriginals[widget] = WidgetOriginalValues.Capture(widget);
-    
-            WidgetOriginalValues original = _avatarOriginals[widget];
-    
-            if (widget.WidthSizePolicy == SizePolicy.Fixed && original.Width > 0)
-                widget.SuggestedWidth = original.Width * scale;
-            if (widget.HeightSizePolicy == SizePolicy.Fixed && original.Height > 0)
-                widget.SuggestedHeight = original.Height * scale;
-    
-            TextWidget textWidget = widget as TextWidget;
-            if (textWidget != null && textWidget.Brush != null && original.FontSize > 0)
-            {
-                textWidget.Brush.FontSize = (int)(original.FontSize * scale);
-            }
-    
-            widget.MarginTop = original.MarginTop * scale;
-            widget.MarginBottom = original.MarginBottom * scale;
-            widget.MarginLeft = original.MarginLeft * scale;
-            widget.MarginRight = original.MarginRight * scale;
-    
-            for (int i = 0; i < widget.ChildCount; i++)
-                ApplyScaleRecursive(widget.GetChild(i), scale);
         }
 
         private void TryCacheEnemyScore(Widget widget)
@@ -246,25 +207,11 @@ namespace BetterMPHUD.Handlers
                 _controlPoints.Cache(widget);
             }
         }
-        
-
-        private void ApplyLayoutToSide(Widget widget, bool vertical)
-        {
-            if (widget == null) return;
-    
-            ListPanel listPanel = widget as ListPanel;
-            if (listPanel == null) return;
-    
-            if (vertical)
-                listPanel.StackLayout.LayoutMethod = LayoutMethod.VerticalBottomToTop;
-            else
-                listPanel.StackLayout.LayoutMethod = LayoutMethod.HorizontalLeftToRight;
-        }
 
         private void ApplyVisibility(HudSettings settings)
         {
             if (_timeAndScores.Widget != null) _timeAndScores.Widget.IsVisible = settings.ShowTimeAndScores;
-            if (_avatars.Widget != null) _avatars.Widget.IsVisible = settings.ShowAvatars;
+            if (_avatarsContainer.Widget != null) _avatarsContainer.Widget.IsVisible = settings.ShowAvatars;
             if (_enemyScoreWidget != null) _enemyScoreWidget.IsVisible = settings.ShowEnemyScore;
             foreach (Widget banner in _bannerWidgets) banner.IsVisible = settings.ShowBanners;
             if (_morale.Widget != null) _morale.Widget.IsVisible = settings.ShowMorale;
@@ -275,12 +222,63 @@ namespace BetterMPHUD.Handlers
         private void ApplyCustomization(HudSettings settings)
         {
             ApplyIfReady(_timeAndScores, settings.TimeAndScoresCustom);
-            ApplyIfReady(_avatars, settings.TeamAvatarsCustom);
             ApplyIfReady(_morale, settings.MoraleCustom);
             ApplyIfReady(_controlPoints, settings.MoraleCustom);
+            ApplyIfReady(_powerLevel, settings.PowerLevelCustom);
             
-            ApplyAvatarScaling(settings.TeamAvatarsCustom.Scale);
-            ApplyAvatarLayout(settings);
+            ApplyAvatarSide(_allyAvatarsSide, _allyAvatarsOriginal, _allyAvatarChildOriginals, 
+                           settings.AllyAvatarsCustom, settings.AllyAvatarsVertical);
+            ApplyAvatarSide(_enemyAvatarsSide, _enemyAvatarsOriginal, _enemyAvatarChildOriginals, 
+                           settings.EnemyAvatarsCustom, settings.EnemyAvatarsVertical);
+        }
+
+        private void ApplyAvatarSide(Widget widget, WidgetOriginalValues original, 
+                                     Dictionary<Widget, WidgetOriginalValues> childOriginals,
+                                     ElementCustomization custom, bool isVertical)
+        {
+            if (widget == null) return;
+            
+            if (!original.IsValid)
+                original = WidgetOriginalValues.Capture(widget);
+
+            widget.PositionXOffset = original.X + custom.OffsetX;
+            widget.PositionYOffset = original.Y + custom.OffsetY;
+
+            ListPanel listPanel = widget as ListPanel;
+            if (listPanel != null)
+            {
+                if (isVertical)
+                    listPanel.StackLayout.LayoutMethod = LayoutMethod.VerticalBottomToTop;
+                else
+                    listPanel.StackLayout.LayoutMethod = LayoutMethod.HorizontalLeftToRight;
+            }
+
+            ApplyScaleRecursive(widget, childOriginals, custom.Scale);
+        }
+
+        private void ApplyScaleRecursive(Widget widget, Dictionary<Widget, WidgetOriginalValues> childOriginals, float scale)
+        {
+            if (!childOriginals.ContainsKey(widget))
+                childOriginals[widget] = WidgetOriginalValues.Capture(widget);
+
+            WidgetOriginalValues original = childOriginals[widget];
+
+            if (widget.WidthSizePolicy == SizePolicy.Fixed && original.Width > 0)
+                widget.SuggestedWidth = original.Width * scale;
+            if (widget.HeightSizePolicy == SizePolicy.Fixed && original.Height > 0)
+                widget.SuggestedHeight = original.Height * scale;
+
+            widget.MarginTop = original.MarginTop * scale;
+            widget.MarginBottom = original.MarginBottom * scale;
+            widget.MarginLeft = original.MarginLeft * scale;
+            widget.MarginRight = original.MarginRight * scale;
+
+            TextWidget textWidget = widget as TextWidget;
+            if (textWidget != null && textWidget.Brush != null && original.FontSize > 0)
+                textWidget.Brush.FontSize = (int)(original.FontSize * scale);
+
+            for (int i = 0; i < widget.ChildCount; i++)
+                ApplyScaleRecursive(widget.GetChild(i), childOriginals, scale);
         }
 
         private void ApplyIfReady(TrackedWidget tracked, ElementCustomization custom)
@@ -298,8 +296,10 @@ namespace BetterMPHUD.Handlers
             _customizer.Clear();
             _allyAvatarsSide = null;
             _enemyAvatarsSide = null;
-            _avatarOriginals.Clear();
-            _powerLevel = new TrackedWidget { Element = HudElement.Morale };
+            _allyAvatarsOriginal = default(WidgetOriginalValues);
+            _enemyAvatarsOriginal = default(WidgetOriginalValues);
+            _allyAvatarChildOriginals.Clear();
+            _enemyAvatarChildOriginals.Clear();
         }
     }
 }
