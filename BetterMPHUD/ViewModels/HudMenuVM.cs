@@ -100,6 +100,8 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(ShouldShiftMenuRight, "ShouldShiftMenuRight");
             OnPropertyChangedWithValue(MenuHorizontalOffset, "MenuHorizontalOffset");
             OnPropertyChangedWithValue(IsProfilesPageOpen, "IsProfilesPageOpen");
+            OnPropertyChangedWithValue(IsAvatarsSelected, "IsAvatarsSelected");
+            OnPropertyChangedWithValue(AvatarOrientationText, "AvatarOrientationText");
         }
 
         public void ExecuteSelectTimeAndScores() { _topBarEditor.SelectElement(0, "Time & Scores", _settings.TimeAndScoresCustom); RefreshTopBarDisplay(); }
@@ -434,6 +436,9 @@ namespace BetterMPHUD.ViewModels
         }
         
         [DataSourceProperty]
+        public bool ShowPowerLevel { get { return _settings.ShowPowerLevel; } set { if (_settings.ShowPowerLevel != value) { _settings.ShowPowerLevel = value; OnPropertyChangedWithValue(value, "ShowPowerLevel"); OnSettingsChanged(); } } }
+        
+        [DataSourceProperty]
         public bool ShowTimeAndScores { get { return _settings.ShowTimeAndScores; } set { if (_settings.ShowTimeAndScores != value) { _settings.ShowTimeAndScores = value; OnPropertyChangedWithValue(value, "ShowTimeAndScores"); OnSettingsChanged(); } } }
         
         [DataSourceProperty]
@@ -605,6 +610,19 @@ namespace BetterMPHUD.ViewModels
         }
         
         [DataSourceProperty]
+        public bool IsAvatarsSelected { get { return _topBarEditor.SelectedIndex == 1; } }
+
+        [DataSourceProperty]
+        public string AvatarOrientationText { get { return _settings.TeamAvatarsVertical ? "Vertical" : "Horizontal"; } }
+
+        public void ExecuteToggleAvatarOrientation() 
+        { 
+            _settings.TeamAvatarsVertical = !_settings.TeamAvatarsVertical; 
+            OnPropertyChangedWithValue(AvatarOrientationText, "AvatarOrientationText");
+            OnSettingsChanged();
+        }
+        
+        [DataSourceProperty]
         public bool IsSaveNameButtonVisible
         {
             get 
@@ -624,16 +642,7 @@ namespace BetterMPHUD.ViewModels
 
         [DataSourceProperty]
         public bool CanDeleteProfile { get { return ProfileManager.GetProfileCount() > 1; } }
-
-        public void ExecuteSetKillfeedBackgroundColorBlack() 
-        { 
-            _settings.KillfeedBackgroundColor = "#000000FF"; 
-            RefreshKillfeedDisplay();
-            
-            // Force immediate update
-            if (OnHudSettingsChanged != null)
-                OnHudSettingsChanged();
-        }
+        
         
         public void ExecuteSaveProfileName()
         {
@@ -655,26 +664,7 @@ namespace BetterMPHUD.ViewModels
                 OnPropertyChanged("IsSaveNameButtonVisible");
             }
         }
-
-        public void ExecuteSetKillfeedBackgroundColorGray() 
-        { 
-            _settings.KillfeedBackgroundColor = "#808080FF"; 
-            RefreshKillfeedDisplay();
-            
-            // Force immediate update
-            if (OnHudSettingsChanged != null)
-                OnHudSettingsChanged();
-        }
-
-        public void ExecuteSetKillfeedBackgroundColorDarkGray() 
-        { 
-            _settings.KillfeedBackgroundColor = "#404040FF"; 
-            RefreshKillfeedDisplay();
-            
-            // Force immediate update
-            if (OnHudSettingsChanged != null)
-                OnHudSettingsChanged();
-        }
+        
 
         private void AdjustKillfeedMaxEntries(int delta)
         {

@@ -39,10 +39,12 @@ namespace BetterMPHUD.Handlers
             if (victim == null || killer == null || !victim.IsHuman) return;
 
             TaleWorlds.Library.Color color;
-            TaleWorlds.MountAndBlade.Team playerTeam = Mission.Current != null ? Mission.Current.PlayerTeam : null;
+            var playerTeam = Mission.Current != null ? Mission.Current.PlayerTeam : null;
             
             if (playerTeam == null)
                 color = Constants.Colors.Neutral;
+            else if (killer.Team == victim.Team && killer != victim) 
+                color = Constants.Colors.TeamKill;
             else if (victim.Team == playerTeam)
                 color = Constants.Colors.EnemyKill;
             else
@@ -90,7 +92,6 @@ namespace BetterMPHUD.Handlers
             {
                 _viewModel.IsVisible = settings.WarbandKillfeedEnabled;
                 
-                // Apply background settings to all existing items
                 _viewModel.UpdateBackgrounds(
                     settings.KillfeedBackgroundEnabled,
                     settings.KillfeedBackgroundColor,

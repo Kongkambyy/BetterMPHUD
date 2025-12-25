@@ -22,6 +22,8 @@ namespace BetterMPHUD
         public bool ShowEnemyScore { get; set; } = true;
         public bool ShowBanners { get; set; } = true;
         public bool ShowMorale { get; set; } = true;
+        public bool TeamAvatarsVertical { get; set; } = false;
+        public bool ShowPowerLevel { get; set; } = true;
 
         public bool ShowChat { get; set; } = true;
         public bool ChatAlwaysVisible { get; set; } = false;

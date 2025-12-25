@@ -8,6 +8,7 @@ namespace BetterMPHUD.Core
         {
             public static readonly Color FriendlyKill = new Color(0.27f, 1f, 0.27f, 1f);
             public static readonly Color EnemyKill = new Color(1f, 0.27f, 0.27f, 1f);
+            public static readonly Color TeamKill = new Color(1f, 0.65f, 0f, 1f);
             public static readonly Color Neutral = new Color(1f, 1f, 1f, 1f);
         }
 

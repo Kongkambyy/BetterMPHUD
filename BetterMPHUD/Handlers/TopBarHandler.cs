@@ -6,6 +6,7 @@ using TaleWorlds.MountAndBlade;
 using BetterMPHUD.Core;
 using BetterMPHUD.Services;
 using TaleWorlds.Engine.GauntletUI;
+using TaleWorlds.GauntletUI.Layout;
 
 namespace BetterMPHUD.Handlers
 {
@@ -17,6 +18,11 @@ namespace BetterMPHUD.Handlers
         private TrackedWidget _avatars;
         private TrackedWidget _morale;
         private TrackedWidget _controlPoints;
+        private Widget _allyAvatarsSide;
+        private Widget _enemyAvatarsSide;
+        private Dictionary<Widget, WidgetOriginalValues> _avatarOriginals = new Dictionary<Widget, WidgetOriginalValues>();
+        private TrackedWidget _powerLevel;
+
         
         private Widget _enemyScoreWidget;
         private readonly List<Widget> _bannerWidgets = new List<Widget>();
@@ -27,6 +33,12 @@ namespace BetterMPHUD.Handlers
         {
             ResetTrackedWidgets();
         }
+        
+        private void ApplyAvatarLayout(HudSettings settings)
+        {
+            ApplyLayoutToSide(_allyAvatarsSide, settings.TeamAvatarsVertical);
+            ApplyLayoutToSide(_enemyAvatarsSide, settings.TeamAvatarsVertical);
+        }
 
         private void ResetTrackedWidgets()
         {
@@ -34,6 +46,7 @@ namespace BetterMPHUD.Handlers
             _avatars = new TrackedWidget { Element = HudElement.TeamAvatars };
             _morale = new TrackedWidget { Element = HudElement.Morale };
             _controlPoints = new TrackedWidget { Element = HudElement.Morale };
+            _powerLevel = new TrackedWidget { Element = HudElement.Morale };
         }
 
         public void Apply(HudSettings settings, Mission mission)
@@ -71,13 +84,60 @@ namespace BetterMPHUD.Handlers
 
             TryCacheTimeAndScores(widget);
             TryCacheAvatars(widget);
+            TryCacheAvatarSides(widget); // Add this
             TryCacheEnemyScore(widget);
             TryCacheBanner(widget);
             TryCacheMorale(widget);
             TryCacheControlPoints(widget);
+            TryCachePowerLevel(widget);
 
             for (int i = 0; i < widget.ChildCount; i++)
                 SearchWidgets(widget.GetChild(i), depth + 1);
+        }
+        
+        private void TryCacheAvatarSides(Widget widget)
+        {
+            string typeName = widget.GetType().Name;
+            if (!typeName.Contains("AvatarsSide") && !typeName.Contains("MultiplayerTeamAvatars"))
+                return;
+    
+            ListPanel listPanel = widget as ListPanel;
+            if (listPanel == null) return;
+    
+            if (widget.HorizontalAlignment == HorizontalAlignment.Right || 
+                (widget.ParentWidget != null && widget.ParentWidget.GetChildIndex(widget) == 0))
+            {
+                if (_allyAvatarsSide == null)
+                {
+                    _allyAvatarsSide = widget;
+                    _customizer.StoreChildrenOriginals(widget);
+                }
+            }
+            else
+            {
+                if (_enemyAvatarsSide == null)
+                {
+                    _enemyAvatarsSide = widget;
+                    _customizer.StoreChildrenOriginals(widget);
+                }
+            }
+        }
+        
+        private void TryCachePowerLevel(Widget widget)
+        {
+            if (_powerLevel.Widget != null) return;
+    
+            if (widget.HeightSizePolicy == SizePolicy.Fixed &&
+                widget.SuggestedHeight >= 29 && widget.SuggestedHeight <= 31 &&
+                widget.MarginTop >= 19 && widget.MarginTop <= 21 &&
+                widget.HorizontalAlignment == HorizontalAlignment.Center)
+            {
+                if (WidgetFinder.FindByType(widget, "FillBarWidget") != null)
+                {
+                    _powerLevel.Cache(widget);
+                    _customizer.StoreChildrenOriginals(widget);
+                }
+            }
         }
 
         private void TryCacheTimeAndScores(Widget widget)
@@ -104,6 +164,41 @@ namespace BetterMPHUD.Handlers
             {
                 _avatars.Cache(widget);
             }
+        }
+        
+        private void ApplyAvatarScaling(float scale)
+        {
+            ApplyScaleRecursive(_allyAvatarsSide, scale);
+            ApplyScaleRecursive(_enemyAvatarsSide, scale);
+        }
+
+        private void ApplyScaleRecursive(Widget widget, float scale)
+        {
+            if (widget == null) return;
+    
+            if (!_avatarOriginals.ContainsKey(widget))
+                _avatarOriginals[widget] = WidgetOriginalValues.Capture(widget);
+    
+            WidgetOriginalValues original = _avatarOriginals[widget];
+    
+            if (widget.WidthSizePolicy == SizePolicy.Fixed && original.Width > 0)
+                widget.SuggestedWidth = original.Width * scale;
+            if (widget.HeightSizePolicy == SizePolicy.Fixed && original.Height > 0)
+                widget.SuggestedHeight = original.Height * scale;
+    
+            TextWidget textWidget = widget as TextWidget;
+            if (textWidget != null && textWidget.Brush != null && original.FontSize > 0)
+            {
+                textWidget.Brush.FontSize = (int)(original.FontSize * scale);
+            }
+    
+            widget.MarginTop = original.MarginTop * scale;
+            widget.MarginBottom = original.MarginBottom * scale;
+            widget.MarginLeft = original.MarginLeft * scale;
+            widget.MarginRight = original.MarginRight * scale;
+    
+            for (int i = 0; i < widget.ChildCount; i++)
+                ApplyScaleRecursive(widget.GetChild(i), scale);
         }
 
         private void TryCacheEnemyScore(Widget widget)
@@ -151,6 +246,20 @@ namespace BetterMPHUD.Handlers
                 _controlPoints.Cache(widget);
             }
         }
+        
+
+        private void ApplyLayoutToSide(Widget widget, bool vertical)
+        {
+            if (widget == null) return;
+    
+            ListPanel listPanel = widget as ListPanel;
+            if (listPanel == null) return;
+    
+            if (vertical)
+                listPanel.StackLayout.LayoutMethod = LayoutMethod.VerticalBottomToTop;
+            else
+                listPanel.StackLayout.LayoutMethod = LayoutMethod.HorizontalLeftToRight;
+        }
 
         private void ApplyVisibility(HudSettings settings)
         {
@@ -160,6 +269,7 @@ namespace BetterMPHUD.Handlers
             foreach (Widget banner in _bannerWidgets) banner.IsVisible = settings.ShowBanners;
             if (_morale.Widget != null) _morale.Widget.IsVisible = settings.ShowMorale;
             if (_controlPoints.Widget != null) _controlPoints.Widget.IsVisible = settings.ShowMorale;
+            if (_powerLevel.Widget != null) _powerLevel.Widget.IsVisible = settings.ShowPowerLevel;
         }
 
         private void ApplyCustomization(HudSettings settings)
@@ -168,6 +278,9 @@ namespace BetterMPHUD.Handlers
             ApplyIfReady(_avatars, settings.TeamAvatarsCustom);
             ApplyIfReady(_morale, settings.MoraleCustom);
             ApplyIfReady(_controlPoints, settings.MoraleCustom);
+            
+            ApplyAvatarScaling(settings.TeamAvatarsCustom.Scale);
+            ApplyAvatarLayout(settings);
         }
 
         private void ApplyIfReady(TrackedWidget tracked, ElementCustomization custom)
@@ -183,6 +296,10 @@ namespace BetterMPHUD.Handlers
             _enemyScoreWidget = null;
             _bannerWidgets.Clear();
             _customizer.Clear();
+            _allyAvatarsSide = null;
+            _enemyAvatarsSide = null;
+            _avatarOriginals.Clear();
+            _powerLevel = new TrackedWidget { Element = HudElement.Morale };
         }
     }
 }
