@@ -296,6 +296,7 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(CurrentAvatarOffsetYText, "CurrentAvatarOffsetYText");
             OnPropertyChangedWithValue(CurrentAvatarScaleText, "CurrentAvatarScaleText");
             OnPropertyChangedWithValue(CurrentAvatarOrientationText, "CurrentAvatarOrientationText");
+            OnPropertyChangedWithValue(CurrentAvatarSpacingText, "CurrentAvatarSpacingText");
             OnPropertyChangedWithValue(IsAllyAvatarSelected, "IsAllyAvatarSelected");
             OnPropertyChangedWithValue(IsEnemyAvatarSelected, "IsEnemyAvatarSelected");
         }
@@ -310,6 +311,29 @@ namespace BetterMPHUD.ViewModels
                 RefreshCrosshairDisplay();
             }
         }
+        
+        private void AdjustAvatarSpacing(float delta)
+        {
+            if (_selectedAvatarSide == 0)
+            {
+                float newValue = _settings.AllyAvatarsSpacing + delta;
+                if (newValue >= -20f && newValue <= 50f)
+                    _settings.AllyAvatarsSpacing = newValue;
+            }
+            else
+            {
+                float newValue = _settings.EnemyAvatarsSpacing + delta;
+                if (newValue >= -20f && newValue <= 50f)
+                    _settings.EnemyAvatarsSpacing = newValue;
+            }
+            RefreshAvatarSideDisplay();
+            OnSettingsChanged();
+        }
+        
+        public void ExecuteIncreaseAvatarSpacing() { AdjustAvatarSpacing(1f); }
+        public void ExecuteDecreaseAvatarSpacing() { AdjustAvatarSpacing(-1f); }
+        public void ExecuteIncreaseAvatarSpacingLarge() { AdjustAvatarSpacing(5f); }
+        public void ExecuteDecreaseAvatarSpacingLarge() { AdjustAvatarSpacing(-5f); }
 
         private void AdjustCrosshairLength(int delta)
         {
@@ -815,6 +839,16 @@ namespace BetterMPHUD.ViewModels
                 _newProfileCounter++;
                 RefreshProfileDisplay();
             }
+        }
+        
+        [DataSourceProperty]
+        public string CurrentAvatarSpacingText 
+        { 
+            get 
+            { 
+                float spacing = _selectedAvatarSide == 0 ? _settings.AllyAvatarsSpacing : _settings.EnemyAvatarsSpacing;
+                return spacing.ToString("F0");
+            } 
         }
         
         public void ExecuteDuplicateProfile()

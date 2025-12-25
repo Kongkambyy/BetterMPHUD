@@ -225,19 +225,19 @@ namespace BetterMPHUD.Handlers
             ApplyIfReady(_morale, settings.MoraleCustom);
             ApplyIfReady(_controlPoints, settings.MoraleCustom);
             ApplyIfReady(_powerLevel, settings.PowerLevelCustom);
-            
+    
             ApplyAvatarSide(_allyAvatarsSide, _allyAvatarsOriginal, _allyAvatarChildOriginals, 
-                           settings.AllyAvatarsCustom, settings.AllyAvatarsVertical);
+                settings.AllyAvatarsCustom, settings.AllyAvatarsVertical, settings.AllyAvatarsSpacing);
             ApplyAvatarSide(_enemyAvatarsSide, _enemyAvatarsOriginal, _enemyAvatarChildOriginals, 
-                           settings.EnemyAvatarsCustom, settings.EnemyAvatarsVertical);
+                settings.EnemyAvatarsCustom, settings.EnemyAvatarsVertical, settings.EnemyAvatarsSpacing);
         }
 
         private void ApplyAvatarSide(Widget widget, WidgetOriginalValues original, 
-                                     Dictionary<Widget, WidgetOriginalValues> childOriginals,
-                                     ElementCustomization custom, bool isVertical)
+            Dictionary<Widget, WidgetOriginalValues> childOriginals,
+            ElementCustomization custom, bool isVertical, float spacing)
         {
             if (widget == null) return;
-            
+    
             if (!original.IsValid)
                 original = WidgetOriginalValues.Capture(widget);
 
@@ -253,10 +253,13 @@ namespace BetterMPHUD.Handlers
                     listPanel.StackLayout.LayoutMethod = LayoutMethod.HorizontalLeftToRight;
             }
 
-            ApplyScaleRecursive(widget, childOriginals, custom.Scale);
+            ApplyScaleToWidget(widget, childOriginals, custom.Scale);
+    
+            for (int i = 0; i < widget.ChildCount; i++)
+                ApplyScaleRecursive(widget.GetChild(i), childOriginals, custom.Scale, isVertical, spacing, true);
         }
-
-        private void ApplyScaleRecursive(Widget widget, Dictionary<Widget, WidgetOriginalValues> childOriginals, float scale)
+        
+        private void ApplyScaleToWidget(Widget widget, Dictionary<Widget, WidgetOriginalValues> childOriginals, float scale)
         {
             if (!childOriginals.ContainsKey(widget))
                 childOriginals[widget] = WidgetOriginalValues.Capture(widget);
@@ -272,14 +275,55 @@ namespace BetterMPHUD.Handlers
             widget.MarginBottom = original.MarginBottom * scale;
             widget.MarginLeft = original.MarginLeft * scale;
             widget.MarginRight = original.MarginRight * scale;
+        }
+
+
+        private void ApplyScaleRecursive(Widget widget, Dictionary<Widget, WidgetOriginalValues> childOriginals, 
+            float scale, bool isVertical, float spacing, bool isDirectChild = false)
+        {
+            if (!childOriginals.ContainsKey(widget))
+                childOriginals[widget] = WidgetOriginalValues.Capture(widget);
+
+            WidgetOriginalValues original = childOriginals[widget];
+
+            if (widget.WidthSizePolicy == SizePolicy.Fixed && original.Width > 0)
+                widget.SuggestedWidth = original.Width * scale;
+            if (widget.HeightSizePolicy == SizePolicy.Fixed && original.Height > 0)
+                widget.SuggestedHeight = original.Height * scale;
+
+            if (isDirectChild)
+            {
+                if (isVertical)
+                {
+                    widget.MarginTop = (original.MarginTop * scale) + spacing;
+                    widget.MarginBottom = (original.MarginBottom * scale) + spacing;
+                    widget.MarginLeft = original.MarginLeft * scale;
+                    widget.MarginRight = original.MarginRight * scale;
+                }
+                else
+                {
+                    widget.MarginLeft = (original.MarginLeft * scale) + spacing;
+                    widget.MarginRight = (original.MarginRight * scale) + spacing;
+                    widget.MarginTop = original.MarginTop * scale;
+                    widget.MarginBottom = original.MarginBottom * scale;
+                }
+            }
+            else
+            {
+                widget.MarginTop = original.MarginTop * scale;
+                widget.MarginBottom = original.MarginBottom * scale;
+                widget.MarginLeft = original.MarginLeft * scale;
+                widget.MarginRight = original.MarginRight * scale;
+            }
 
             TextWidget textWidget = widget as TextWidget;
             if (textWidget != null && textWidget.Brush != null && original.FontSize > 0)
                 textWidget.Brush.FontSize = (int)(original.FontSize * scale);
 
             for (int i = 0; i < widget.ChildCount; i++)
-                ApplyScaleRecursive(widget.GetChild(i), childOriginals, scale);
+                ApplyScaleRecursive(widget.GetChild(i), childOriginals, scale, isVertical, spacing, false);
         }
+
 
         private void ApplyIfReady(TrackedWidget tracked, ElementCustomization custom)
         {

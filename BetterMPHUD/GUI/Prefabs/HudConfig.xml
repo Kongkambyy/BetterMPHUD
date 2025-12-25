@@ -700,6 +700,21 @@
 													</Children>
 												</ListPanel>
 
+												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="12">
+													<Children>
+														<TextWidget Text="Spacing:" WidthSizePolicy="Fixed" SuggestedWidth="80" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#FFFFFFFF"/>
+														<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="26" SuggestedHeight="26" Brush="KillfeedOffsetXLMinusButton" Command.Click="ExecuteDecreaseAvatarSpacingLarge"/>
+														<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="18" SuggestedHeight="26" Brush="KillfeedOffsetMinusButton" Command.Click="ExecuteDecreaseAvatarSpacing"/>
+														<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="60" SuggestedHeight="26">
+															<Children>
+																<TextWidget Text="@CurrentAvatarSpacingText" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="12" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+															</Children>
+														</Widget>
+														<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="18" SuggestedHeight="26" Brush="KillfeedOffsetPlusButton" Command.Click="ExecuteIncreaseAvatarSpacing"/>
+														<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="26" SuggestedHeight="26" Brush="KillfeedOffsetXLPlusButton" Command.Click="ExecuteIncreaseAvatarSpacingLarge"/>
+													</Children>
+												</ListPanel>
+
 												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="15">
 													<Children>
 														<TextWidget Text="Orientation:" WidthSizePolicy="Fixed" SuggestedWidth="80" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#FFFFFFFF"/>
