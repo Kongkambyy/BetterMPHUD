@@ -42,6 +42,7 @@ namespace BetterMPHUD.Handlers
 
             CrosshairSettings cs = settings.CrosshairSettings;
 
+            // Handle custom crosshair
             if (cs.CustomCrosshairEnabled)
             {
                 if (_nativeLayer != null && _nativeLayer.UIContext != null)
@@ -53,13 +54,8 @@ namespace BetterMPHUD.Handlers
                 _viewModel.CrosshairSizeHor = cs.SizeHorizontal;
                 _viewModel.CrosshairSizeVert = cs.SizeVertical;
                 _viewModel.CrosshairOffset = cs.Offset;
-                _viewModel.IsDotEnabled = cs.DotEnabled;
-                _viewModel.DotColor = cs.DotColor;
-                _viewModel.DotSizeWidth = cs.DotSizeWidth;
-                _viewModel.DotSizeHeight = cs.DotSizeHeight;
-                _viewModel.DotIsCircular = cs.DotIsCircular;
 
-                UpdateVisibility(screen);
+                UpdateCrosshairVisibility(screen);
                 UpdateCrosshairProperties(screen);
                 UpdateReloadPhase();
                 UpdateMeleeDirections();
@@ -73,6 +69,65 @@ namespace BetterMPHUD.Handlers
                 _viewModel.CustomEnabled = false;
                 _viewModel.ClearReloadPhases();
             }
+
+            _viewModel.IsDotEnabled = cs.DotEnabled;
+            _viewModel.DotColor = cs.DotColor;
+            _viewModel.DotSizeWidth = cs.DotSizeWidth;
+            _viewModel.DotSizeHeight = cs.DotSizeHeight;
+            _viewModel.DotIsCircular = cs.DotIsCircular;
+            UpdateDotVisibility(screen);
+        }
+        
+        private void UpdateCrosshairVisibility(MissionScreen screen)
+        {
+            if (Mission.Current == null || Mission.Current.MainAgent == null)
+            {
+                _viewModel.IsVisible = false;
+                return;
+            }
+
+            Agent mainAgent = Mission.Current.MainAgent;
+            MissionWeapon wieldedWeapon = mainAgent.WieldedWeapon;
+
+            bool isRangedWeapon = !wieldedWeapon.IsEmpty &&
+                                  wieldedWeapon.CurrentUsageItem != null &&
+                                  wieldedWeapon.CurrentUsageItem.IsRangedWeapon;
+
+            bool baseConditions = BannerlordConfig.DisplayTargetingReticule &&
+                                  Mission.Current.Mode != MissionMode.Conversation &&
+                                  Mission.Current.Mode != MissionMode.CutScene &&
+                                  !screen.IsViewingCharacter() &&
+                                  screen.CustomCamera == null;
+
+            bool shouldShowCrosshair = baseConditions && isRangedWeapon;
+
+            if (shouldShowCrosshair && wieldedWeapon.CurrentUsageItem.WeaponClass == WeaponClass.Crossbow)
+                shouldShowCrosshair = !wieldedWeapon.IsReloading;
+
+            _viewModel.IsVisible = shouldShowCrosshair;
+        }
+        
+        private void UpdateDotVisibility(MissionScreen screen)
+        {
+            if (!_viewModel.IsDotEnabled)
+            {
+                _viewModel.IsDotVisible = false;
+                return;
+            }
+
+            if (Mission.Current == null || Mission.Current.MainAgent == null)
+            {
+                _viewModel.IsDotVisible = false;
+                return;
+            }
+
+            bool baseConditions = BannerlordConfig.DisplayTargetingReticule &&
+                                  Mission.Current.Mode != MissionMode.Conversation &&
+                                  Mission.Current.Mode != MissionMode.CutScene &&
+                                  !screen.IsViewingCharacter() &&
+                                  screen.CustomCamera == null;
+
+            _viewModel.IsDotVisible = baseConditions;
         }
 
         private void UpdateVisibility(MissionScreen screen)
