@@ -1,0 +1,141 @@
+﻿<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" StackLayout.LayoutMethod="VerticalBottomToTop" IsVisible="@IsCrosshairSettingsPageOpen" MarginTop="15" MarginLeft="20" MarginRight="20">
+    <Children>
+        <TextWidget Text="Crosshair Settings" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="12" Brush.FontSize="22" Brush.FontColor="#FFD700FF"/>
+
+        <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="12">
+            <Children>
+                <TextWidget Text="Custom Crosshair" WidthSizePolicy="Fixed" SuggestedWidth="150" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="16" Brush.FontColor="#FFFFFFFF"/>
+                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="25" SuggestedHeight="25" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@CustomCrosshairEnabled" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
+                    <Children>
+                        <BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/>
+                    </Children>
+                </ButtonWidget>
+            </Children>
+        </ListPanel>
+
+        <!-- Width Slider -->
+        <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalBottomToTop" MarginBottom="6">
+            <Children>
+                <TextWidget Text="Width" WidthSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#FFFFFFFF"/>
+                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginTop="4">
+                    <Children>
+                        <SliderWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="280" SuggestedHeight="40" VerticalAlignment="Center" DoNotUpdateHandleSize="true" Filler="Filler" Handle="SliderHandle" IsDiscrete="true" DiscreteIncrementInterval="1" MaxValueInt="75" MinValueInt="1" ValueInt="@CrosshairWidthInt" UpdateValueContinuously="true">
+                            <Children>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="300" SuggestedHeight="36" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_canvas" DoNotAcceptEvents="true"/>
+                                <Widget Id="Filler" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="285" SuggestedHeight="33" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_fill" ClipContents="true">
+                                    <Children>
+                                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="285" SuggestedHeight="33" HorizontalAlignment="Left" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_fill"/>
+                                    </Children>
+                                </Widget>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="60" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_frame" DoNotAcceptEvents="true"/>
+                                <ImageWidget Id="SliderHandle" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="14" SuggestedHeight="36" HorizontalAlignment="Left" VerticalAlignment="Center" Brush="SPOptions.Slider.Handle"/>
+                            </Children>
+                        </SliderWidget>
+                        <TextWidget IntText="@CrosshairWidthInt" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" MarginLeft="15" Brush.FontColor="#FFFFFFFF" Brush.FontSize="14"/>
+                    </Children>
+                </ListPanel>
+            </Children>
+        </ListPanel>
+
+        <!-- Length Slider -->
+        <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalBottomToTop" MarginBottom="6">
+            <Children>
+                <TextWidget Text="Length" WidthSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#FFFFFFFF"/>
+                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginTop="4">
+                    <Children>
+                        <SliderWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="280" SuggestedHeight="40" VerticalAlignment="Center" DoNotUpdateHandleSize="true" Filler="Filler" Handle="SliderHandle" IsDiscrete="true" DiscreteIncrementInterval="1" MaxValueInt="75" MinValueInt="1" ValueInt="@CrosshairLengthInt" UpdateValueContinuously="true">
+                            <Children>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="300" SuggestedHeight="36" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_canvas" DoNotAcceptEvents="true"/>
+                                <Widget Id="Filler" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="285" SuggestedHeight="33" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_fill" ClipContents="true">
+                                    <Children>
+                                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="285" SuggestedHeight="33" HorizontalAlignment="Left" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_fill"/>
+                                    </Children>
+                                </Widget>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="60" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_frame" DoNotAcceptEvents="true"/>
+                                <ImageWidget Id="SliderHandle" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="14" SuggestedHeight="36" HorizontalAlignment="Left" VerticalAlignment="Center" Brush="SPOptions.Slider.Handle"/>
+                            </Children>
+                        </SliderWidget>
+                        <TextWidget IntText="@CrosshairLengthInt" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" MarginLeft="15" Brush.FontColor="#FFFFFFFF" Brush.FontSize="14"/>
+                    </Children>
+                </ListPanel>
+            </Children>
+        </ListPanel>
+
+        <!-- Offset Slider -->
+        <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalBottomToTop" MarginBottom="6">
+            <Children>
+                <TextWidget Text="Offset" WidthSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#FFFFFFFF"/>
+                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginTop="4">
+                    <Children>
+                        <SliderWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="280" SuggestedHeight="40" VerticalAlignment="Center" DoNotUpdateHandleSize="true" Filler="Filler" Handle="SliderHandle" IsDiscrete="true" DiscreteIncrementInterval="1" MaxValueInt="30" MinValueInt="0" ValueInt="@CrosshairOffsetInt" UpdateValueContinuously="true">
+                            <Children>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="300" SuggestedHeight="36" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_canvas" DoNotAcceptEvents="true"/>
+                                <Widget Id="Filler" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="285" SuggestedHeight="33" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_fill" ClipContents="true">
+                                    <Children>
+                                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="285" SuggestedHeight="33" HorizontalAlignment="Left" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_fill"/>
+                                    </Children>
+                                </Widget>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="60" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_frame" DoNotAcceptEvents="true"/>
+                                <ImageWidget Id="SliderHandle" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="14" SuggestedHeight="36" HorizontalAlignment="Left" VerticalAlignment="Center" Brush="SPOptions.Slider.Handle"/>
+                            </Children>
+                        </SliderWidget>
+                        <TextWidget IntText="@CrosshairOffsetInt" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" MarginLeft="15" Brush.FontColor="#FFFFFFFF" Brush.FontSize="14"/>
+                    </Children>
+                </ListPanel>
+            </Children>
+        </ListPanel>
+
+        <!-- Opacity Slider -->
+        <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalBottomToTop" MarginBottom="10">
+            <Children>
+                <TextWidget Text="Opacity" WidthSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#FFFFFFFF"/>
+                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginTop="4">
+                    <Children>
+                        <SliderWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="280" SuggestedHeight="40" VerticalAlignment="Center" DoNotUpdateHandleSize="true" Filler="Filler" Handle="SliderHandle" IsDiscrete="false" MaxValueFloat="1" MinValueFloat="0" ValueFloat="@CrosshairOpacityFloat" UpdateValueContinuously="true">
+                            <Children>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="300" SuggestedHeight="36" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_canvas" DoNotAcceptEvents="true"/>
+                                <Widget Id="Filler" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="285" SuggestedHeight="33" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_fill" ClipContents="true">
+                                    <Children>
+                                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="285" SuggestedHeight="33" HorizontalAlignment="Left" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_fill"/>
+                                    </Children>
+                                </Widget>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="60" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_frame" DoNotAcceptEvents="true"/>
+                                <ImageWidget Id="SliderHandle" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="14" SuggestedHeight="36" HorizontalAlignment="Left" VerticalAlignment="Center" Brush="SPOptions.Slider.Handle"/>
+                            </Children>
+                        </SliderWidget>
+                        <TextWidget FloatText="@CrosshairOpacityFloat" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" MarginLeft="15" Brush.FontColor="#FFFFFFFF" Brush.FontSize="14"/>
+                    </Children>
+                </ListPanel>
+            </Children>
+        </ListPanel>
+
+        <!-- Color Grid -->
+        <TextWidget Text="Color" WidthSizePolicy="CoverChildren" HorizontalAlignment="Left" Brush.FontSize="14" Brush.FontColor="#FFFFFFFF" MarginBottom="6"/>
+
+        <NavigatableGridWidget DataSource="{CrosshairColorList}" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" ColumnCount="8" DefaultCellHeight="38" DefaultCellWidth="38" LayoutImp="GridLayout" VerticalAlignment="Center" MarginBottom="12">
+            <ItemTemplate>
+                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="34" SuggestedHeight="34" MarginLeft="1" MarginRight="1" MarginTop="1" MarginBottom="1" HorizontalAlignment="Center" VerticalAlignment="Center" ButtonType="Radio" UpdateChildrenStates="true" IsSelected="@IsSelected" Command.Click="ExecuteSelectColor">
+                    <Children>
+                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="@ColorHex" MarginLeft="2" MarginRight="2" MarginTop="2" MarginBottom="2"/>
+                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#FFFFFFFF" AlphaFactor="0.5" IsVisible="@IsSelected"/>
+                    </Children>
+                </ButtonWidget>
+            </ItemTemplate>
+        </NavigatableGridWidget>
+
+        <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginTop="8">
+            <Children>
+                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="100" SuggestedHeight="30" Brush="HUDButton" Command.Click="ExecuteResetCrosshair" MarginRight="10">
+                    <Children>
+                        <TextWidget Text="Reset" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="13" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+                    </Children>
+                </ButtonWidget>
+                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="100" SuggestedHeight="30" Brush="HUDButton" Command.Click="ExecuteBackToCrosshair">
+                    <Children>
+                        <TextWidget Text="← Back" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="13" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+                    </Children>
+                </ButtonWidget>
+            </Children>
+        </ListPanel>
+    </Children>
+</ListPanel>
