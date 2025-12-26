@@ -22,9 +22,9 @@ namespace BetterMPHUD.ViewModels
 
         private string _crosshairColor = "#FF0000FF";
         private float _crosshairOpacity = 1f;
-        private int _crosshairSizeHor = 10;
-        private int _crosshairSizeVert = 10;
-        private int _crosshairOffset = 10;
+        private int _crosshairSizeHor = 30;
+        private int _crosshairSizeVert = 30;
+        private int _crosshairOffset = 30;
 
         private double _topArrowOpacity;
         private double _bottomArrowOpacity;
