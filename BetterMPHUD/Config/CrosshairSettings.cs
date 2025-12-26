@@ -23,9 +23,9 @@ namespace BetterMPHUD
         public void Reset()
         {
             CustomCrosshairEnabled = false;
-            SizeHorizontal = 10;
-            SizeVertical = 10;
-            Offset = 10;
+            SizeHorizontal = 30;
+            SizeVertical = 30;
+            Offset = 30;
             Opacity = 1f;
             Color = "#FF0000FF";
             DotEnabled = false;

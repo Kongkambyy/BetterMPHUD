@@ -167,11 +167,11 @@ namespace BetterMPHUD.Behaviors
                 return;
 
             HudSettings settings = _menuVM.GetSettings();
-            
+    
             _killfeed.ApplySettings(settings);
             _topBar.Apply(settings, Mission.Current);
             _agentStatus.Apply(settings, Mission.Current);
-            
+    
             MissionScreen screen = ScreenManager.TopScreen as MissionScreen;
             if (screen != null)
             {

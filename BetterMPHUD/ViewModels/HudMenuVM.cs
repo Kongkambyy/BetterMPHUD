@@ -29,7 +29,7 @@ namespace BetterMPHUD.ViewModels
         public HudMenuVM()
         {
             _settings = ConfigManager.LoadSettings();
-            
+    
             _topBarEditor = new ElementEditorVM(0, _settings.TimeAndScoresCustom, "Time & Scores");
             _topBarEditor.SetOnChanged(OnSettingsChanged);
 
@@ -39,8 +39,6 @@ namespace BetterMPHUD.ViewModels
             _tempProfileName = ProfileManager.GetActiveProfile().Name;
             _avatarSideEditor = new ElementEditorVM(0, _settings.AllyAvatarsCustom, "Ally (Left)");
             _avatarSideEditor.SetOnChanged(OnSettingsChanged);
-            
-            InitializeCrosshairColorList();
 
             ApplyNativeKillfeedSetting();
         }
@@ -75,7 +73,8 @@ namespace BetterMPHUD.ViewModels
         private void InitializeCrosshairColorList()
         {
             _crosshairColorList = new MBBindingList<ColorItemVM>();
-    
+            _dotColorList = new MBBindingList<ColorItemVM>();
+
             string[] colors = new string[]
             {
                 "#FF0000FF", "#00FF00FF", "#0000FFFF", "#FFFFFFFF",
@@ -83,11 +82,31 @@ namespace BetterMPHUD.ViewModels
                 "#FF6666FF", "#66FF66FF", "#6666FFFF", "#000000FF",
                 "#888888FF", "#FF1493FF", "#8B4513FF", "#4B0082FF"
             };
-    
+
             foreach (string color in colors)
+            {
                 _crosshairColorList.Add(new ColorItemVM(color, OnCrosshairColorSelected));
-    
+                _dotColorList.Add(new ColorItemVM(color, OnDotColorSelected));
+            }
+
             SelectCurrentCrosshairColor();
+            SelectCurrentDotColor();
+        }
+        
+        private void SelectCurrentDotColor()
+        {
+            if (_dotColorList == null || _settings == null || _settings.CrosshairSettings == null) 
+                return;
+        
+            string currentColor = _settings.CrosshairSettings.DotColor;
+            if (string.IsNullOrEmpty(currentColor))
+                currentColor = "#FFFFFFFF";
+    
+            foreach (var item in _dotColorList)
+            {
+                if (item != null)
+                    item.IsSelected = string.Equals(item.ColorHex, currentColor, StringComparison.OrdinalIgnoreCase);
+            }
         }
         
         public void ExecuteOpenKillfeedPage() { SetPage("Killfeed"); }
@@ -109,7 +128,7 @@ namespace BetterMPHUD.ViewModels
         public void ExecuteOpenProfilesPage() { SetPage("Profiles"); }
         public void ExecuteOpenAvatarSidesPage() { SetPage("AvatarSides"); }
         public void ExecuteBackToCustomize() { SetPage("Customize"); }
-
+        
 
         private void RefreshPageVisibility()
         {
@@ -455,7 +474,41 @@ namespace BetterMPHUD.ViewModels
         public void ExecuteResetCrosshair()
         {
             _settings.CrosshairSettings.Reset();
-            RefreshCrosshairDisplay();
+            
+            string resetColor = _settings.CrosshairSettings.Color;
+            if (_crosshairColorList != null)
+            {
+                foreach (var item in _crosshairColorList)
+                    item.IsSelected = string.Equals(item.ColorHex, resetColor, StringComparison.OrdinalIgnoreCase);
+            }
+    
+            OnPropertyChangedWithValue(CrosshairWidthInt, "CrosshairWidthInt");
+            OnPropertyChangedWithValue(CrosshairLengthInt, "CrosshairLengthInt");
+            OnPropertyChangedWithValue(CrosshairOffsetInt, "CrosshairOffsetInt");
+            OnPropertyChangedWithValue(CrosshairOpacityFloat, "CrosshairOpacityFloat");
+            OnPropertyChangedWithValue(CustomCrosshairEnabled, "CustomCrosshairEnabled");
+            OnPropertyChangedWithValue(DotEnabled, "DotEnabled");
+            OnPropertyChangedWithValue(DotColorText, "DotColorText");
+            OnPropertyChangedWithValue(DotWidthText, "DotWidthText");
+            OnPropertyChangedWithValue(DotHeightText, "DotHeightText");
+    
+            OnSettingsChanged();
+        }
+        
+        public void ExecuteResetDot()
+        {
+            _settings.CrosshairSettings.DotEnabled = false;
+            _settings.CrosshairSettings.DotColor = "#FFFFFFFF";
+            _settings.CrosshairSettings.DotSizeWidth = 6;
+            _settings.CrosshairSettings.DotSizeHeight = 6;
+            _settings.CrosshairSettings.DotIsCircular = true;
+    
+            OnPropertyChangedWithValue(DotEnabled, "DotEnabled");
+            OnPropertyChangedWithValue(DotWidthText, "DotWidthText");
+            OnPropertyChangedWithValue(DotHeightText, "DotHeightText");
+            OnPropertyChangedWithValue(DotColorText, "DotColorText");
+    
+            OnSettingsChanged();
         }
         
         public void ExecuteIncreaseAvatarOffsetX() { _avatarSideEditor.AdjustOffsetX(Constants.Adjustment.PositionStep); RefreshAvatarSideDisplay(); }
@@ -512,6 +565,9 @@ namespace BetterMPHUD.ViewModels
 
         private void RefreshCrosshairDisplay()
         {
+            if (_settings == null || _settings.CrosshairSettings == null)
+                return;
+        
             OnPropertyChangedWithValue(CrosshairWidthInt, "CrosshairWidthInt");
             OnPropertyChangedWithValue(CrosshairLengthInt, "CrosshairLengthInt");
             OnPropertyChangedWithValue(CrosshairOffsetInt, "CrosshairOffsetInt");
@@ -521,7 +577,10 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(DotColorText, "DotColorText");
             OnPropertyChangedWithValue(DotWidthText, "DotWidthText");
             OnPropertyChangedWithValue(DotHeightText, "DotHeightText");
+    
             SelectCurrentCrosshairColor();
+            SelectCurrentDotColor();
+    
             OnSettingsChanged();
         }
 
@@ -654,12 +713,6 @@ namespace BetterMPHUD.ViewModels
         public bool ShowShieldHealthNumbers { get { return _settings.ShowShieldHealthNumbers; } set { if (_settings.ShowShieldHealthNumbers != value) { _settings.ShowShieldHealthNumbers = value; OnPropertyChangedWithValue(value, "ShowShieldHealthNumbers"); OnSettingsChanged(); } } }
         
         [DataSourceProperty]
-        public bool ShowChat { get { return _settings.ShowChat; } set { if (_settings.ShowChat != value) { _settings.ShowChat = value; OnPropertyChangedWithValue(value, "ShowChat"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
-        public bool ChatAlwaysVisible { get { return _settings.ChatAlwaysVisible; } set { if (_settings.ChatAlwaysVisible != value) { _settings.ChatAlwaysVisible = value; OnPropertyChangedWithValue(value, "ChatAlwaysVisible"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
         public bool CameraSnapbackEnabled { get { return _settings.CameraSnapbackEnabled; } set { if (_settings.CameraSnapbackEnabled != value) { _settings.CameraSnapbackEnabled = value; OnPropertyChangedWithValue(value, "CameraSnapbackEnabled"); OnSettingsChanged(); } } }
 
         [DataSourceProperty]
@@ -712,8 +765,19 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty] 
         public string DotHeightText { get { return _settings.CrosshairSettings.DotSizeHeight.ToString(); } }
 
-        public void ExecuteSetDotCircular() { _settings.CrosshairSettings.DotIsCircular = true; RefreshCrosshairDisplay(); }
-        public void ExecuteSetDotSquare() { _settings.CrosshairSettings.DotIsCircular = false; RefreshCrosshairDisplay(); }
+        public void ExecuteSetDotCircular() 
+        { 
+            _settings.CrosshairSettings.DotIsCircular = true; 
+            OnPropertyChangedWithValue(true, "DotIsCircular");
+            OnSettingsChanged(); 
+        }
+        
+        public void ExecuteSetDotSquare() 
+        { 
+            _settings.CrosshairSettings.DotIsCircular = false; 
+            OnPropertyChangedWithValue(false, "DotIsCircular");
+            OnSettingsChanged(); 
+        }
         
         [DataSourceProperty]
         public float MenuHorizontalOffset
@@ -907,20 +971,20 @@ namespace BetterMPHUD.ViewModels
         private void ReloadSettingsFromProfile()
         {
             _settings = ProfileManager.GetActiveSettings();
-    
+
             _topBarEditor = new ElementEditorVM(0, _settings.TimeAndScoresCustom, "Time & Scores");
             _topBarEditor.SetOnChanged(OnSettingsChanged);
             _hpEditor = new ElementEditorVM(0, _settings.AgentHealthCustom, "Agent Health");
             _hpEditor.SetOnChanged(OnSettingsChanged);
-            
+    
             _avatarSideEditor = new ElementEditorVM(0, _settings.AllyAvatarsCustom, "Ally (Left)");
             _avatarSideEditor.SetOnChanged(OnSettingsChanged);
-    
+
             ApplyNativeKillfeedSetting();
             RefreshProfileDisplay();
             RefreshAllSettingsDisplay();
-            InitializeCrosshairColorList();
-    
+            InitializeCrosshairColorList(); 
+
             if (OnHudSettingsChanged != null)
                 OnHudSettingsChanged();
         }
@@ -979,9 +1043,14 @@ namespace BetterMPHUD.ViewModels
 
         private void OnCrosshairColorSelected(ColorItemVM selected)
         {
-            foreach (var item in _crosshairColorList)
-                item.IsSelected = false;
+            if (selected == null || _crosshairColorList == null) return;
     
+            foreach (var item in _crosshairColorList)
+            {
+                if (item != null)
+                    item.IsSelected = false;
+            }
+
             selected.IsSelected = true;
             _settings.CrosshairSettings.Color = selected.ColorHex;
             OnSettingsChanged();
@@ -989,9 +1058,14 @@ namespace BetterMPHUD.ViewModels
         
         private void OnDotColorSelected(ColorItemVM selected)
         {
-            foreach (var item in _dotColorList)
-                item.IsSelected = false;
+            if (selected == null || _dotColorList == null) return;
     
+            foreach (var item in _dotColorList)
+            {
+                if (item != null)
+                    item.IsSelected = false;
+            }
+
             selected.IsSelected = true;
             _settings.CrosshairSettings.DotColor = selected.ColorHex;
             OnSettingsChanged();
@@ -999,11 +1073,19 @@ namespace BetterMPHUD.ViewModels
         
         private void SelectCurrentCrosshairColor()
         {
+            if (_crosshairColorList == null || _settings == null || _settings.CrosshairSettings == null) 
+                return;
+        
+            string currentColor = _settings.CrosshairSettings.Color;
+            if (string.IsNullOrEmpty(currentColor))
+                currentColor = "#FF0000FF";
+    
             foreach (var item in _crosshairColorList)
-                item.IsSelected = item.ColorHex == _settings.CrosshairSettings.Color;
+            {
+                if (item != null)
+                    item.IsSelected = string.Equals(item.ColorHex, currentColor, StringComparison.OrdinalIgnoreCase);
+            }
         }
-        
-        
 
         public void ExecuteIncreaseKillfeedMaxEntries() { AdjustKillfeedMaxEntries(1); }
         public void ExecuteDecreaseKillfeedMaxEntries() { AdjustKillfeedMaxEntries(-1); }

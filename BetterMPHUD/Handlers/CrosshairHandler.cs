@@ -41,45 +41,59 @@ namespace BetterMPHUD.Handlers
             if (_viewModel == null || screen == null) return;
 
             CrosshairSettings cs = settings.CrosshairSettings;
+            if (cs == null) return;  // ADD NULL CHECK
 
-            // Handle custom crosshair
-            if (cs.CustomCrosshairEnabled)
+            try  // WRAP IN TRY-CATCH
             {
-                if (_nativeLayer != null && _nativeLayer.UIContext != null)
-                    _nativeLayer.UIContext.ContextAlpha = 0f;
+                // Handle custom crosshair
+                if (cs.CustomCrosshairEnabled)
+                {
+                    if (_nativeLayer != null && _nativeLayer.UIContext != null)
+                        _nativeLayer.UIContext.ContextAlpha = 0f;
 
-                _viewModel.CustomEnabled = true;
-                _viewModel.CrosshairColor = cs.Color;
-                _viewModel.CrosshairOpacity = cs.Opacity;
-                _viewModel.CrosshairSizeHor = cs.SizeHorizontal;
-                _viewModel.CrosshairSizeVert = cs.SizeVertical;
-                _viewModel.CrosshairOffset = cs.Offset;
+                    _viewModel.CustomEnabled = true;
+                    _viewModel.CrosshairColor = cs.Color ?? "#FF0000FF";  // NULL SAFETY
+                    _viewModel.CrosshairOpacity = cs.Opacity;
+                    _viewModel.CrosshairSizeHor = cs.SizeHorizontal;
+                    _viewModel.CrosshairSizeVert = cs.SizeVertical;
+                    _viewModel.CrosshairOffset = cs.Offset;
 
-                UpdateCrosshairVisibility(screen);
-                UpdateCrosshairProperties(screen);
-                UpdateReloadPhase();
-                UpdateMeleeDirections();
+                    UpdateCrosshairVisibility(screen);
+                    UpdateCrosshairProperties(screen);
+                    UpdateReloadPhase();
+                    UpdateMeleeDirections();
+                }
+                else
+                {
+                    if (_nativeLayer != null && _nativeLayer.UIContext != null)
+                        _nativeLayer.UIContext.ContextAlpha = 1f;
+
+                    _viewModel.IsVisible = false;
+                    _viewModel.CustomEnabled = false;
+                    _viewModel.ClearReloadPhases();
+                }
+
+                _viewModel.IsDotEnabled = cs.DotEnabled;
+                _viewModel.DotColor = cs.DotColor ?? "#FFFFFFFF"; 
+                _viewModel.DotSizeWidth = cs.DotSizeWidth;
+                _viewModel.DotSizeHeight = cs.DotSizeHeight;
+                _viewModel.DotIsCircular = cs.DotIsCircular;
+        
+                UpdateDotVisibility(screen);
             }
-            else
+            catch (System.Exception ex)
             {
-                if (_nativeLayer != null && _nativeLayer.UIContext != null)
-                    _nativeLayer.UIContext.ContextAlpha = 1f;
-
-                _viewModel.IsVisible = false;
-                _viewModel.CustomEnabled = false;
-                _viewModel.ClearReloadPhases();
+                InformationManager.DisplayMessage(
+                    new InformationMessage("[BetterMPHUD] Crosshair error: " + ex.Message, 
+                        Colors.Red));
             }
-
-            _viewModel.IsDotEnabled = cs.DotEnabled;
-            _viewModel.DotColor = cs.DotColor;
-            _viewModel.DotSizeWidth = cs.DotSizeWidth;
-            _viewModel.DotSizeHeight = cs.DotSizeHeight;
-            _viewModel.DotIsCircular = cs.DotIsCircular;
-            UpdateDotVisibility(screen);
         }
+
         
         private void UpdateCrosshairVisibility(MissionScreen screen)
         {
+            if (_viewModel == null) return; 
+    
             if (Mission.Current == null || Mission.Current.MainAgent == null)
             {
                 _viewModel.IsVisible = false;
@@ -109,6 +123,8 @@ namespace BetterMPHUD.Handlers
         
         private void UpdateDotVisibility(MissionScreen screen)
         {
+            if (_viewModel == null) return; 
+    
             if (!_viewModel.IsDotEnabled)
             {
                 _viewModel.IsDotVisible = false;
@@ -129,6 +145,7 @@ namespace BetterMPHUD.Handlers
 
             _viewModel.IsDotVisible = baseConditions;
         }
+
 
         private void UpdateVisibility(MissionScreen screen)
         {

@@ -27,10 +27,6 @@ namespace BetterMPHUD
         
         public bool AllyAvatarsVertical { get; set; } = false;
         public bool EnemyAvatarsVertical { get; set; } = false;
-
-        public bool ShowChat { get; set; } = true;
-        public bool ChatAlwaysVisible { get; set; } = false;
-        
         public bool CameraSnapbackEnabled { get; set; } = false;
 
         public bool ShowAgentHealth { get; set; } = true;
@@ -88,7 +84,6 @@ namespace BetterMPHUD
 
             CrosshairSettings = new CrosshairSettings();
     
-            // NEW
             PowerLevelCustom = new ElementCustomization();
             AllyAvatarsCustom = new ElementCustomization();
             EnemyAvatarsCustom = new ElementCustomization();
@@ -119,7 +114,6 @@ namespace BetterMPHUD
             if (TeamAvatarsCustom == null) TeamAvatarsCustom = new ElementCustomization();
             if (MoraleCustom == null) MoraleCustom = new ElementCustomization();
             if (KillfeedCustom == null) KillfeedCustom = new ElementCustomization();
-            if (ChatCustom == null) ChatCustom = new ElementCustomization();
             
             if (AgentHealthCustom == null) AgentHealthCustom = new ElementCustomization();
             if (MountHealthCustom == null) MountHealthCustom = new ElementCustomization();
