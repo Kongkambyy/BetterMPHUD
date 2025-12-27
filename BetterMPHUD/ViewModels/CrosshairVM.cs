@@ -19,6 +19,9 @@ namespace BetterMPHUD.ViewModels
         private double _crosshairAccuracy;
         private double _crosshairScale = 1.0;
         private int _crosshairType;
+        
+        private int _dotOffsetX = 0;
+        private int _dotOffsetY = 0;
 
         private string _crosshairColor = "#FF0000FF";
         private float _crosshairOpacity = 1f;
@@ -98,6 +101,42 @@ namespace BetterMPHUD.ViewModels
             LeftArrowOpacity = left;
         }
 
+        [DataSourceProperty]
+        public int DotOffsetX
+        {
+            get { return _dotOffsetX; }
+            set 
+            { 
+                if (_dotOffsetX != value) 
+                { 
+                    _dotOffsetX = value; 
+                    OnPropertyChangedWithValue(value, "DotOffsetX"); 
+                    OnPropertyChangedWithValue((float)value, "DotOffsetXFloat"); 
+                } 
+            }
+        }
+
+        [DataSourceProperty]
+        public int DotOffsetY
+        {
+            get { return _dotOffsetY; }
+            set 
+            { 
+                if (_dotOffsetY != value) 
+                { 
+                    _dotOffsetY = value; 
+                    OnPropertyChangedWithValue(value, "DotOffsetY"); 
+                    OnPropertyChangedWithValue((float)value, "DotOffsetYFloat"); 
+                } 
+            }
+        }
+
+        [DataSourceProperty]
+        public float DotOffsetXFloat { get { return _dotOffsetX; } }
+
+        [DataSourceProperty]
+        public float DotOffsetYFloat { get { return _dotOffsetY; } }
+        
         [DataSourceProperty]
         public bool CustomEnabled
         {

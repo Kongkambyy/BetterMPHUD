@@ -82,6 +82,7 @@
                 <BrushWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
                              SuggestedWidth="@DotSizeWidthFloat" SuggestedHeight="@DotSizeHeightFloat"
                              HorizontalAlignment="Center" VerticalAlignment="Center"
+                             PositionXOffset="@DotOffsetXFloat" PositionYOffset="@DotOffsetYFloat"
                              Sprite="BlankWhiteCircle"
                              Brush.Color="@DotColor"
                              IsVisible="@DotIsCircularVisible" />
@@ -90,6 +91,7 @@
                 <BrushWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
                              SuggestedWidth="@DotSizeWidthFloat" SuggestedHeight="@DotSizeHeightFloat"
                              HorizontalAlignment="Center" VerticalAlignment="Center"
+                             PositionXOffset="@DotOffsetXFloat" PositionYOffset="@DotOffsetYFloat"
                              Sprite="BlankWhiteSquare_9"
                              Brush.Color="@DotColor"
                              IsVisible="@DotIsSquareVisible" />

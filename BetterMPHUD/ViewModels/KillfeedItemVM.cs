@@ -94,6 +94,8 @@ namespace BetterMPHUD
             get => _killerClassSprite; 
             set { if (_killerClassSprite != value) { _killerClassSprite = value; OnPropertyChangedWithValue(value, "KillerClassSprite"); } } 
         }
+        
+        
 
         [DataSourceProperty]
         public string VictimClassSprite 
@@ -101,6 +103,11 @@ namespace BetterMPHUD
             get => _victimClassSprite; 
             set { if (_victimClassSprite != value) { _victimClassSprite = value; OnPropertyChangedWithValue(value, "VictimClassSprite"); } } 
         }
+        
+        
+        
+        [DataSourceProperty]
+        public bool HideBackground => !_showBackground;
 
         [DataSourceProperty]
         public string KillIconSprite 
@@ -137,12 +144,19 @@ namespace BetterMPHUD
             set { if (_rowHeight != value) { _rowHeight = value; OnPropertyChangedWithValue(value, "RowHeight"); } } 
         }
         
-        // Background properties
         [DataSourceProperty]
         public bool ShowBackground 
         { 
             get => _showBackground; 
-            set { if (_showBackground != value) { _showBackground = value; OnPropertyChangedWithValue(value, "ShowBackground"); } } 
+            set 
+            { 
+                if (_showBackground != value) 
+                { 
+                    _showBackground = value; 
+                    OnPropertyChangedWithValue(value, "ShowBackground"); 
+                    OnPropertyChangedWithValue(!value, "HideBackground");
+                } 
+            } 
         }
 
         [DataSourceProperty]

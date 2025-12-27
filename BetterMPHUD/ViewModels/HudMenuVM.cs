@@ -93,6 +93,45 @@ namespace BetterMPHUD.ViewModels
             SelectCurrentDotColor();
         }
         
+        private void AdjustDotOffsetX(int delta)
+        {
+            int newValue = _settings.CrosshairSettings.DotOffsetX + delta;
+            if (newValue >= -200 && newValue <= 200)
+            {
+                _settings.CrosshairSettings.DotOffsetX = newValue;
+                OnPropertyChangedWithValue(DotOffsetXText, "DotOffsetXText");
+                OnSettingsChanged();
+            }
+        }
+
+        private void AdjustDotOffsetY(int delta)
+        {
+            int newValue = _settings.CrosshairSettings.DotOffsetY + delta;
+            if (newValue >= -200 && newValue <= 200)
+            {
+                _settings.CrosshairSettings.DotOffsetY = newValue;
+                OnPropertyChangedWithValue(DotOffsetYText, "DotOffsetYText");
+                OnSettingsChanged();
+            }
+        }
+        
+        public void ExecuteIncreaseDotOffsetX() { AdjustDotOffsetX(1); }
+        public void ExecuteDecreaseDotOffsetX() { AdjustDotOffsetX(-1); }
+        public void ExecuteIncreaseDotOffsetXLarge() { AdjustDotOffsetX(5); }
+        public void ExecuteDecreaseDotOffsetXLarge() { AdjustDotOffsetX(-5); }
+        public void ExecuteIncreaseDotOffsetY() { AdjustDotOffsetY(1); }
+        public void ExecuteDecreaseDotOffsetY() { AdjustDotOffsetY(-1); }
+        public void ExecuteIncreaseDotOffsetYLarge() { AdjustDotOffsetY(5); }
+        public void ExecuteDecreaseDotOffsetYLarge() { AdjustDotOffsetY(-5); }
+        
+        [DataSourceProperty] 
+        public string DotOffsetXText { get { return _settings.CrosshairSettings.DotOffsetX.ToString(); } }
+
+        [DataSourceProperty] 
+        public string DotOffsetYText { get { return _settings.CrosshairSettings.DotOffsetY.ToString(); } }
+        
+        
+        
         public void ExecuteOpenKillfeedPage() { SetPage("Killfeed"); }
         public void ExecuteOpenTopBarPage() { SetPage("TopBar"); }
         public void ExecuteOpenVisibilityPage() { SetPage("Visibility"); }
@@ -398,12 +437,16 @@ namespace BetterMPHUD.ViewModels
             _settings.CrosshairSettings.DotSizeWidth = 6;
             _settings.CrosshairSettings.DotSizeHeight = 6;
             _settings.CrosshairSettings.DotIsCircular = true;
-    
+            _settings.CrosshairSettings.DotOffsetX = 0;      
+            _settings.CrosshairSettings.DotOffsetY = 0;      
+
             OnPropertyChangedWithValue(DotEnabled, "DotEnabled");
             OnPropertyChangedWithValue(DotWidthText, "DotWidthText");
             OnPropertyChangedWithValue(DotHeightText, "DotHeightText");
             OnPropertyChangedWithValue(DotColorText, "DotColorText");
-    
+            OnPropertyChangedWithValue(DotOffsetXText, "DotOffsetXText"); 
+            OnPropertyChangedWithValue(DotOffsetYText, "DotOffsetYText");  
+
             OnSettingsChanged();
         }
 

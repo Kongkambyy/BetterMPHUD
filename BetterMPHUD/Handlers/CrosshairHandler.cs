@@ -75,6 +75,8 @@ namespace BetterMPHUD.Handlers
             _viewModel.DotSizeWidth = cs.DotSizeWidth;
             _viewModel.DotSizeHeight = cs.DotSizeHeight;
             _viewModel.DotIsCircular = cs.DotIsCircular;
+            _viewModel.DotOffsetX = cs.DotOffsetX;  
+            _viewModel.DotOffsetY = cs.DotOffsetY;
             UpdateDotVisibility(screen);
         }
         

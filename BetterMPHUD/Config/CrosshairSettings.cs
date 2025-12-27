@@ -17,6 +17,8 @@ namespace BetterMPHUD
         public int DotSizeWidth { get; set; } = 6;
         public int DotSizeHeight { get; set; } = 6;
         public bool DotIsCircular { get; set; } = true;
+        public int DotOffsetX { get; set; } = 0;
+        public int DotOffsetY { get; set; } = 0;
 
         public CrosshairSettings() { }
 
@@ -33,6 +35,8 @@ namespace BetterMPHUD
             DotSizeWidth = 6;
             DotSizeHeight = 6;
             DotIsCircular = true;
+            DotOffsetX = 0;
+            DotOffsetY = 0;
         }
     }
 }

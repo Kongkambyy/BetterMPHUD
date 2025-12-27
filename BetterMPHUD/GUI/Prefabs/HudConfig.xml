@@ -592,35 +592,128 @@
 
 												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalBottomToTop" Margin="10" MarginBottom="15">
 													<Children>
-														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="15">
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="12">
 															<Children>
 																<TextWidget Text="Enable Dot" WidthSizePolicy="Fixed" SuggestedWidth="120" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@DotEnabled" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true"><Children><BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/></Children></ButtonWidget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@DotEnabled" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
+																	<Children>
+																		<BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/>
+																	</Children>
+																</ButtonWidget>
 															</Children>
 														</ListPanel>
-														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="15">
+
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="12">
 															<Children>
 																<TextWidget Text="Shape" WidthSizePolicy="Fixed" SuggestedWidth="120" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="28" MarginRight="6" Brush="HUDButton" Command.Click="ExecuteSetDotCircular"><Children><TextWidget Text="Circular" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="12" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children></ButtonWidget>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="28" Brush="HUDButton" Command.Click="ExecuteSetDotSquare"><Children><TextWidget Text="Square" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="12" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children></ButtonWidget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="28" MarginRight="6" Brush="HUDButton" Command.Click="ExecuteSetDotCircular">
+																	<Children>
+																		<TextWidget Text="Circular" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="12" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+																	</Children>
+																</ButtonWidget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="28" Brush="HUDButton" Command.Click="ExecuteSetDotSquare">
+																	<Children>
+																		<TextWidget Text="Square" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="12" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+																	</Children>
+																</ButtonWidget>
 															</Children>
 														</ListPanel>
-														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8"><Children><TextWidget Text="Dot Width" WidthSizePolicy="Fixed" SuggestedWidth="120" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/><ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="30" Brush="KillfeedOffsetXLMinusButton" Command.Click="ExecuteDecreaseDotWidthLarge"/><ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="30" Brush="KillfeedOffsetMinusButton" Command.Click="ExecuteDecreaseDotWidth"/><Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="70" SuggestedHeight="30"><Children><TextWidget Text="@DotWidthText" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="13" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children></Widget><ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="30" Brush="KillfeedOffsetPlusButton" Command.Click="ExecuteIncreaseDotWidth"/><ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="30" Brush="KillfeedOffsetXLPlusButton" Command.Click="ExecuteIncreaseDotWidthLarge"/></Children></ListPanel>
-														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8"><Children><TextWidget Text="Dot Height" WidthSizePolicy="Fixed" SuggestedWidth="120" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/><ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="30" Brush="KillfeedOffsetXLMinusButton" Command.Click="ExecuteDecreaseDotHeightLarge"/><ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="30" Brush="KillfeedOffsetMinusButton" Command.Click="ExecuteDecreaseDotHeight"/><Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="70" SuggestedHeight="30"><Children><TextWidget Text="@DotHeightText" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="13" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children></Widget><ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="30" Brush="KillfeedOffsetPlusButton" Command.Click="ExecuteIncreaseDotHeight"/><ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="30" Brush="KillfeedOffsetXLPlusButton" Command.Click="ExecuteIncreaseDotHeightLarge"/></Children></ListPanel>
 
-														<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="1" Sprite="BlankWhiteSquare_9" Color="#FFFFFF33" MarginBottom="15" MarginTop="5"/>
+														<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="1" Sprite="BlankWhiteSquare_9" Color="#FFFFFF22" MarginBottom="10" MarginTop="5"/>
+														<TextWidget Text="Size" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="6" Brush.FontSize="14" Brush.FontColor="#CCCCCCFF"/>
 
-														<TextWidget Text="Dot Color Presets" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="8" Brush.FontSize="14" Brush.FontColor="#CCCCCCFF"/>
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="6">
 															<Children>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="40" SuggestedHeight="28" MarginRight="4" Command.Click="ExecuteSetDotColorRed"><Children><Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#FF0000FF" Margin="4"/></Children></ButtonWidget>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="40" SuggestedHeight="28" MarginRight="4" Command.Click="ExecuteSetDotColorGreen"><Children><Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#00FF00FF" Margin="4"/></Children></ButtonWidget>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="40" SuggestedHeight="28" MarginRight="4" Command.Click="ExecuteSetDotColorBlue"><Children><Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#0000FFFF" Margin="4"/></Children></ButtonWidget>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="40" SuggestedHeight="28" MarginRight="4" Command.Click="ExecuteSetDotColorWhite"><Children><Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#FFFFFFFF" Margin="4"/></Children></ButtonWidget>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="40" SuggestedHeight="28" MarginRight="4" Command.Click="ExecuteSetDotColorYellow"><Children><Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#FFFF00FF" Margin="4"/></Children></ButtonWidget>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="40" SuggestedHeight="28" MarginRight="4" Command.Click="ExecuteSetDotColorCyan"><Children><Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#00FFFFFF" Margin="4"/></Children></ButtonWidget>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="40" SuggestedHeight="28" MarginRight="4" Command.Click="ExecuteSetDotColorMagenta"><Children><Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#FF00FFFF" Margin="4"/></Children></ButtonWidget>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="40" SuggestedHeight="28" MarginRight="4" Command.Click="ExecuteSetDotColorOrange"><Children><Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#FFA500FF" Margin="4"/></Children></ButtonWidget>
+																<TextWidget Text="Width" WidthSizePolicy="Fixed" SuggestedWidth="100" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="28" Brush="KillfeedOffsetXLMinusButton" Command.Click="ExecuteDecreaseDotWidthLarge"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="28" Brush="KillfeedOffsetMinusButton" Command.Click="ExecuteDecreaseDotWidth"/>
+																<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="50" SuggestedHeight="28">
+																	<Children>
+																		<TextWidget Text="@DotWidthText" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="13" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+																	</Children>
+																</Widget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="28" Brush="KillfeedOffsetPlusButton" Command.Click="ExecuteIncreaseDotWidth"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="28" Brush="KillfeedOffsetXLPlusButton" Command.Click="ExecuteIncreaseDotWidthLarge"/>
+															</Children>
+														</ListPanel>
+
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="10">
+															<Children>
+																<TextWidget Text="Height" WidthSizePolicy="Fixed" SuggestedWidth="100" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="28" Brush="KillfeedOffsetXLMinusButton" Command.Click="ExecuteDecreaseDotHeightLarge"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="28" Brush="KillfeedOffsetMinusButton" Command.Click="ExecuteDecreaseDotHeight"/>
+																<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="50" SuggestedHeight="28">
+																	<Children>
+																		<TextWidget Text="@DotHeightText" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="13" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+																	</Children>
+																</Widget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="28" Brush="KillfeedOffsetPlusButton" Command.Click="ExecuteIncreaseDotHeight"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="28" Brush="KillfeedOffsetXLPlusButton" Command.Click="ExecuteIncreaseDotHeightLarge"/>
+															</Children>
+														</ListPanel>
+
+														<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="1" Sprite="BlankWhiteSquare_9" Color="#FFFFFF22" MarginBottom="10" MarginTop="5"/>
+														<TextWidget Text="Position" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="6" Brush.FontSize="14" Brush.FontColor="#CCCCCCFF"/>
+
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="6">
+															<Children>
+																<TextWidget Text="X Offset" WidthSizePolicy="Fixed" SuggestedWidth="100" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="28" Brush="KillfeedOffsetXLMinusButton" Command.Click="ExecuteDecreaseDotOffsetXLarge"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="28" Brush="KillfeedOffsetMinusButton" Command.Click="ExecuteDecreaseDotOffsetX"/>
+																<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="50" SuggestedHeight="28">
+																	<Children>
+																		<TextWidget Text="@DotOffsetXText" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="13" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+																	</Children>
+																</Widget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="28" Brush="KillfeedOffsetPlusButton" Command.Click="ExecuteIncreaseDotOffsetX"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="28" Brush="KillfeedOffsetXLPlusButton" Command.Click="ExecuteIncreaseDotOffsetXLarge"/>
+															</Children>
+														</ListPanel>
+
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="10">
+															<Children>
+																<TextWidget Text="Y Offset" WidthSizePolicy="Fixed" SuggestedWidth="100" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="28" Brush="KillfeedOffsetXLMinusButton" Command.Click="ExecuteDecreaseDotOffsetYLarge"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="28" Brush="KillfeedOffsetMinusButton" Command.Click="ExecuteDecreaseDotOffsetY"/>
+																<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="50" SuggestedHeight="28">
+																	<Children>
+																		<TextWidget Text="@DotOffsetYText" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="13" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+																	</Children>
+																</Widget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="28" Brush="KillfeedOffsetPlusButton" Command.Click="ExecuteIncreaseDotOffsetY"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="28" Brush="KillfeedOffsetXLPlusButton" Command.Click="ExecuteIncreaseDotOffsetYLarge"/>
+															</Children>
+														</ListPanel>
+
+														<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="1" Sprite="BlankWhiteSquare_9" Color="#FFFFFF22" MarginBottom="10" MarginTop="5"/>
+														<TextWidget Text="Color" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="6" Brush.FontSize="14" Brush.FontColor="#CCCCCCFF"/>
+
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="6">
+															<Children>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="36" SuggestedHeight="26" MarginRight="4" Command.Click="ExecuteSetDotColorRed">
+																	<Children><Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#FF0000FF" Margin="3"/></Children>
+																</ButtonWidget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="36" SuggestedHeight="26" MarginRight="4" Command.Click="ExecuteSetDotColorGreen">
+																	<Children><Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#00FF00FF" Margin="3"/></Children>
+																</ButtonWidget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="36" SuggestedHeight="26" MarginRight="4" Command.Click="ExecuteSetDotColorBlue">
+																	<Children><Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#0000FFFF" Margin="3"/></Children>
+																</ButtonWidget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="36" SuggestedHeight="26" MarginRight="4" Command.Click="ExecuteSetDotColorWhite">
+																	<Children><Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#FFFFFFFF" Margin="3"/></Children>
+																</ButtonWidget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="36" SuggestedHeight="26" MarginRight="4" Command.Click="ExecuteSetDotColorYellow">
+																	<Children><Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#FFFF00FF" Margin="3"/></Children>
+																</ButtonWidget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="36" SuggestedHeight="26" MarginRight="4" Command.Click="ExecuteSetDotColorCyan">
+																	<Children><Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#00FFFFFF" Margin="3"/></Children>
+																</ButtonWidget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="36" SuggestedHeight="26" MarginRight="4" Command.Click="ExecuteSetDotColorMagenta">
+																	<Children><Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#FF00FFFF" Margin="3"/></Children>
+																</ButtonWidget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="36" SuggestedHeight="26" Command.Click="ExecuteSetDotColorOrange">
+																	<Children><Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#FFA500FF" Margin="3"/></Children>
+																</ButtonWidget>
 															</Children>
 														</ListPanel>
 													</Children>
@@ -628,13 +721,21 @@
 
 												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginTop="10">
 													<Children>
-														<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="120" SuggestedHeight="30" Brush="HUDButton" Command.Click="ExecuteResetDot"><Children><TextWidget Text="Reset Default" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="13" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children></ButtonWidget>
+														<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="120" SuggestedHeight="30" Brush="HUDButton" Command.Click="ExecuteResetDot">
+															<Children>
+																<TextWidget Text="Reset Default" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="13" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+															</Children>
+														</ButtonWidget>
 													</Children>
 												</ListPanel>
 
 												<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" VerticalAlignment="Bottom">
 													<Children>
-														<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="120" SuggestedHeight="35" HorizontalAlignment="Left" VerticalAlignment="Bottom" MarginBottom="10" Brush="HUDButton" Command.Click="ExecuteBackToCrosshair"><Children><TextWidget Text="← Back" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children></ButtonWidget>
+														<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="120" SuggestedHeight="35" HorizontalAlignment="Left" VerticalAlignment="Bottom" MarginBottom="10" Brush="HUDButton" Command.Click="ExecuteBackToCrosshair">
+															<Children>
+																<TextWidget Text="← Back" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+															</Children>
+														</ButtonWidget>
 													</Children>
 												</Widget>
 											</Children>

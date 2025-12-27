@@ -10,36 +10,29 @@
                            HeightSizePolicy="CoverChildren"
                            StackLayout.LayoutMethod="VerticalBottomToTop">
                     <ItemTemplate>
-                        <!-- Outer container for each row -->
                         <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
                                 SuggestedHeight="@RowHeight"
                                 MarginBottom="4">
                             <Children>
-                                <!-- Rounded background - using proper 9-slice sprite with margins -->
                                 <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
                                         Sprite="background_shadow"
                                         Color="@BackgroundColor"
                                         AlphaFactor="@BackgroundOpacity"
                                         IsVisible="@ShowBackground"
                                         MarginLeft="2" MarginRight="2"/>
-                                
-                                <!-- Centered content wrapper -->
+
                                 <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
-                                        HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        IsVisible="@ShowBackground">
                                     <Children>
-                                        <!-- Centered horizontal list of content -->
                                         <ListPanel WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
                                                    StackLayout.LayoutMethod="HorizontalRightToLeft"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center">
                                             <Children>
-                                                <!-- Victim icon -->
                                                 <ImageWidget Sprite="@VictimClassSprite"
                                                              WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
                                                              SuggestedWidth="@IconSize" SuggestedHeight="@IconSize"
                                                              VerticalAlignment="Center"
                                                              MarginLeft="6" MarginRight="2"/>
-
-                                                <!-- Victim name -->
                                                 <TextWidget Text="@VictimName"
                                                             WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
                                                             VerticalAlignment="Center"
@@ -47,15 +40,11 @@
                                                             Brush.TextVerticalAlignment="Center"
                                                             Brush.TextShadowOffset="2" Brush.TextShadowColor="#000000FF"
                                                             MarginLeft="4" MarginRight="4"/>
-
-                                                <!-- Kill icon (skull) -->
                                                 <ImageWidget Sprite="@KillIconSprite"
                                                              WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
                                                              SuggestedWidth="@SkullSize" SuggestedHeight="@SkullSize"
                                                              VerticalAlignment="Center"
                                                              MarginLeft="6" MarginRight="6"/>
-
-                                                <!-- Killer name -->
                                                 <TextWidget Text="@KillerName"
                                                             WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
                                                             VerticalAlignment="Center"
@@ -63,8 +52,47 @@
                                                             Brush.TextVerticalAlignment="Center"
                                                             Brush.TextShadowOffset="2" Brush.TextShadowColor="#000000FF"
                                                             MarginLeft="4" MarginRight="4"/>
+                                                <ImageWidget Sprite="@KillerClassSprite"
+                                                             WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                             SuggestedWidth="@IconSize" SuggestedHeight="@IconSize"
+                                                             VerticalAlignment="Center"
+                                                             MarginLeft="2" MarginRight="6"/>
+                                            </Children>
+                                        </ListPanel>
+                                    </Children>
+                                </Widget>
 
-                                                <!-- Killer icon -->
+                                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                        IsVisible="@HideBackground">
+                                    <Children>
+                                        <ListPanel WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                   StackLayout.LayoutMethod="HorizontalRightToLeft"
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center">
+                                            <Children>
+                                                <ImageWidget Sprite="@VictimClassSprite"
+                                                             WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                             SuggestedWidth="@IconSize" SuggestedHeight="@IconSize"
+                                                             VerticalAlignment="Center"
+                                                             MarginLeft="6" MarginRight="2"/>
+                                                <TextWidget Text="@VictimName"
+                                                            WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                            VerticalAlignment="Center"
+                                                            Brush.FontSize="@FontSize" Brush.FontColor="@RowColor"
+                                                            Brush.TextVerticalAlignment="Center"
+                                                            Brush.TextShadowOffset="2" Brush.TextShadowColor="#000000FF"
+                                                            MarginLeft="4" MarginRight="4"/>
+                                                <ImageWidget Sprite="@KillIconSprite"
+                                                             WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                             SuggestedWidth="@SkullSize" SuggestedHeight="@SkullSize"
+                                                             VerticalAlignment="Center"
+                                                             MarginLeft="6" MarginRight="6"/>
+                                                <TextWidget Text="@KillerName"
+                                                            WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                            VerticalAlignment="Center"
+                                                            Brush.FontSize="@FontSize" Brush.FontColor="@RowColor"
+                                                            Brush.TextVerticalAlignment="Center"
+                                                            Brush.TextShadowOffset="2" Brush.TextShadowColor="#000000FF"
+                                                            MarginLeft="4" MarginRight="4"/>
                                                 <ImageWidget Sprite="@KillerClassSprite"
                                                              WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
                                                              SuggestedWidth="@IconSize" SuggestedHeight="@IconSize"
