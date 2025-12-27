@@ -260,7 +260,8 @@ namespace BetterMPHUD.ViewModels
                 { 
                     _isDotEnabled = value; 
                     OnPropertyChangedWithValue(value, "IsDotEnabled");
-                    RefreshDotVisibility();
+                    OnPropertyChangedWithValue(DotIsCircularVisible, "DotIsCircularVisible");
+                    OnPropertyChangedWithValue(DotIsSquareVisible, "DotIsSquareVisible");
                 } 
             }
         }
@@ -302,7 +303,8 @@ namespace BetterMPHUD.ViewModels
                 { 
                     _isDotVisible = value; 
                     OnPropertyChangedWithValue(value, "IsDotVisible");
-                    RefreshDotVisibility();
+                    OnPropertyChangedWithValue(DotIsCircularVisible, "DotIsCircularVisible");
+                    OnPropertyChangedWithValue(DotIsSquareVisible, "DotIsSquareVisible");
                 } 
             }
         }
@@ -317,30 +319,16 @@ namespace BetterMPHUD.ViewModels
                 { 
                     _dotIsCircular = value; 
                     OnPropertyChangedWithValue(value, "DotIsCircular");
-                    RefreshDotVisibility();
+                    OnPropertyChangedWithValue(DotIsCircularVisible, "DotIsCircularVisible");
+                    OnPropertyChangedWithValue(DotIsSquareVisible, "DotIsSquareVisible");
                 } 
             }
         }
 
         [DataSourceProperty]
-        public bool DotIsCircularVisible 
-        { 
-            get { return _isDotVisible && _isDotEnabled && _dotIsCircular; } 
-        }
+        public bool DotIsCircularVisible { get { return _isDotVisible && _dotIsCircular; } }
 
         [DataSourceProperty]
-        public bool DotIsSquareVisible 
-        { 
-            get { return _isDotVisible && _isDotEnabled && !_dotIsCircular; } 
-        }
-        
-        private void RefreshDotVisibility()
-        {
-            bool circularVisible = _isDotVisible && _isDotEnabled && _dotIsCircular;
-            bool squareVisible = _isDotVisible && _isDotEnabled && !_dotIsCircular;
-    
-            OnPropertyChangedWithValue(circularVisible, "DotIsCircularVisible");
-            OnPropertyChangedWithValue(squareVisible, "DotIsSquareVisible");
-        }
+        public bool DotIsSquareVisible { get { return _isDotVisible && !_dotIsCircular; } }
     }
 }

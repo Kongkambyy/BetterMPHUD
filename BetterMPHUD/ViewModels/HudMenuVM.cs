@@ -93,22 +93,6 @@ namespace BetterMPHUD.ViewModels
             SelectCurrentDotColor();
         }
         
-        private void SelectCurrentDotColor()
-        {
-            if (_dotColorList == null || _settings == null || _settings.CrosshairSettings == null) 
-                return;
-        
-            string currentColor = _settings.CrosshairSettings.DotColor;
-            if (string.IsNullOrEmpty(currentColor))
-                currentColor = "#FFFFFFFF";
-    
-            foreach (var item in _dotColorList)
-            {
-                if (item != null)
-                    item.IsSelected = string.Equals(item.ColorHex, currentColor, StringComparison.OrdinalIgnoreCase);
-            }
-        }
-        
         public void ExecuteOpenKillfeedPage() { SetPage("Killfeed"); }
         public void ExecuteOpenTopBarPage() { SetPage("TopBar"); }
         public void ExecuteOpenVisibilityPage() { SetPage("Visibility"); }
@@ -406,6 +390,22 @@ namespace BetterMPHUD.ViewModels
                 RefreshCrosshairDisplay();
             }
         }
+        
+        public void ExecuteResetDot()
+        {
+            _settings.CrosshairSettings.DotEnabled = false;
+            _settings.CrosshairSettings.DotColor = "#FFFFFFFF";
+            _settings.CrosshairSettings.DotSizeWidth = 6;
+            _settings.CrosshairSettings.DotSizeHeight = 6;
+            _settings.CrosshairSettings.DotIsCircular = true;
+    
+            OnPropertyChangedWithValue(DotEnabled, "DotEnabled");
+            OnPropertyChangedWithValue(DotWidthText, "DotWidthText");
+            OnPropertyChangedWithValue(DotHeightText, "DotHeightText");
+            OnPropertyChangedWithValue(DotColorText, "DotColorText");
+    
+            OnSettingsChanged();
+        }
 
         private void AdjustDotWidth(int delta)
         {
@@ -491,22 +491,6 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(DotColorText, "DotColorText");
             OnPropertyChangedWithValue(DotWidthText, "DotWidthText");
             OnPropertyChangedWithValue(DotHeightText, "DotHeightText");
-    
-            OnSettingsChanged();
-        }
-        
-        public void ExecuteResetDot()
-        {
-            _settings.CrosshairSettings.DotEnabled = false;
-            _settings.CrosshairSettings.DotColor = "#FFFFFFFF";
-            _settings.CrosshairSettings.DotSizeWidth = 6;
-            _settings.CrosshairSettings.DotSizeHeight = 6;
-            _settings.CrosshairSettings.DotIsCircular = true;
-    
-            OnPropertyChangedWithValue(DotEnabled, "DotEnabled");
-            OnPropertyChangedWithValue(DotWidthText, "DotWidthText");
-            OnPropertyChangedWithValue(DotHeightText, "DotHeightText");
-            OnPropertyChangedWithValue(DotColorText, "DotColorText");
     
             OnSettingsChanged();
         }
@@ -771,7 +755,7 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(true, "DotIsCircular");
             OnSettingsChanged(); 
         }
-        
+
         public void ExecuteSetDotSquare() 
         { 
             _settings.CrosshairSettings.DotIsCircular = false; 
@@ -983,7 +967,6 @@ namespace BetterMPHUD.ViewModels
             ApplyNativeKillfeedSetting();
             RefreshProfileDisplay();
             RefreshAllSettingsDisplay();
-            InitializeCrosshairColorList(); 
 
             if (OnHudSettingsChanged != null)
                 OnHudSettingsChanged();
@@ -1043,14 +1026,9 @@ namespace BetterMPHUD.ViewModels
 
         private void OnCrosshairColorSelected(ColorItemVM selected)
         {
-            if (selected == null || _crosshairColorList == null) return;
-    
             foreach (var item in _crosshairColorList)
-            {
-                if (item != null)
-                    item.IsSelected = false;
-            }
-
+                item.IsSelected = false;
+    
             selected.IsSelected = true;
             _settings.CrosshairSettings.Color = selected.ColorHex;
             OnSettingsChanged();
@@ -1058,14 +1036,9 @@ namespace BetterMPHUD.ViewModels
         
         private void OnDotColorSelected(ColorItemVM selected)
         {
-            if (selected == null || _dotColorList == null) return;
-    
             foreach (var item in _dotColorList)
-            {
-                if (item != null)
-                    item.IsSelected = false;
-            }
-
+                item.IsSelected = false;
+    
             selected.IsSelected = true;
             _settings.CrosshairSettings.DotColor = selected.ColorHex;
             OnSettingsChanged();
@@ -1086,7 +1059,25 @@ namespace BetterMPHUD.ViewModels
                     item.IsSelected = string.Equals(item.ColorHex, currentColor, StringComparison.OrdinalIgnoreCase);
             }
         }
-
+        
+        private void SelectCurrentDotColor()
+        {
+            if (_dotColorList == null || _settings == null || _settings.CrosshairSettings == null) 
+                return;
+        
+            string currentColor = _settings.CrosshairSettings.DotColor;
+            if (string.IsNullOrEmpty(currentColor))
+                currentColor = "#FFFFFFFF";
+    
+            foreach (var item in _dotColorList)
+            {
+                if (item != null)
+                    item.IsSelected = string.Equals(item.ColorHex, currentColor, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+        
+        
+        
         public void ExecuteIncreaseKillfeedMaxEntries() { AdjustKillfeedMaxEntries(1); }
         public void ExecuteDecreaseKillfeedMaxEntries() { AdjustKillfeedMaxEntries(-1); }
         public void ExecuteIncreaseKillfeedMaxEntriesLarge() { AdjustKillfeedMaxEntries(5); }

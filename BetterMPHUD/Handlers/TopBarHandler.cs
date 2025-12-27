@@ -214,9 +214,27 @@ namespace BetterMPHUD.Handlers
             if (_avatarsContainer.Widget != null) _avatarsContainer.Widget.IsVisible = settings.ShowAvatars;
             if (_enemyScoreWidget != null) _enemyScoreWidget.IsVisible = settings.ShowEnemyScore;
             foreach (Widget banner in _bannerWidgets) banner.IsVisible = settings.ShowBanners;
-            if (_morale.Widget != null) _morale.Widget.IsVisible = settings.ShowMorale;
-            if (_controlPoints.Widget != null) _controlPoints.Widget.IsVisible = settings.ShowMorale;
-            if (_powerLevel.Widget != null) _powerLevel.Widget.IsVisible = settings.ShowPowerLevel;
+    
+            bool showMorale = settings.ShowMorale && !IsInWarmup();
+            if (_morale.Widget != null) _morale.Widget.IsVisible = showMorale;
+            if (_controlPoints.Widget != null) _controlPoints.Widget.IsVisible = showMorale;
+        }
+        
+        private bool IsInWarmup()
+        {
+            if (Mission.Current == null) return false;
+    
+            try
+            {
+                var warmupComponent = Mission.Current.GetMissionBehavior<TaleWorlds.MountAndBlade.MultiplayerWarmupComponent>();
+                if (warmupComponent != null)
+                {
+                    return warmupComponent.IsInWarmup;
+                }
+            }
+            catch { }
+    
+            return false;
         }
 
         private void ApplyCustomization(HudSettings settings)
