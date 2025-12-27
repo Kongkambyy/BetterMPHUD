@@ -744,17 +744,23 @@
 										<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" StackLayout.LayoutMethod="VerticalBottomToTop" IsVisible="@IsMiscPageOpen">
 											<Children>
 												<TextWidget Text="Miscellaneous Settings" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="20" Brush.FontSize="24" Brush.FontColor="#FFD700FF"/>
+
 												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalBottomToTop" Margin="10">
 													<Children>
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
 															<Children>
 																<TextWidget Text="Warband Tilted Key" WidthSizePolicy="Fixed" SuggestedWidth="300" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="18" Brush.FontColor="#E0E0E0FF"/>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@CameraSnapbackEnabled" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true"><Children><BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/></Children></ButtonWidget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@CameraSnapbackEnabled" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
+																	<Children>
+																		<BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/>
+																	</Children>
+																</ButtonWidget>
 															</Children>
 														</ListPanel>
 														<TextWidget Text="Instantly returns camera center after using tilted view." WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" Brush.FontSize="14" Brush.FontColor="#AAAAAAFF"/>
 													</Children>
 												</ListPanel>
+
 												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8" MarginTop="20">
 													<Children>
 														<TextWidget Text="Remove Disconnected Avatars" WidthSizePolicy="Fixed" SuggestedWidth="300" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="18" Brush.FontColor="#E0E0E0FF"/>
@@ -766,6 +772,21 @@
 													</Children>
 												</ListPanel>
 												<TextWidget Text="Removes avatar widgets for players who have left the server." WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" Brush.FontSize="14" Brush.FontColor="#AAAAAAFF"/>
+
+												<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="1" Sprite="BlankWhiteSquare_9" Color="#FFFFFF33" MarginTop="15" MarginBottom="15"/>
+
+												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
+													<Children>
+														<TextWidget Text="Better Avatars" WidthSizePolicy="Fixed" SuggestedWidth="300" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="18" Brush.FontColor="#E0E0E0FF"/>
+														<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@BetterAvatarsEnabled" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
+															<Children>
+																<BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/>
+															</Children>
+														</ButtonWidget>
+													</Children>
+												</ListPanel>
+												<TextWidget Text="Replaces steam avatars with larger class icons." WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" Brush.FontSize="14" Brush.FontColor="#AAAAAAFF"/>
+
 											</Children>
 										</ListPanel>
 

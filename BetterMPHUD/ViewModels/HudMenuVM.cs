@@ -14,6 +14,9 @@ namespace BetterMPHUD.ViewModels
         private int _newProfileCounter = 1;
         private string _tempProfileName;
         
+        public Action OnDebugAvatarStructure;
+        public Action<bool> OnBetterAvatarsToggled;
+
         private bool _isConfigMenuOpen;
         private string _currentPage = "Killfeed";
         private ElementEditorVM _avatarSideEditor;
@@ -63,6 +66,12 @@ namespace BetterMPHUD.ViewModels
         { 
             if (OnCloseConfigMenu != null) 
                 OnCloseConfigMenu(); 
+        }
+        
+        public void ExecuteDebugAvatarStructure()
+        {
+            if (OnDebugAvatarStructure != null)
+                OnDebugAvatarStructure();
         }
         
         private void SetPage(string page) 
@@ -1058,6 +1067,7 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(KillfeedBackgroundOpacityText, "KillfeedBackgroundOpacityText");
             OnPropertyChangedWithValue(_settings.AllyAvatarsVertical, "AllyAvatarsVertical");
             OnPropertyChangedWithValue(_settings.EnemyAvatarsVertical, "EnemyAvatarsVertical");
+            OnPropertyChangedWithValue(BetterAvatarsEnabled, "BetterAvatarsEnabled");
             RefreshAvatarSideDisplay();
             RefreshCrosshairDisplay();
             RefreshTopBarDisplay();
@@ -1242,7 +1252,22 @@ namespace BetterMPHUD.ViewModels
             }
         }
         
-        
+        [DataSourceProperty]
+        public bool BetterAvatarsEnabled 
+        { 
+            get { return _settings.BetterAvatarsEnabled; } 
+            set 
+            { 
+                if (_settings.BetterAvatarsEnabled != value) 
+                { 
+                    _settings.BetterAvatarsEnabled = value; 
+                    OnPropertyChangedWithValue(value, "BetterAvatarsEnabled"); 
+                    if (OnBetterAvatarsToggled != null)
+                        OnBetterAvatarsToggled(value);
+                    OnSettingsChanged(); 
+                } 
+            } 
+        }
         
     }
 }

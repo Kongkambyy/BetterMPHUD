@@ -29,6 +29,8 @@ namespace BetterMPHUD.Handlers
         private Dictionary<Widget, WidgetOriginalValues> _allyAvatarChildOriginals = new Dictionary<Widget, WidgetOriginalValues>();
         private Dictionary<Widget, WidgetOriginalValues> _enemyAvatarChildOriginals = new Dictionary<Widget, WidgetOriginalValues>();
         
+        private bool _betterAvatarsApplied = false;
+        
         private Widget _enemyScoreWidget;
         private readonly List<Widget> _bannerWidgets = new List<Widget>();
         
@@ -406,10 +408,174 @@ namespace BetterMPHUD.Handlers
     
             return null;
         }
+        
+        public void DebugAvatarStructure()
+        {
+            if (_allyAvatarsSide == null || _allyAvatarsSide.ChildCount == 0)
+            {
+                InformationManager.DisplayMessage(new InformationMessage("[Debug] No ally avatars found", Colors.Red));
+                return;
+            }
+    
+            Widget firstAvatar = _allyAvatarsSide.GetChild(0);
+            DebugWidgetTree(firstAvatar, 0);
+        }
+
+        private void DebugWidgetTree(Widget widget, int depth)
+        {
+            if (depth > 8) return;
+    
+            string indent = new string(' ', depth * 2);
+            string typeName = widget.GetType().Name;
+            string extra = "";
+    
+            if (widget.Sprite != null && widget.Sprite.Name != null)
+                extra += " Sprite:" + widget.Sprite.Name;
+    
+            if (widget.WidthSizePolicy == SizePolicy.Fixed)
+                extra += " [" + widget.SuggestedWidth + "x" + widget.SuggestedHeight + "]";
+    
+            if (widget.Id != null)
+                extra += " Id:" + widget.Id;
+    
+            RichTextWidget richText = widget as RichTextWidget;
+            if (richText != null && !string.IsNullOrEmpty(richText.Text))
+                extra += " Text:\"" + richText.Text + "\"";
+    
+            TextWidget textWidget = widget as TextWidget;
+            if (textWidget != null && !string.IsNullOrEmpty(textWidget.Text))
+                extra += " Text:\"" + textWidget.Text + "\"";
+    
+            InformationManager.DisplayMessage(new InformationMessage(
+                indent + typeName + extra, Colors.White));
+    
+            for (int i = 0; i < widget.ChildCount; i++)
+                DebugWidgetTree(widget.GetChild(i), depth + 1);
+        }
+        
+        public void ApplyBetterAvatars(bool enabled)
+        {
+            if (enabled)
+                EnableBetterAvatars();
+            else
+                DisableBetterAvatars();
+    
+            _betterAvatarsApplied = enabled;
+        }
+
+        private void EnableBetterAvatars()
+        {
+            ProcessAvatarSide(_allyAvatarsSide, true);
+            ProcessAvatarSide(_enemyAvatarsSide, true);
+        }
+
+        private void DisableBetterAvatars()
+        {
+            ProcessAvatarSide(_allyAvatarsSide, false);
+            ProcessAvatarSide(_enemyAvatarsSide, false);
+        }
+
+        private void ProcessAvatarSide(Widget avatarSide, bool simplify)
+        {
+            if (avatarSide == null) return;
+    
+            for (int i = 0; i < avatarSide.ChildCount; i++)
+            {
+                Widget avatarWidget = avatarSide.GetChild(i);
+                ProcessSingleAvatar(avatarWidget, simplify);
+            }
+        }
+        
+        private void ProcessSingleAvatar(Widget avatarWidget, bool simplify)
+        {
+            Widget steamAvatar = null;
+            Widget circleBackground = null;
+            Widget troopIcon = null;
+            Widget iconForeground = null;
+    
+            FindAvatarComponentsRecursive(avatarWidget, ref steamAvatar, ref circleBackground, ref troopIcon, ref iconForeground);
+    
+            if (simplify)
+            {
+                if (steamAvatar != null)
+                    steamAvatar.IsVisible = false;
+        
+                if (circleBackground != null)
+                    circleBackground.IsVisible = false;
+        
+                if (troopIcon != null)
+                {
+                    if (troopIcon.WidthSizePolicy == SizePolicy.Fixed)
+                        troopIcon.SuggestedWidth = 60;
+                    if (troopIcon.HeightSizePolicy == SizePolicy.Fixed)
+                        troopIcon.SuggestedHeight = 60;
+                }
+        
+                if (iconForeground != null)
+                {
+                    if (iconForeground.WidthSizePolicy == SizePolicy.Fixed)
+                        iconForeground.SuggestedWidth = 55;
+                    if (iconForeground.HeightSizePolicy == SizePolicy.Fixed)
+                        iconForeground.SuggestedHeight = 55;
+                }
+            }
+            else
+            {
+                if (steamAvatar != null)
+                    steamAvatar.IsVisible = false;
+        
+                if (circleBackground != null)
+                    circleBackground.IsVisible = true;
+        
+                if (troopIcon != null)
+                {
+                    if (troopIcon.WidthSizePolicy == SizePolicy.Fixed)
+                        troopIcon.SuggestedWidth = 37.2f;
+                    if (troopIcon.HeightSizePolicy == SizePolicy.Fixed)
+                        troopIcon.SuggestedHeight = 39.6f;
+                }
+        
+                if (iconForeground != null)
+                {
+                    if (iconForeground.WidthSizePolicy == SizePolicy.Fixed)
+                        iconForeground.SuggestedWidth = 37.2f;
+                    if (iconForeground.HeightSizePolicy == SizePolicy.Fixed)
+                        iconForeground.SuggestedHeight = 39.6f;
+                }
+            }
+        }
+        
+        private void FindAvatarComponentsRecursive(Widget widget, ref Widget steamAvatar, ref Widget circleBackground, ref Widget troopIcon, ref Widget iconForeground)
+        {
+            string typeName = widget.GetType().Name;
+    
+            if (typeName == "ImageIdentifierWidget" && widget.Id != "AvatarImage")
+            {
+                Widget parent = widget.ParentWidget;
+                if (parent != null && !parent.GetType().Name.Contains("TroopType"))
+                    steamAvatar = widget;
+            }
+    
+            if (widget.Sprite != null && widget.Sprite.Name != null)
+            {
+                if (widget.Sprite.Name.Contains("BlankWhiteCircle"))
+                    circleBackground = widget;
+            }
+    
+            if (typeName.Contains("MultiplayerTroopTypeIconWidget"))
+                troopIcon = widget;
+    
+            if (widget.Id == "IconForeground")
+                iconForeground = widget;
+    
+            for (int i = 0; i < widget.ChildCount; i++)
+                FindAvatarComponentsRecursive(widget.GetChild(i), ref steamAvatar, ref circleBackground, ref troopIcon, ref iconForeground);
+        }
 
         public void Reset()
         {
             _cached = false;
+            _betterAvatarsApplied = false;
             ResetTrackedWidgets();
             _enemyScoreWidget = null;
             _bannerWidgets.Clear();

@@ -151,6 +151,8 @@ namespace BetterMPHUD.Behaviors
             _menuVM.OnWarbandKillfeedToggled = OnKillfeedToggled;
             _menuVM.OnHudSettingsChanged = ApplyAllSettings;
             _menuVM.OnCleanupAvatarsRequested = OnCleanupAvatars;
+            _menuVM.OnDebugAvatarStructure = () => _topBar.DebugAvatarStructure();
+            _menuVM.OnBetterAvatarsToggled = OnBetterAvatarsToggled;
 
             _configLayer = new GauntletLayer("GauntletLayer", 50, false);
             _configLayer.LoadMovie("HudConfig", _menuVM);
@@ -160,6 +162,11 @@ namespace BetterMPHUD.Behaviors
         private void OnKillfeedToggled(bool enabled)
         {
             _killfeed.SetEnabled(enabled);
+        }
+        
+        private void OnBetterAvatarsToggled(bool enabled)
+        {
+            _topBar.ApplyBetterAvatars(enabled);
         }
 
         private void OnCleanupAvatars()
@@ -177,6 +184,7 @@ namespace BetterMPHUD.Behaviors
             _killfeed.ApplySettings(settings);
             _topBar.Apply(settings, Mission.Current);
             _agentStatus.Apply(settings, Mission.Current);
+            _topBar.ApplyBetterAvatars(settings.BetterAvatarsEnabled);
 
             MissionScreen screen = ScreenManager.TopScreen as MissionScreen;
             if (screen != null)

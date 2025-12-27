@@ -16,6 +16,8 @@ namespace BetterMPHUD
         public bool KillfeedBackgroundEnabled { get; set; } = true;
         public float KillfeedBackgroundOpacity { get; set; } = 0.7f;
         public string KillfeedBackgroundColor { get; set; } = "#000000FF";
+        public bool BetterAvatarsEnabled { get; set; } = false;
+
 
         public bool ShowTimeAndScores { get; set; } = true;
         public bool ShowAvatars { get; set; } = true;
