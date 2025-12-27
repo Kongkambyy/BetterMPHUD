@@ -755,6 +755,17 @@
 														<TextWidget Text="Instantly returns camera center after using tilted view." WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" Brush.FontSize="14" Brush.FontColor="#AAAAAAFF"/>
 													</Children>
 												</ListPanel>
+												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8" MarginTop="20">
+													<Children>
+														<TextWidget Text="Remove Disconnected Avatars" WidthSizePolicy="Fixed" SuggestedWidth="300" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="18" Brush.FontColor="#E0E0E0FF"/>
+														<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="100" SuggestedHeight="35" Brush="HUDButton" Command.Click="ExecuteCleanupAvatars">
+															<Children>
+																<TextWidget Text="Clean" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="16" Brush.FontColor="#00FF00FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+															</Children>
+														</ButtonWidget>
+													</Children>
+												</ListPanel>
+												<TextWidget Text="Removes avatar widgets for players who have left the server." WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" Brush.FontSize="14" Brush.FontColor="#AAAAAAFF"/>
 											</Children>
 										</ListPanel>
 

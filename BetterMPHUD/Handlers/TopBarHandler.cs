@@ -5,8 +5,10 @@ using TaleWorlds.GauntletUI.BaseTypes;
 using TaleWorlds.MountAndBlade;
 using BetterMPHUD.Core;
 using BetterMPHUD.Services;
+using TaleWorlds.Core;
 using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.GauntletUI.Layout;
+using TaleWorlds.Library;
 
 namespace BetterMPHUD.Handlers
 {
@@ -348,6 +350,62 @@ namespace BetterMPHUD.Handlers
             if (tracked.IsReady)
                 _customizer.ApplyCustomization(tracked.Widget, tracked.Original, custom, true);
         }
+        
+        public void CleanupDisconnectedAvatars()
+        {
+            var connectedNames = GetConnectedPlayerNames();
+            RemoveDisconnectedFromSide(_allyAvatarsSide, connectedNames);
+            RemoveDisconnectedFromSide(_enemyAvatarsSide, connectedNames);
+        }
+
+        private HashSet<string> GetConnectedPlayerNames()
+        {
+            var names = new HashSet<string>();
+            foreach (NetworkCommunicator peer in GameNetwork.NetworkPeers)
+            {
+                if (peer.IsSynchronized)
+                {
+                    MissionPeer mp = peer.GetComponent<MissionPeer>();
+                    if (mp != null && mp.Team != null && mp.Team.Side != BattleSideEnum.None)
+                        names.Add(mp.DisplayedName);
+                }
+            }
+            return names;
+        }
+
+        private void RemoveDisconnectedFromSide(Widget avatarSide, HashSet<string> connectedNames)
+        {
+            if (avatarSide == null) return;
+    
+            for (int i = 0; i < avatarSide.ChildCount; i++)
+            {
+                Widget avatarWidget = avatarSide.GetChild(i);
+                string playerName = FindPlayerNameInWidget(avatarWidget);
+        
+                if (!string.IsNullOrEmpty(playerName) && !connectedNames.Contains(playerName))
+                    avatarWidget.IsVisible = false;
+            }
+        }
+
+        private string FindPlayerNameInWidget(Widget widget)
+        {
+            RichTextWidget richText = widget as RichTextWidget;
+            if (richText != null && !string.IsNullOrEmpty(richText.Text))
+                return richText.Text;
+    
+            TextWidget textWidget = widget as TextWidget;
+            if (textWidget != null && !string.IsNullOrEmpty(textWidget.Text))
+                return textWidget.Text;
+    
+            for (int i = 0; i < widget.ChildCount; i++)
+            {
+                string result = FindPlayerNameInWidget(widget.GetChild(i));
+                if (!string.IsNullOrEmpty(result))
+                    return result;
+            }
+    
+            return null;
+        }
 
         public void Reset()
         {
@@ -360,8 +418,8 @@ namespace BetterMPHUD.Handlers
             _enemyAvatarsSide = null;
             _allyAvatarsOriginal = default(WidgetOriginalValues);
             _enemyAvatarsOriginal = default(WidgetOriginalValues);
-            _allyAvatarChildOriginals.Clear();
-            _enemyAvatarChildOriginals.Clear();
+            _allyAvatarChildOriginals?.Clear();
+            _enemyAvatarChildOriginals?.Clear();
         }
     }
 }

@@ -37,27 +37,27 @@ namespace BetterMPHUD.Behaviors
             _crosshair = new CrosshairHandler();
         }
 
-        public override MissionBehaviorType BehaviorType 
-        { 
-            get { return MissionBehaviorType.Other; } 
+        public override MissionBehaviorType BehaviorType
+        {
+            get { return MissionBehaviorType.Other; }
         }
 
         public override void OnMissionTick(float dt)
         {
             base.OnMissionTick(dt);
-            
-            if (!_initialized) 
+
+            if (!_initialized)
                 TryInitialize();
-            
-            if (Input.IsKeyPressed(InputKey.F10)) 
+
+            if (Input.IsKeyPressed(InputKey.F10))
                 ToggleMenu();
 
             PeriodicSettingsEnforce(dt);
             UpdateKillfeed();
             UpdateHealthNumbers();
-            
+
             UpdateCrosshair();
-            
+
             HandleCameraSnapback();
         }
 
@@ -97,13 +97,13 @@ namespace BetterMPHUD.Behaviors
 
         private void HandleCameraSnapback()
         {
-            if (_menuVM == null || !_menuVM.CameraSnapbackEnabled) 
+            if (_menuVM == null || !_menuVM.CameraSnapbackEnabled)
                 return;
-            
+
             MissionScreen screen = ScreenManager.TopScreen as MissionScreen;
-            if (screen == null) 
+            if (screen == null)
                 return;
-            
+
             if (screen.SceneLayer.Input.IsGameKeyReleased(25))
                 _camera.OnLookAroundReleased(screen, true);
         }
@@ -111,11 +111,11 @@ namespace BetterMPHUD.Behaviors
         public override void OnAgentRemoved(Agent victim, Agent killer, AgentState state, KillingBlow blow)
         {
             base.OnAgentRemoved(victim, killer, state, blow);
-            
+
             HudSettings settings = null;
             if (_menuVM != null)
                 settings = _menuVM.GetSettings();
-            
+
             _killfeed.OnAgentKilled(victim, killer, settings);
         }
 
@@ -124,15 +124,15 @@ namespace BetterMPHUD.Behaviors
             try
             {
                 MissionScreen screen = ScreenManager.TopScreen as MissionScreen;
-                if (screen == null) 
+                if (screen == null)
                     return;
 
                 InitializeConfigMenu(screen);
-                
+
                 _killfeed.Initialize(screen);
                 _killfeed.SetEnabled(_menuVM.WarbandKillfeedEnabled);
                 _healthNumbers.Initialize(screen);
-                
+
                 _crosshair.Initialize(screen);
 
                 _initialized = true;
@@ -143,35 +143,41 @@ namespace BetterMPHUD.Behaviors
                 InformationManager.DisplayMessage(new InformationMessage("UI Init Error: " + ex.Message, Colors.Red));
             }
         }
-        
+
         private void InitializeConfigMenu(MissionScreen screen)
         {
             _menuVM = new HudMenuVM();
             _menuVM.OnCloseConfigMenu = CloseMenu;
             _menuVM.OnWarbandKillfeedToggled = OnKillfeedToggled;
             _menuVM.OnHudSettingsChanged = ApplyAllSettings;
+            _menuVM.OnCleanupAvatarsRequested = OnCleanupAvatars;
 
             _configLayer = new GauntletLayer("GauntletLayer", 50, false);
             _configLayer.LoadMovie("HudConfig", _menuVM);
             screen.AddLayer(_configLayer);
         }
-
+        
         private void OnKillfeedToggled(bool enabled)
         {
             _killfeed.SetEnabled(enabled);
         }
 
+        private void OnCleanupAvatars()
+        {
+            _topBar.CleanupDisconnectedAvatars();
+        }
+
         private void ApplyAllSettings()
         {
-            if (_menuVM == null || Mission.Current == null) 
+            if (_menuVM == null || Mission.Current == null)
                 return;
 
             HudSettings settings = _menuVM.GetSettings();
-    
+
             _killfeed.ApplySettings(settings);
             _topBar.Apply(settings, Mission.Current);
             _agentStatus.Apply(settings, Mission.Current);
-    
+
             MissionScreen screen = ScreenManager.TopScreen as MissionScreen;
             if (screen != null)
             {
@@ -182,17 +188,17 @@ namespace BetterMPHUD.Behaviors
         private void ToggleMenu()
         {
             if (_menuVM == null) return;
-            
-            if (_menuVM.IsConfigMenuOpen) 
+
+            if (_menuVM.IsConfigMenuOpen)
                 CloseMenu();
-            else 
+            else
                 OpenMenu();
         }
 
         private void OpenMenu()
         {
             if (_menuVM == null || _configLayer == null) return;
-            
+
             _menuVM.IsConfigMenuOpen = true;
             _configLayer.InputRestrictions.SetInputRestrictions(true, InputUsageMask.All);
             ScreenManager.TrySetFocus(_configLayer);
@@ -201,7 +207,7 @@ namespace BetterMPHUD.Behaviors
         private void CloseMenu()
         {
             if (_menuVM == null || _configLayer == null) return;
-            
+
             _menuVM.IsConfigMenuOpen = false;
             _configLayer.InputRestrictions.SetInputRestrictions(false, InputUsageMask.Invalid);
             ScreenManager.TryLoseFocus(_configLayer);
@@ -210,21 +216,29 @@ namespace BetterMPHUD.Behaviors
         public override void OnRemoveBehavior()
         {
             base.OnRemoveBehavior();
-            ManagedOptions.SetConfig(ManagedOptions.ManagedOptionsType.ReportCasualtiesType, 0f);
+    
+            try
+            {
+                ManagedOptions.SetConfig(ManagedOptions.ManagedOptionsType.ReportCasualtiesType, 0f);
 
-            MissionScreen screen = ScreenManager.TopScreen as MissionScreen;
-            
-            if (screen != null && _configLayer != null)
-                screen.RemoveLayer(_configLayer);
-            
-            _killfeed.Cleanup(screen);
-            _healthNumbers.Cleanup(screen);
-            _topBar.Reset();
-            _agentStatus.Reset();
-            _camera.Reset();
-            
-            _crosshair.Cleanup(screen);
-            
+                MissionScreen screen = ScreenManager.TopScreen as MissionScreen;
+        
+                if (screen != null && _configLayer != null)
+                    screen.RemoveLayer(_configLayer);
+        
+                if (_killfeed != null) _killfeed.Cleanup(screen);
+                if (_healthNumbers != null) _healthNumbers.Cleanup(screen);
+                if (_topBar != null) _topBar.Reset();
+                if (_agentStatus != null) _agentStatus.Reset();
+                if (_camera != null) _camera.Reset();
+                if (_crosshair != null) _crosshair.Cleanup(screen);
+            }
+            catch (Exception ex)
+            {
+                InformationManager.DisplayMessage(new InformationMessage(
+                    "[BetterMPHUD] Cleanup error: " + ex.Message, Colors.Red));
+            }
+    
             _menuVM = null;
             _initialized = false;
         }

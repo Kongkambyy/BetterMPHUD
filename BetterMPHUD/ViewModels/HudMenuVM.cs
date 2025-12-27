@@ -25,6 +25,7 @@ namespace BetterMPHUD.ViewModels
         public Action OnCloseConfigMenu;
         public Action<bool> OnWarbandKillfeedToggled;
         public Action OnHudSettingsChanged;
+        public Action OnCleanupAvatarsRequested;
 
         public HudMenuVM()
         {
@@ -907,7 +908,13 @@ namespace BetterMPHUD.ViewModels
             }
         }
         
-
+        public void ExecuteCleanupAvatars()
+        {
+            if (OnCleanupAvatarsRequested != null)
+                OnCleanupAvatarsRequested();
+            InformationManager.DisplayMessage(new InformationMessage("[BetterMPHUD] Cleaned up disconnected avatars.", Colors.Green));
+        }
+        
         private void AdjustKillfeedMaxEntries(int delta)
         {
             int newValue = _settings.KillfeedMaxEntries + delta;
