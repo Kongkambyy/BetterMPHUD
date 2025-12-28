@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using TaleWorlds.GauntletUI;
 using TaleWorlds.GauntletUI.BaseTypes;
 using TaleWorlds.MountAndBlade;
@@ -29,6 +30,8 @@ namespace BetterMPHUD.Handlers
         private Dictionary<Widget, WidgetOriginalValues> _allyAvatarChildOriginals = new Dictionary<Widget, WidgetOriginalValues>();
         private Dictionary<Widget, WidgetOriginalValues> _enemyAvatarChildOriginals = new Dictionary<Widget, WidgetOriginalValues>();
         
+        private bool _sortingEnabled = false;
+        
         private bool _betterAvatarsApplied = false;
         
         private Widget _enemyScoreWidget;
@@ -41,6 +44,100 @@ namespace BetterMPHUD.Handlers
             ResetTrackedWidgets();
         }
 
+        public void ApplyAvatarSorting(bool enabled)
+        {
+            _sortingEnabled = enabled;
+    
+            if (enabled)
+            {
+                SortAvatarSide(_allyAvatarsSide);
+                SortAvatarSide(_enemyAvatarsSide);
+            }
+        }
+        
+        private void SortAvatarSide(Widget avatarSide)
+        {
+            if (avatarSide == null || avatarSide.ChildCount <= 1) return;
+
+            // Build list of (widget, classType) pairs
+            var avatarData = new List<(Widget widget, HudSettings.AvatarClassType classType)>();
+    
+            for (int i = 0; i < avatarSide.ChildCount; i++)
+            {
+                Widget avatar = avatarSide.GetChild(i);
+                HudSettings.AvatarClassType classType = GetAvatarClassType(avatar);
+                avatarData.Add((avatar, classType));
+            }
+
+            // Sort: Cavalry first, then Archer, then Infantry
+            avatarData.Sort((a, b) => a.classType.CompareTo(b.classType));
+
+            // Reorder widgets by removing and re-adding in sorted order
+            // First, collect all widgets (can't modify while iterating)
+            var sortedWidgets = avatarData.Select(x => x.widget).ToList();
+    
+            // Remove all children
+            while (avatarSide.ChildCount > 0)
+            {
+                avatarSide.RemoveChild(avatarSide.GetChild(0));
+            }
+    
+            // Add back in sorted order
+            foreach (var widget in sortedWidgets)
+            {
+                avatarSide.AddChild(widget);
+            }
+        }
+        
+        private HudSettings.AvatarClassType GetAvatarClassType(Widget avatarWidget)
+        {
+            // Find the sprite name in the widget hierarchy
+            string spriteName = FindClassSpriteNameRecursive(avatarWidget);
+    
+            if (string.IsNullOrEmpty(spriteName))
+                return HudSettings.AvatarClassType.Unknown;
+
+            // Normalize to lowercase for comparison
+            string lower = spriteName.ToLower();
+
+            // Check for cavalry (includes horse archers)
+            if (lower.Contains("cavalry") || lower.Contains("horsearcher"))
+                return HudSettings.AvatarClassType.Cavalry;
+    
+            if (lower.Contains("archer") || lower.Contains("crossbow"))
+                return HudSettings.AvatarClassType.Archer;
+    
+            if (lower.Contains("infantry"))
+                return HudSettings.AvatarClassType.Infantry;
+
+            return HudSettings.AvatarClassType.Unknown;
+        }
+        
+        private string FindClassSpriteNameRecursive(Widget widget)
+        {
+            if (widget.Sprite != null && widget.Sprite.Name != null)
+            {
+                if (widget.Sprite.Name.Contains("TroopIcons"))
+                    return widget.Sprite.Name;
+            }
+
+            string typeName = widget.GetType().Name;
+            if (typeName.Contains("TroopType") || typeName.Contains("TroopIcon"))
+            {
+                if (widget.Sprite != null && widget.Sprite.Name != null)
+                    return widget.Sprite.Name;
+            }
+
+            for (int i = 0; i < widget.ChildCount; i++)
+            {
+                string result = FindClassSpriteNameRecursive(widget.GetChild(i));
+                if (!string.IsNullOrEmpty(result))
+                    return result;
+            }
+
+            return null;
+        }
+        
         private void ResetTrackedWidgets()
         {
             _timeAndScores = new TrackedWidget { Element = HudElement.TimeAndScores };
@@ -247,11 +344,17 @@ namespace BetterMPHUD.Handlers
             ApplyIfReady(_morale, settings.MoraleCustom);
             ApplyIfReady(_controlPoints, settings.MoraleCustom);
             ApplyIfReady(_powerLevel, settings.PowerLevelCustom);
-    
+
             ApplyAvatarSide(_allyAvatarsSide, _allyAvatarsOriginal, _allyAvatarChildOriginals, 
                 settings.AllyAvatarsCustom, settings.AllyAvatarsVertical, settings.AllyAvatarsSpacing);
             ApplyAvatarSide(_enemyAvatarsSide, _enemyAvatarsOriginal, _enemyAvatarChildOriginals, 
                 settings.EnemyAvatarsCustom, settings.EnemyAvatarsVertical, settings.EnemyAvatarsSpacing);
+
+            if (settings.AvatarSortingEnabled)
+            {
+                SortAvatarSide(_allyAvatarsSide);
+                SortAvatarSide(_enemyAvatarsSide);
+            }
         }
 
         private void ApplyAvatarSide(Widget widget, WidgetOriginalValues original, 
@@ -266,8 +369,7 @@ namespace BetterMPHUD.Handlers
             widget.PositionXOffset = original.X + custom.OffsetX;
             widget.PositionYOffset = original.Y + custom.OffsetY;
 
-            ListPanel listPanel = widget as ListPanel;
-            if (listPanel != null)
+            if (widget is ListPanel listPanel)
             {
                 if (isVertical)
                     listPanel.StackLayout.LayoutMethod = LayoutMethod.VerticalBottomToTop;
@@ -352,27 +454,45 @@ namespace BetterMPHUD.Handlers
             if (tracked.IsReady)
                 _customizer.ApplyCustomization(tracked.Widget, tracked.Original, custom, true);
         }
-        
+
+        private HashSet<string> GetConnectedPlayerNames()
+        {
+            var names = new HashSet<string>();
+    
+            if (Mission.Current == null) return names;
+
+            if (Mission.Current.PlayerTeam != null)
+            {
+                foreach (Agent agent in Mission.Current.PlayerTeam.ActiveAgents)
+                {
+                    if (agent != null && agent.IsHuman && agent.MissionPeer != null)
+                    {
+                        if (!string.IsNullOrEmpty(agent.MissionPeer.DisplayedName))
+                            names.Add(agent.MissionPeer.DisplayedName);
+                    }
+                }
+            }
+
+            if (Mission.Current.PlayerEnemyTeam != null)
+            {
+                foreach (Agent agent in Mission.Current.PlayerEnemyTeam.ActiveAgents)
+                {
+                    if (agent != null && agent.IsHuman && agent.MissionPeer != null)
+                    {
+                        if (!string.IsNullOrEmpty(agent.MissionPeer.DisplayedName))
+                            names.Add(agent.MissionPeer.DisplayedName);
+                    }
+                }
+            }
+
+            return names;
+        }
+
         public void CleanupDisconnectedAvatars()
         {
             var connectedNames = GetConnectedPlayerNames();
             RemoveDisconnectedFromSide(_allyAvatarsSide, connectedNames);
             RemoveDisconnectedFromSide(_enemyAvatarsSide, connectedNames);
-        }
-
-        private HashSet<string> GetConnectedPlayerNames()
-        {
-            var names = new HashSet<string>();
-            foreach (NetworkCommunicator peer in GameNetwork.NetworkPeers)
-            {
-                if (peer.IsSynchronized)
-                {
-                    MissionPeer mp = peer.GetComponent<MissionPeer>();
-                    if (mp != null && mp.Team != null && mp.Team.Side != BattleSideEnum.None)
-                        names.Add(mp.DisplayedName);
-                }
-            }
-            return names;
         }
 
         private void RemoveDisconnectedFromSide(Widget avatarSide, HashSet<string> connectedNames)

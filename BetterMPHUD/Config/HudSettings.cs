@@ -17,7 +17,7 @@ namespace BetterMPHUD
         public float KillfeedBackgroundOpacity { get; set; } = 0.7f;
         public string KillfeedBackgroundColor { get; set; } = "#000000FF";
         public bool BetterAvatarsEnabled { get; set; } = false;
-
+        public bool AvatarSortingEnabled { get; set; } = false;
 
         public bool ShowTimeAndScores { get; set; } = true;
         public bool ShowAvatars { get; set; } = true;
@@ -65,8 +65,15 @@ namespace BetterMPHUD
         public ElementCustomization GoldAmountCustom { get; set; }
         public ElementCustomization TroopCountCustom { get; set; }
         public ElementCustomization DamageFeedCustom { get; set; }
-
         public CrosshairSettings CrosshairSettings { get; set; }
+        
+        public enum AvatarClassType
+        {
+            Cavalry = 0,
+            Archer = 1,
+            Infantry = 2,
+            Unknown = 99
+        }
         
         public HudSettings() 
         {

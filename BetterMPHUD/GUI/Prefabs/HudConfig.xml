@@ -494,6 +494,18 @@
 															</Children>
 														</ListPanel>
 
+														<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="1" Sprite="BlankWhiteSquare_9" Color="#FFFFFF22" MarginBottom="10" MarginTop="5"/>
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="15">
+															<Children>
+																<TextWidget Text="Sort by Class" WidthSizePolicy="Fixed" SuggestedWidth="150" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@AvatarSortingEnabled" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
+																	<Children>
+																		<BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/>
+																	</Children>
+																</ButtonWidget>
+																<TextWidget Text="(Cav → Archer → Inf)" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" MarginLeft="10" Brush.FontSize="12" Brush.FontColor="#888888FF"/>
+															</Children>
+														</ListPanel>
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight">
 															<Children>
 																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="120" SuggestedHeight="30" MarginRight="8" Brush="HUDButton" Command.Click="ExecuteResetAvatarSide"><Children><TextWidget Text="Reset Side" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="12" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children></ButtonWidget>
@@ -534,7 +546,6 @@
 										<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" StackLayout.LayoutMethod="VerticalBottomToTop" IsVisible="@IsCrosshairSettingsPageOpen">
 											<Children>
 												<TextWidget Text="Crosshair Configuration" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="15" Brush.FontSize="24" Brush.FontColor="#FFD700FF"/>
-
 												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalBottomToTop" Margin="10" MarginBottom="15">
 													<Children>
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="15">
@@ -543,17 +554,12 @@
 																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@CustomCrosshairEnabled" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true"><Children><BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/></Children></ButtonWidget>
 															</Children>
 														</ListPanel>
-
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalBottomToTop" MarginBottom="10"><Children><TextWidget Text="Width" WidthSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#AAAAAAFF"/><ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginTop="4"><Children><SliderWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="350" SuggestedHeight="40" VerticalAlignment="Center" DoNotUpdateHandleSize="true" Filler="Filler" Handle="SliderHandle" IsDiscrete="true" DiscreteIncrementInterval="1" MaxValueInt="75" MinValueInt="1" ValueInt="@CrosshairWidthInt" UpdateValueContinuously="true"><Children><Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="350" SuggestedHeight="36" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_canvas" DoNotAcceptEvents="true"/><Widget Id="Filler" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="335" SuggestedHeight="33" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_fill" ClipContents="true"><Children><Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="335" SuggestedHeight="33" HorizontalAlignment="Left" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_fill"/></Children></Widget><Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="390" SuggestedHeight="60" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_frame" DoNotAcceptEvents="true"/><ImageWidget Id="SliderHandle" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="14" SuggestedHeight="36" HorizontalAlignment="Left" VerticalAlignment="Center" Brush="SPOptions.Slider.Handle"/></Children></SliderWidget><TextWidget IntText="@CrosshairWidthInt" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" MarginLeft="15" Brush.FontColor="#FFFFFFFF" Brush.FontSize="14"/></Children></ListPanel></Children></ListPanel>
-
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalBottomToTop" MarginBottom="10"><Children><TextWidget Text="Length" WidthSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#AAAAAAFF"/><ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginTop="4"><Children><SliderWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="350" SuggestedHeight="40" VerticalAlignment="Center" DoNotUpdateHandleSize="true" Filler="Filler" Handle="SliderHandle" IsDiscrete="true" DiscreteIncrementInterval="1" MaxValueInt="75" MinValueInt="1" ValueInt="@CrosshairLengthInt" UpdateValueContinuously="true"><Children><Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="350" SuggestedHeight="36" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_canvas" DoNotAcceptEvents="true"/><Widget Id="Filler" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="335" SuggestedHeight="33" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_fill" ClipContents="true"><Children><Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="335" SuggestedHeight="33" HorizontalAlignment="Left" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_fill"/></Children></Widget><Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="390" SuggestedHeight="60" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_frame" DoNotAcceptEvents="true"/><ImageWidget Id="SliderHandle" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="14" SuggestedHeight="36" HorizontalAlignment="Left" VerticalAlignment="Center" Brush="SPOptions.Slider.Handle"/></Children></SliderWidget><TextWidget IntText="@CrosshairLengthInt" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" MarginLeft="15" Brush.FontColor="#FFFFFFFF" Brush.FontSize="14"/></Children></ListPanel></Children></ListPanel>
-
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalBottomToTop" MarginBottom="10"><Children><TextWidget Text="Offset" WidthSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#AAAAAAFF"/><ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginTop="4"><Children><SliderWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="350" SuggestedHeight="40" VerticalAlignment="Center" DoNotUpdateHandleSize="true" Filler="Filler" Handle="SliderHandle" IsDiscrete="true" DiscreteIncrementInterval="1" MaxValueInt="30" MinValueInt="0" ValueInt="@CrosshairOffsetInt" UpdateValueContinuously="true"><Children><Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="350" SuggestedHeight="36" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_canvas" DoNotAcceptEvents="true"/><Widget Id="Filler" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="335" SuggestedHeight="33" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_fill" ClipContents="true"><Children><Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="335" SuggestedHeight="33" HorizontalAlignment="Left" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_fill"/></Children></Widget><Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="390" SuggestedHeight="60" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_frame" DoNotAcceptEvents="true"/><ImageWidget Id="SliderHandle" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="14" SuggestedHeight="36" HorizontalAlignment="Left" VerticalAlignment="Center" Brush="SPOptions.Slider.Handle"/></Children></SliderWidget><TextWidget IntText="@CrosshairOffsetInt" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" MarginLeft="15" Brush.FontColor="#FFFFFFFF" Brush.FontSize="14"/></Children></ListPanel></Children></ListPanel>
-
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalBottomToTop" MarginBottom="10"><Children><TextWidget Text="Opacity" WidthSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#AAAAAAFF"/><ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginTop="4"><Children><SliderWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="350" SuggestedHeight="40" VerticalAlignment="Center" DoNotUpdateHandleSize="true" Filler="Filler" Handle="SliderHandle" IsDiscrete="false" MaxValueFloat="1" MinValueFloat="0" ValueFloat="@CrosshairOpacityFloat" UpdateValueContinuously="true"><Children><Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="350" SuggestedHeight="36" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_canvas" DoNotAcceptEvents="true"/><Widget Id="Filler" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="335" SuggestedHeight="33" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_fill" ClipContents="true"><Children><Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="335" SuggestedHeight="33" HorizontalAlignment="Left" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_fill"/></Children></Widget><Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="390" SuggestedHeight="60" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="SPGeneral\SPOptions\standart_slider_frame" DoNotAcceptEvents="true"/><ImageWidget Id="SliderHandle" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="14" SuggestedHeight="36" HorizontalAlignment="Left" VerticalAlignment="Center" Brush="SPOptions.Slider.Handle"/></Children></SliderWidget><TextWidget FloatText="@CrosshairOpacityFloat" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" MarginLeft="15" Brush.FontColor="#FFFFFFFF" Brush.FontSize="14"/></Children></ListPanel></Children></ListPanel>
 													</Children>
 												</ListPanel>
-
 												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalBottomToTop" Margin="10">
 													<Children>
 														<TextWidget Text="Color Presets" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="8" Brush.FontSize="14" Brush.FontColor="#CCCCCCFF"/>
@@ -571,13 +577,11 @@
 														</ListPanel>
 													</Children>
 												</ListPanel>
-
 												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginTop="15">
 													<Children>
 														<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="120" SuggestedHeight="30" Brush="HUDButton" Command.Click="ExecuteResetCrosshair"><Children><TextWidget Text="Reset Default" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="13" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children></ButtonWidget>
 													</Children>
 												</ListPanel>
-
 												<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" VerticalAlignment="Bottom">
 													<Children>
 														<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="120" SuggestedHeight="35" HorizontalAlignment="Left" VerticalAlignment="Bottom" MarginBottom="10" Brush="HUDButton" Command.Click="ExecuteBackToCrosshair"><Children><TextWidget Text="← Back" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children></ButtonWidget>
@@ -585,11 +589,9 @@
 												</Widget>
 											</Children>
 										</ListPanel>
-
 										<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" StackLayout.LayoutMethod="VerticalBottomToTop" IsVisible="@IsDotSettingsPageOpen">
 											<Children>
 												<TextWidget Text="Center Dot Configuration" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="15" Brush.FontSize="24" Brush.FontColor="#FFD700FF"/>
-
 												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalBottomToTop" Margin="10" MarginBottom="15">
 													<Children>
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="12">
@@ -602,7 +604,6 @@
 																</ButtonWidget>
 															</Children>
 														</ListPanel>
-
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="12">
 															<Children>
 																<TextWidget Text="Shape" WidthSizePolicy="Fixed" SuggestedWidth="120" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
@@ -618,10 +619,8 @@
 																</ButtonWidget>
 															</Children>
 														</ListPanel>
-
 														<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="1" Sprite="BlankWhiteSquare_9" Color="#FFFFFF22" MarginBottom="10" MarginTop="5"/>
 														<TextWidget Text="Size" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="6" Brush.FontSize="14" Brush.FontColor="#CCCCCCFF"/>
-
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="6">
 															<Children>
 																<TextWidget Text="Width" WidthSizePolicy="Fixed" SuggestedWidth="100" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
@@ -636,7 +635,6 @@
 																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="28" Brush="KillfeedOffsetXLPlusButton" Command.Click="ExecuteIncreaseDotWidthLarge"/>
 															</Children>
 														</ListPanel>
-
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="10">
 															<Children>
 																<TextWidget Text="Height" WidthSizePolicy="Fixed" SuggestedWidth="100" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
@@ -651,10 +649,8 @@
 																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="28" Brush="KillfeedOffsetXLPlusButton" Command.Click="ExecuteIncreaseDotHeightLarge"/>
 															</Children>
 														</ListPanel>
-
 														<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="1" Sprite="BlankWhiteSquare_9" Color="#FFFFFF22" MarginBottom="10" MarginTop="5"/>
 														<TextWidget Text="Position" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="6" Brush.FontSize="14" Brush.FontColor="#CCCCCCFF"/>
-
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="6">
 															<Children>
 																<TextWidget Text="X Offset" WidthSizePolicy="Fixed" SuggestedWidth="100" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
@@ -669,7 +665,6 @@
 																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="28" Brush="KillfeedOffsetXLPlusButton" Command.Click="ExecuteIncreaseDotOffsetXLarge"/>
 															</Children>
 														</ListPanel>
-
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="10">
 															<Children>
 																<TextWidget Text="Y Offset" WidthSizePolicy="Fixed" SuggestedWidth="100" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
@@ -684,10 +679,8 @@
 																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="28" Brush="KillfeedOffsetXLPlusButton" Command.Click="ExecuteIncreaseDotOffsetYLarge"/>
 															</Children>
 														</ListPanel>
-
 														<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="1" Sprite="BlankWhiteSquare_9" Color="#FFFFFF22" MarginBottom="10" MarginTop="5"/>
 														<TextWidget Text="Color" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="6" Brush.FontSize="14" Brush.FontColor="#CCCCCCFF"/>
-
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="6">
 															<Children>
 																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="36" SuggestedHeight="26" MarginRight="4" Command.Click="ExecuteSetDotColorRed">
@@ -718,7 +711,6 @@
 														</ListPanel>
 													</Children>
 												</ListPanel>
-
 												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginTop="10">
 													<Children>
 														<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="120" SuggestedHeight="30" Brush="HUDButton" Command.Click="ExecuteResetDot">
@@ -728,7 +720,6 @@
 														</ButtonWidget>
 													</Children>
 												</ListPanel>
-
 												<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" VerticalAlignment="Bottom">
 													<Children>
 														<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="120" SuggestedHeight="35" HorizontalAlignment="Left" VerticalAlignment="Bottom" MarginBottom="10" Brush="HUDButton" Command.Click="ExecuteBackToCrosshair">
@@ -744,7 +735,6 @@
 										<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" StackLayout.LayoutMethod="VerticalBottomToTop" IsVisible="@IsMiscPageOpen">
 											<Children>
 												<TextWidget Text="Miscellaneous Settings" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="20" Brush.FontSize="24" Brush.FontColor="#FFD700FF"/>
-
 												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalBottomToTop" Margin="10">
 													<Children>
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
@@ -760,7 +750,6 @@
 														<TextWidget Text="Instantly returns camera center after using tilted view." WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" Brush.FontSize="14" Brush.FontColor="#AAAAAAFF"/>
 													</Children>
 												</ListPanel>
-
 												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8" MarginTop="20">
 													<Children>
 														<TextWidget Text="Remove Disconnected Avatars" WidthSizePolicy="Fixed" SuggestedWidth="300" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="18" Brush.FontColor="#E0E0E0FF"/>
@@ -772,9 +761,7 @@
 													</Children>
 												</ListPanel>
 												<TextWidget Text="Removes avatar widgets for players who have left the server." WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" Brush.FontSize="14" Brush.FontColor="#AAAAAAFF"/>
-
 												<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="1" Sprite="BlankWhiteSquare_9" Color="#FFFFFF33" MarginTop="15" MarginBottom="15"/>
-
 												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
 													<Children>
 														<TextWidget Text="Better Avatars" WidthSizePolicy="Fixed" SuggestedWidth="300" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="18" Brush.FontColor="#E0E0E0FF"/>
@@ -786,14 +773,11 @@
 													</Children>
 												</ListPanel>
 												<TextWidget Text="Replaces steam avatars with larger class icons." WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" Brush.FontSize="14" Brush.FontColor="#AAAAAAFF"/>
-
 											</Children>
 										</ListPanel>
-
 										<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" StackLayout.LayoutMethod="VerticalBottomToTop" IsVisible="@IsProfilesPageOpen">
 											<Children>
 												<TextWidget Text="Profile Management" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="20" Brush.FontSize="24" Brush.FontColor="#FFD700FF"/>
-
 												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalBottomToTop" Margin="10" MarginBottom="15">
 													<Children>
 														<TextWidget Text="Current Profile" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="10" Brush.FontSize="16" Brush.FontColor="#CCCCCCFF"/>
@@ -812,9 +796,7 @@
 																<TextWidget Text="@ProfileCountText" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" MarginLeft="15" Brush.FontSize="16" Brush.FontColor="#888888FF"/>
 															</Children>
 														</ListPanel>
-
 														<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="1" Sprite="BlankWhiteSquare_9" Color="#FFFFFF22" MarginBottom="15"/>
-
 														<TextWidget Text="Actions" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="10" Brush.FontSize="16" Brush.FontColor="#CCCCCCFF"/>
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight">
 															<Children>
@@ -825,7 +807,6 @@
 														</ListPanel>
 													</Children>
 												</ListPanel>
-
 												<TextWidget Text="Profiles are saved automatically when you change settings." WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginTop="10" Brush.FontSize="14" Brush.FontColor="#888888FF"/>
 											</Children>
 										</ListPanel>

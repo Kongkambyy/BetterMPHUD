@@ -46,6 +46,21 @@ namespace BetterMPHUD.ViewModels
 
             ApplyNativeKillfeedSetting();
         }
+        
+        [DataSourceProperty]
+        public bool AvatarSortingEnabled 
+        { 
+            get { return _settings.AvatarSortingEnabled; } 
+            set 
+            { 
+                if (_settings.AvatarSortingEnabled != value) 
+                { 
+                    _settings.AvatarSortingEnabled = value; 
+                    OnPropertyChangedWithValue(value, "AvatarSortingEnabled"); 
+                    OnSettingsChanged(); 
+                } 
+            } 
+        }
 
         private void OnSettingsChanged()
         {
@@ -1068,6 +1083,7 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(_settings.AllyAvatarsVertical, "AllyAvatarsVertical");
             OnPropertyChangedWithValue(_settings.EnemyAvatarsVertical, "EnemyAvatarsVertical");
             OnPropertyChangedWithValue(BetterAvatarsEnabled, "BetterAvatarsEnabled");
+            OnPropertyChangedWithValue(AvatarSortingEnabled, "AvatarSortingEnabled");
             RefreshAvatarSideDisplay();
             RefreshCrosshairDisplay();
             RefreshTopBarDisplay();
