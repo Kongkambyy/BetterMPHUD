@@ -485,75 +485,125 @@ namespace BetterMPHUD.Handlers
                 ProcessSingleAvatar(avatarWidget, simplify);
             }
         }
-        
+
+        private Dictionary<Widget, WidgetOriginalValues> _avatarOriginals = new Dictionary<Widget, WidgetOriginalValues>();
+
         private void ProcessSingleAvatar(Widget avatarWidget, bool simplify)
         {
             Widget steamAvatar = null;
             Widget circleBackground = null;
             Widget troopIcon = null;
             Widget iconForeground = null;
-    
-            FindAvatarComponentsRecursive(avatarWidget, ref steamAvatar, ref circleBackground, ref troopIcon, ref iconForeground);
-    
+            Widget compassElement = null;
+            Widget smallAvatarImage = null;
+
+            FindAvatarComponentsRecursive(avatarWidget, ref steamAvatar, ref circleBackground, ref troopIcon,
+                ref iconForeground, ref compassElement, ref smallAvatarImage);
+
             if (simplify)
             {
+                if (troopIcon != null && !_avatarOriginals.ContainsKey(troopIcon))
+                    _avatarOriginals[troopIcon] = WidgetOriginalValues.Capture(troopIcon);
+                if (iconForeground != null && !_avatarOriginals.ContainsKey(iconForeground))
+                    _avatarOriginals[iconForeground] = WidgetOriginalValues.Capture(iconForeground);
+                if (compassElement != null && !_avatarOriginals.ContainsKey(compassElement))
+                    _avatarOriginals[compassElement] = WidgetOriginalValues.Capture(compassElement);
+
                 if (steamAvatar != null)
                     steamAvatar.IsVisible = false;
-        
+
                 if (circleBackground != null)
                     circleBackground.IsVisible = false;
-        
+
+                if (smallAvatarImage != null)
+                    smallAvatarImage.IsVisible = false;
+
+                if (compassElement != null)
+                {
+                    if (compassElement.WidthSizePolicy == SizePolicy.Fixed)
+                        compassElement.SuggestedWidth = 60;
+                    if (compassElement.HeightSizePolicy == SizePolicy.Fixed)
+                        compassElement.SuggestedHeight = 60;
+                }
+
                 if (troopIcon != null)
                 {
                     if (troopIcon.WidthSizePolicy == SizePolicy.Fixed)
-                        troopIcon.SuggestedWidth = 60;
+                        troopIcon.SuggestedWidth = 55;
                     if (troopIcon.HeightSizePolicy == SizePolicy.Fixed)
-                        troopIcon.SuggestedHeight = 60;
+                        troopIcon.SuggestedHeight = 55;
+                    troopIcon.PositionXOffset = 5;
+                    troopIcon.PositionYOffset = 0;
+                    troopIcon.HorizontalAlignment = HorizontalAlignment.Center;
+                    troopIcon.VerticalAlignment = VerticalAlignment.Center;
                 }
-        
+
                 if (iconForeground != null)
                 {
                     if (iconForeground.WidthSizePolicy == SizePolicy.Fixed)
-                        iconForeground.SuggestedWidth = 55;
+                        iconForeground.SuggestedWidth = 50;
                     if (iconForeground.HeightSizePolicy == SizePolicy.Fixed)
-                        iconForeground.SuggestedHeight = 55;
+                        iconForeground.SuggestedHeight = 50;
                 }
             }
             else
             {
                 if (steamAvatar != null)
-                    steamAvatar.IsVisible = false;
-        
+                    steamAvatar.IsVisible = true;
+
                 if (circleBackground != null)
                     circleBackground.IsVisible = true;
-        
-                if (troopIcon != null)
+
+                if (smallAvatarImage != null)
+                    smallAvatarImage.IsVisible = true;
+
+                if (compassElement != null && _avatarOriginals.TryGetValue(compassElement, out var compassOrig))
+                {
+                    if (compassElement.WidthSizePolicy == SizePolicy.Fixed)
+                        compassElement.SuggestedWidth = compassOrig.Width;
+                    if (compassElement.HeightSizePolicy == SizePolicy.Fixed)
+                        compassElement.SuggestedHeight = compassOrig.Height;
+                }
+
+                if (troopIcon != null && _avatarOriginals.TryGetValue(troopIcon, out var troopOrig))
                 {
                     if (troopIcon.WidthSizePolicy == SizePolicy.Fixed)
-                        troopIcon.SuggestedWidth = 37.2f;
+                        troopIcon.SuggestedWidth = troopOrig.Width;
                     if (troopIcon.HeightSizePolicy == SizePolicy.Fixed)
-                        troopIcon.SuggestedHeight = 39.6f;
+                        troopIcon.SuggestedHeight = troopOrig.Height;
+                    troopIcon.PositionXOffset = troopOrig.X;
+                    troopIcon.PositionYOffset = troopOrig.Y;
                 }
-        
-                if (iconForeground != null)
+
+                if (iconForeground != null && _avatarOriginals.TryGetValue(iconForeground, out var fgOrig))
                 {
                     if (iconForeground.WidthSizePolicy == SizePolicy.Fixed)
-                        iconForeground.SuggestedWidth = 37.2f;
+                        iconForeground.SuggestedWidth = fgOrig.Width;
                     if (iconForeground.HeightSizePolicy == SizePolicy.Fixed)
-                        iconForeground.SuggestedHeight = 39.6f;
+                        iconForeground.SuggestedHeight = fgOrig.Height;
                 }
             }
         }
-        
-        private void FindAvatarComponentsRecursive(Widget widget, ref Widget steamAvatar, ref Widget circleBackground, ref Widget troopIcon, ref Widget iconForeground)
+
+        private void FindAvatarComponentsRecursive(Widget widget, ref Widget steamAvatar, ref Widget circleBackground, ref Widget troopIcon, ref Widget iconForeground, ref Widget compassElement, ref Widget smallAvatarImage)
         {
             string typeName = widget.GetType().Name;
     
-            if (typeName == "ImageIdentifierWidget" && widget.Id != "AvatarImage")
+            if (typeName.Contains("CompassElement") || typeName.Contains("DependentPrefab"))
+                compassElement = widget;
+    
+            if (typeName == "ImageIdentifierWidget")
             {
-                Widget parent = widget.ParentWidget;
-                if (parent != null && !parent.GetType().Name.Contains("TroopType"))
-                    steamAvatar = widget;
+                if (widget.Id == "AvatarImage")
+                {
+                    smallAvatarImage = widget;
+                }
+                else
+                {
+                    Widget parent = widget.ParentWidget;
+                    if (parent != null && !parent.GetType().Name.Contains("TroopType"))
+                        steamAvatar = widget;
+                }
             }
     
             if (widget.Sprite != null && widget.Sprite.Name != null)
@@ -569,7 +619,7 @@ namespace BetterMPHUD.Handlers
                 iconForeground = widget;
     
             for (int i = 0; i < widget.ChildCount; i++)
-                FindAvatarComponentsRecursive(widget.GetChild(i), ref steamAvatar, ref circleBackground, ref troopIcon, ref iconForeground);
+                FindAvatarComponentsRecursive(widget.GetChild(i), ref steamAvatar, ref circleBackground, ref troopIcon, ref iconForeground, ref compassElement, ref smallAvatarImage);
         }
 
         public void Reset()
@@ -586,6 +636,7 @@ namespace BetterMPHUD.Handlers
             _enemyAvatarsOriginal = default(WidgetOriginalValues);
             _allyAvatarChildOriginals?.Clear();
             _enemyAvatarChildOriginals?.Clear();
+            _avatarOriginals?.Clear();
         }
     }
 }
