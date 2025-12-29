@@ -69,6 +69,7 @@
     <Compile Include="Core\WidgetData.cs" />
     <Compile Include="Handlers\AgentStatusHandler.cs" />
     <Compile Include="Handlers\CameraSnapbackHandler.cs" />
+    <Compile Include="Handlers\ChatHandler.cs" />
     <Compile Include="Handlers\CrosshairHandler.cs" />
     <Compile Include="Handlers\HealthNumbersHandler.cs" />
     <Compile Include="Handlers\KillfeedHandler.cs" />

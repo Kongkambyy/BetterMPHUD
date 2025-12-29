@@ -59,7 +59,6 @@ namespace BetterMPHUD.Handlers
         {
             if (avatarSide == null || avatarSide.ChildCount <= 1) return;
 
-            // Build list of (widget, classType) pairs
             var avatarData = new List<(Widget widget, HudSettings.AvatarClassType classType)>();
     
             for (int i = 0; i < avatarSide.ChildCount; i++)
@@ -69,20 +68,14 @@ namespace BetterMPHUD.Handlers
                 avatarData.Add((avatar, classType));
             }
 
-            // Sort: Cavalry first, then Archer, then Infantry
             avatarData.Sort((a, b) => a.classType.CompareTo(b.classType));
-
-            // Reorder widgets by removing and re-adding in sorted order
-            // First, collect all widgets (can't modify while iterating)
+            
             var sortedWidgets = avatarData.Select(x => x.widget).ToList();
-    
-            // Remove all children
             while (avatarSide.ChildCount > 0)
             {
                 avatarSide.RemoveChild(avatarSide.GetChild(0));
             }
     
-            // Add back in sorted order
             foreach (var widget in sortedWidgets)
             {
                 avatarSide.AddChild(widget);
@@ -91,16 +84,13 @@ namespace BetterMPHUD.Handlers
         
         private HudSettings.AvatarClassType GetAvatarClassType(Widget avatarWidget)
         {
-            // Find the sprite name in the widget hierarchy
             string spriteName = FindClassSpriteNameRecursive(avatarWidget);
     
             if (string.IsNullOrEmpty(spriteName))
                 return HudSettings.AvatarClassType.Unknown;
 
-            // Normalize to lowercase for comparison
             string lower = spriteName.ToLower();
 
-            // Check for cavalry (includes horse archers)
             if (lower.Contains("cavalry") || lower.Contains("horsearcher"))
                 return HudSettings.AvatarClassType.Cavalry;
     
@@ -746,7 +736,9 @@ namespace BetterMPHUD.Handlers
         {
             _cached = false;
             _betterAvatarsApplied = false;
+    
             ResetTrackedWidgets();
+    
             _enemyScoreWidget = null;
             _bannerWidgets.Clear();
             _customizer.Clear();

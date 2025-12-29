@@ -15,9 +15,10 @@ namespace BetterMPHUD.Handlers
         private GauntletLayer _nativeLayer;
         private CrosshairVM _viewModel;
         private double[] _targetGadgetOpacities = new double[4];
+        private bool _isCleanedUp;
 
-        public bool IsInitialized { get { return _customLayer != null; } }
-
+        public bool IsInitialized { get { return _customLayer != null && !_isCleanedUp; } }
+        
         public void Initialize(MissionScreen screen)
         {
             try 
@@ -42,7 +43,6 @@ namespace BetterMPHUD.Handlers
 
             CrosshairSettings cs = settings.CrosshairSettings;
 
-            // Handle custom crosshair
             if (cs.CustomCrosshairEnabled)
             {
                 if (_nativeLayer != null && _nativeLayer.UIContext != null)
@@ -372,7 +372,7 @@ namespace BetterMPHUD.Handlers
 
         private void OnCombatLogGenerated(CombatLogData logData)
         {
-            if (_viewModel == null || !_viewModel.CustomEnabled) return;
+            if (_isCleanedUp || _viewModel == null || !_viewModel.CustomEnabled) return;
 
             bool isAttackerMine = logData.IsAttackerAgentMine;
             bool isValidHit = !logData.IsVictimAgentSameAsAttackerAgent && !logData.IsFriendlyFire;
@@ -384,13 +384,22 @@ namespace BetterMPHUD.Handlers
 
         public void Cleanup(MissionScreen screen)
         {
+            _isCleanedUp = true; 
             CombatLogManager.OnGenerateCombatLog -= OnCombatLogGenerated;
 
-            if (_nativeLayer != null && _nativeLayer.UIContext != null)
-                _nativeLayer.UIContext.ContextAlpha = 1f;
+            try
+            {
+                if (_nativeLayer != null && _nativeLayer.UIContext != null)
+                    _nativeLayer.UIContext.ContextAlpha = 1f;
+            }
+            catch { }
 
-            if (screen != null && _customLayer != null)
-                screen.RemoveLayer(_customLayer);
+            try
+            {
+                if (screen != null && _customLayer != null)
+                    screen.RemoveLayer(_customLayer);
+            }
+            catch { }
 
             _customLayer = null;
             _nativeLayer = null;

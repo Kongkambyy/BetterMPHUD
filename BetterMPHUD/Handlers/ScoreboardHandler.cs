@@ -12,7 +12,7 @@ namespace BetterMPHUD.Handlers
     public class ScoreboardHandler
     {
         private static readonly BindingFlags Flags = BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public;
-        
+    
         private Dictionary<Widget, float> _originalAlphas = new Dictionary<Widget, float>();
         private bool _initialized;
 
@@ -21,18 +21,17 @@ namespace BetterMPHUD.Handlers
             if (mission == null) return;
 
             GauntletLayer layer = FindScoreboardLayer(mission);
-            
+        
             if (layer == null || layer.UIContext == null || layer.UIContext.Root == null)
             {
-                // Scoreboard closed - reset for next time
                 _initialized = false;
                 _originalAlphas.Clear();
                 return;
             }
 
-            // Apply every frame while scoreboard is open
             ApplyToAllWidgets(layer.UIContext.Root, settings, 0);
         }
+
 
         private GauntletLayer FindScoreboardLayer(Mission mission)
         {
@@ -66,7 +65,6 @@ namespace BetterMPHUD.Handlers
         {
             if (depth > 80) return;
 
-            // Store original alpha on first encounter
             if (!_originalAlphas.ContainsKey(widget))
             {
                 _originalAlphas[widget] = widget.AlphaFactor;
@@ -75,12 +73,10 @@ namespace BetterMPHUD.Handlers
             float originalAlpha = _originalAlphas[widget];
             bool isBackground = false;
             
-            // Check if this is a background widget
             if (widget.Sprite != null && widget.Sprite.Name != null)
             {
                 string spriteName = widget.Sprite.Name;
                 
-                // Main panel background
                 if (spriteName.Contains("flat_panel"))
                 {
                     isBackground = true;
@@ -90,14 +86,12 @@ namespace BetterMPHUD.Handlers
                     else
                         widget.AlphaFactor = 0f;
                 }
-                // Other backgrounds (BlankWhiteSquare)
                 else if (spriteName.Contains("BlankWhiteSquare"))
                 {
                     isBackground = true;
                     
                     if (settings.ScoreboardStripingEnabled)
                     {
-                        // Scale original alpha by our setting
                         float targetAlpha = originalAlpha * (settings.ScoreboardStripingOpacity / 0.4f);
                         widget.AlphaFactor = Math.Min(targetAlpha, 1f);
                     }
@@ -108,7 +102,6 @@ namespace BetterMPHUD.Handlers
                 }
             }
 
-            // Recurse to children
             for (int i = 0; i < widget.ChildCount; i++)
             {
                 ApplyToAllWidgets(widget.GetChild(i), settings, depth + 1);
@@ -176,17 +169,6 @@ namespace BetterMPHUD.Handlers
 
         public void Reset()
         {
-            // Restore original alphas if widgets still exist
-            foreach (var kvp in _originalAlphas)
-            {
-                try
-                {
-                    if (kvp.Key != null)
-                        kvp.Key.AlphaFactor = kvp.Value;
-                }
-                catch { }
-            }
-
             _initialized = false;
             _originalAlphas.Clear();
         }

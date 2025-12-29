@@ -68,7 +68,6 @@ namespace BetterMPHUD.Handlers
 
             item.UpdateSizes(font, icon, skull, row);
             
-            // NEW: Apply background settings
             item.UpdateBackground(
                 settings.KillfeedBackgroundEnabled, 
                 settings.KillfeedBackgroundColor, 

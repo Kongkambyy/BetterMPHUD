@@ -31,6 +31,9 @@ namespace BetterMPHUD.ViewModels
         public Action OnCleanupAvatarsRequested;
         public Action OnDebugScoreboardStructure;
         
+        public Action OnDebugChatStructure;
+        public Action<bool> OnChatToggled;
+        
         public void ExecuteDebugScoreboard()
         {
             if (OnDebugScoreboardStructure != null)
@@ -366,7 +369,7 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(KillfeedBackgroundOpacityText, "KillfeedBackgroundOpacityText");
             OnPropertyChangedWithValue(KillfeedBackgroundColorText, "KillfeedBackgroundColorText");
             OnPropertyChangedWithValue(KillfeedBackgroundEnabled, "KillfeedBackgroundEnabled");
-            OnPropertyChangedWithValue(KillfeedMaxEntriesText, "KillfeedMaxEntriesText");  // ADD THIS LINE
+            OnPropertyChangedWithValue(KillfeedMaxEntriesText, "KillfeedMaxEntriesText"); 
             OnSettingsChanged();
         }
 
@@ -397,7 +400,6 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(IsEnemyAvatarSelected, "IsEnemyAvatarSelected");
         }
         
-        // Crosshair methods
         private void AdjustCrosshairWidth(int delta)
         {
             int newValue = _settings.CrosshairSettings.SizeHorizontal + delta;
@@ -884,12 +886,9 @@ namespace BetterMPHUD.ViewModels
             {
                 if (_tempProfileName != value)
                 {
-                    // Just update the variable in memory. 
-                    // NO saving to disk happens here. No crashing.
                     _tempProfileName = value;
                     OnPropertyChanged("CurrentProfileName");
             
-                    // Show the save button if the text differs from the saved name
                     OnPropertyChanged("IsSaveNameButtonVisible"); 
                 }
             }
@@ -921,17 +920,14 @@ namespace BetterMPHUD.ViewModels
         {
             string currentRealName = ProfileManager.GetActiveProfile().Name;
     
-            // Attempt to rename
             bool success = ProfileManager.RenameProfile(currentRealName, _tempProfileName);
     
             if (success)
             {
-                // If it worked, hide the button (because temp name now equals real name)
                 OnPropertyChanged("IsSaveNameButtonVisible");
             }
             else
             {
-                // If it failed (e.g. name taken), revert text back to the real name
                 _tempProfileName = currentRealName;
                 OnPropertyChanged("CurrentProfileName");
                 OnPropertyChanged("IsSaveNameButtonVisible");
@@ -1097,7 +1093,7 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(ScoreboardDeadPlayerOpacityText, "ScoreboardDeadPlayerOpacityText");
             OnPropertyChangedWithValue(ScoreboardDeadPlayerTintEnabled, "ScoreboardDeadPlayerTintEnabled");
             OnPropertyChangedWithValue(HideUIWhenScoreboardOpen , "HideUIWhenScoreboardOpen");
-            
+            OnPropertyChangedWithValue(ShowChat, "ShowChat");
             RefreshAvatarSideDisplay();
             RefreshCrosshairDisplay();
             RefreshTopBarDisplay();
@@ -1461,6 +1457,104 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(ScoreboardDeadPlayerOpacityText, "ScoreboardDeadPlayerOpacityText");
             OnPropertyChangedWithValue(ScoreboardDeadPlayerTintEnabled, "ScoreboardDeadPlayerTintEnabled");
             OnPropertyChangedWithValue(HideUIWhenScoreboardOpen, "HideUIWhenScoreboardOpen");
+        }
+        
+        [DataSourceProperty]
+        public bool ShowChat 
+        { 
+            get { return _settings.ShowChat; } 
+            set 
+            { 
+                if (_settings.ShowChat != value) 
+                { 
+                    _settings.ShowChat = value; 
+                    OnPropertyChangedWithValue(value, "ShowChat"); 
+                    if (OnChatToggled != null)
+                        OnChatToggled(value);
+                    OnSettingsChanged(); 
+                } 
+            } 
+        }
+        
+        public void ExecuteDebugChat()
+        {
+            if (OnDebugChatStructure != null)
+                OnDebugChatStructure();
+        }
+        
+        [DataSourceProperty]
+        public string ChatOffsetXText { get { return _settings.ChatCustom.OffsetX.ToString("F0"); } }
+
+        [DataSourceProperty]
+        public string ChatOffsetYText { get { return _settings.ChatCustom.OffsetY.ToString("F0"); } }
+
+        [DataSourceProperty]
+        public string ChatScaleText { get { return (_settings.ChatCustom.Scale * 100).ToString("F0") + "%"; } }
+
+        private void AdjustChatOffsetX(float delta)
+        {
+            _settings.ChatCustom.OffsetX += delta;
+            RefreshChatDisplay();
+        }
+
+        private void AdjustChatOffsetY(float delta)
+        {
+            _settings.ChatCustom.OffsetY += delta;
+            RefreshChatDisplay();
+        }
+
+        private void AdjustChatScale(float delta)
+        {
+            float newScale = _settings.ChatCustom.Scale + delta;
+            if (newScale >= Constants.Adjustment.MinScale && newScale <= Constants.Adjustment.MaxScale)
+            {
+                _settings.ChatCustom.Scale = (float)Math.Round(newScale, 2);
+                RefreshChatDisplay();
+            }
+        }
+        
+        private void RefreshChatDisplay()
+        {
+            OnPropertyChangedWithValue(ChatOffsetXText, "ChatOffsetXText");
+            OnPropertyChangedWithValue(ChatOffsetYText, "ChatOffsetYText");
+            OnPropertyChangedWithValue(ChatScaleText, "ChatScaleText");
+            OnSettingsChanged();
+        }
+        
+        public void ExecuteIncreaseChatOffsetX() { AdjustChatOffsetX(Constants.Adjustment.PositionStep); }
+        public void ExecuteDecreaseChatOffsetX() { AdjustChatOffsetX(-Constants.Adjustment.PositionStep); }
+        public void ExecuteIncreaseChatOffsetXLarge() { AdjustChatOffsetX(Constants.Adjustment.PositionStepLarge); }
+        public void ExecuteDecreaseChatOffsetXLarge() { AdjustChatOffsetX(-Constants.Adjustment.PositionStepLarge); }
+
+        public void ExecuteIncreaseChatOffsetY() { AdjustChatOffsetY(Constants.Adjustment.PositionStep); }
+        public void ExecuteDecreaseChatOffsetY() { AdjustChatOffsetY(-Constants.Adjustment.PositionStep); }
+        public void ExecuteIncreaseChatOffsetYLarge() { AdjustChatOffsetY(Constants.Adjustment.PositionStepLarge); }
+        public void ExecuteDecreaseChatOffsetYLarge() { AdjustChatOffsetY(-Constants.Adjustment.PositionStepLarge); }
+
+        public void ExecuteIncreaseChatScale() { AdjustChatScale(Constants.Adjustment.ScaleStep); }
+        public void ExecuteDecreaseChatScale() { AdjustChatScale(-Constants.Adjustment.ScaleStep); }
+        public void ExecuteIncreaseChatScaleLarge() { AdjustChatScale(Constants.Adjustment.ScaleStepLarge); }
+        public void ExecuteDecreaseChatScaleLarge() { AdjustChatScale(-Constants.Adjustment.ScaleStepLarge); }
+
+        public void ExecuteResetChat()
+        {
+            _settings.ChatCustom.Reset();
+            RefreshChatDisplay();
+        }
+        
+        [DataSourceProperty]
+        public bool ChatMinimalMode 
+        { 
+            get { return _settings.ChatMinimalMode; } 
+            set 
+            { 
+                if (_settings.ChatMinimalMode != value) 
+                { 
+                    _settings.ChatMinimalMode = value; 
+                    OnPropertyChangedWithValue(value, "ChatMinimalMode"); 
+                    OnSettingsChanged(); 
+                } 
+            } 
         }
     }
 }

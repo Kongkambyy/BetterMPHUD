@@ -18,6 +18,7 @@ namespace BetterMPHUD.Behaviors
         private GauntletLayer _configLayer;
         private HudMenuVM _menuVM;
         private bool _initialized;
+        private bool _isCleaningUp;
         private float _settingsTimer;
 
         private TopBarHandler _topBar;
@@ -27,6 +28,7 @@ namespace BetterMPHUD.Behaviors
         private HealthNumbersHandler _healthNumbers;
         private CrosshairHandler _crosshair;
         private ScoreboardHandler _scoreboard;
+        private ChatHandler _chat;
 
         public HudBehavior()
         {
@@ -36,7 +38,8 @@ namespace BetterMPHUD.Behaviors
             _camera = new CameraSnapbackHandler();
             _healthNumbers = new HealthNumbersHandler();
             _crosshair = new CrosshairHandler();
-            _scoreboard = new ScoreboardHandler(); 
+            _scoreboard = new ScoreboardHandler();
+            _chat = new ChatHandler();
         }
 
         public override MissionBehaviorType BehaviorType
@@ -48,6 +51,8 @@ namespace BetterMPHUD.Behaviors
         {
             base.OnMissionTick(dt);
 
+            if (_isCleaningUp) return;
+            
             if (!_initialized)
                 TryInitialize();
 
@@ -156,11 +161,17 @@ namespace BetterMPHUD.Behaviors
             _menuVM.OnDebugAvatarStructure = () => _topBar.DebugAvatarStructure();
             _menuVM.OnBetterAvatarsToggled = OnBetterAvatarsToggled;
             _menuVM.OnDebugScoreboardStructure = () => _scoreboard.DebugPrintStructure();
-            
+            _menuVM.OnDebugChatStructure = () => _chat.DebugPrintStructure(); 
+            _menuVM.OnChatToggled = OnChatToggled; 
 
             _configLayer = new GauntletLayer("GauntletLayer", 50, false);
             _configLayer.LoadMovie("HudConfig", _menuVM);
             screen.AddLayer(_configLayer);
+        }
+        
+        private void OnChatToggled(bool enabled)
+        {
+            _chat.SetChatVisible(enabled);
         }
         
         private void OnKillfeedToggled(bool enabled)
@@ -190,6 +201,8 @@ namespace BetterMPHUD.Behaviors
             _agentStatus.Apply(settings, Mission.Current);
             _topBar.ApplyBetterAvatars(settings.BetterAvatarsEnabled);
             _scoreboard.Apply(settings, Mission.Current);
+            _chat.Apply(settings, Mission.Current);
+
 
             MissionScreen screen = ScreenManager.TopScreen as MissionScreen;
             if (screen != null)
@@ -228,6 +241,7 @@ namespace BetterMPHUD.Behaviors
 
         public override void OnRemoveBehavior()
         {
+            _isCleaningUp = true;
             base.OnRemoveBehavior();
     
             try
@@ -235,6 +249,8 @@ namespace BetterMPHUD.Behaviors
                 ManagedOptions.SetConfig(ManagedOptions.ManagedOptionsType.ReportCasualtiesType, 0f);
 
                 MissionScreen screen = ScreenManager.TopScreen as MissionScreen;
+                
+                if (_crosshair != null) _crosshair.Cleanup(screen);
         
                 if (screen != null && _configLayer != null)
                     screen.RemoveLayer(_configLayer);
@@ -246,6 +262,7 @@ namespace BetterMPHUD.Behaviors
                 if (_camera != null) _camera.Reset();
                 if (_crosshair != null) _crosshair.Cleanup(screen);
                 if (_scoreboard != null) _scoreboard.Reset();
+                if (_chat != null) _chat.Reset();
             }
             catch (Exception ex)
             {
@@ -254,6 +271,7 @@ namespace BetterMPHUD.Behaviors
             }
     
             _menuVM = null;
+            _configLayer = null;
             _initialized = false;
         }
     }

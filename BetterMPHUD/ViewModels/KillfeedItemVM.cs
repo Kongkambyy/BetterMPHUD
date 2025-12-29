@@ -43,7 +43,6 @@ namespace BetterMPHUD
             ExpireTime = expireTime;
             _onRemove = onRemove;
             
-            // Default background values
             _showBackground = true;
             _backgroundColor = "#000000FF";
             _backgroundOpacity = 0.7f;
@@ -57,7 +56,6 @@ namespace BetterMPHUD
             RowHeight = rowHeight;
         }
         
-        // Update background settings
         public void UpdateBackground(bool show, string color, float opacity)
         {
             ShowBackground = show;
