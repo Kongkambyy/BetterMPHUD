@@ -29,7 +29,13 @@ namespace BetterMPHUD.ViewModels
         public Action<bool> OnWarbandKillfeedToggled;
         public Action OnHudSettingsChanged;
         public Action OnCleanupAvatarsRequested;
-
+        public Action OnDebugScoreboardStructure;
+        
+        public void ExecuteDebugScoreboard()
+        {
+            if (OnDebugScoreboardStructure != null)
+                OnDebugScoreboardStructure();
+        }
         public HudMenuVM()
         {
             _settings = ConfigManager.LoadSettings();
@@ -197,7 +203,7 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(MenuHorizontalOffset, "MenuHorizontalOffset");
             OnPropertyChangedWithValue(IsProfilesPageOpen, "IsProfilesPageOpen");
             OnPropertyChangedWithValue(IsAvatarSidesPageOpen, "IsAvatarSidesPageOpen");
-
+            OnPropertyChangedWithValue(IsScoreboardPageOpen, "IsScoreboardPageOpen");
         }
 
         public void ExecuteSelectTimeAndScores() { _topBarEditor.SelectElement(0, "Time & Scores", _settings.TimeAndScoresCustom); RefreshTopBarDisplay(); }
@@ -1084,6 +1090,14 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(_settings.EnemyAvatarsVertical, "EnemyAvatarsVertical");
             OnPropertyChangedWithValue(BetterAvatarsEnabled, "BetterAvatarsEnabled");
             OnPropertyChangedWithValue(AvatarSortingEnabled, "AvatarSortingEnabled");
+            OnPropertyChangedWithValue(ScoreboardBackgroundEnabled, "ScoreboardBackgroundEnabled");
+            OnPropertyChangedWithValue(ScoreboardStripingEnabled, "ScoreboardStripingEnabled");
+            OnPropertyChangedWithValue(ScoreboardBackgroundOpacityText, "ScoreboardBackgroundOpacityText");
+            OnPropertyChangedWithValue(ScoreboardStripingOpacityText, "ScoreboardStripingOpacityText");
+            OnPropertyChangedWithValue(ScoreboardDeadPlayerOpacityText, "ScoreboardDeadPlayerOpacityText");
+            OnPropertyChangedWithValue(ScoreboardDeadPlayerTintEnabled, "ScoreboardDeadPlayerTintEnabled");
+            OnPropertyChangedWithValue(HideUIWhenScoreboardOpen , "HideUIWhenScoreboardOpen");
+            
             RefreshAvatarSideDisplay();
             RefreshCrosshairDisplay();
             RefreshTopBarDisplay();
@@ -1285,5 +1299,168 @@ namespace BetterMPHUD.ViewModels
             } 
         }
         
+        [DataSourceProperty]
+        public bool ScoreboardBackgroundEnabled 
+        { 
+            get { return _settings.ScoreboardBackgroundEnabled; } 
+            set 
+            { 
+                if (_settings.ScoreboardBackgroundEnabled != value) 
+                { 
+                    _settings.ScoreboardBackgroundEnabled = value; 
+                    OnPropertyChangedWithValue(value, "ScoreboardBackgroundEnabled"); 
+                    OnSettingsChanged(); 
+                } 
+            } 
+        }
+        
+        [DataSourceProperty]
+        public bool ScoreboardStripingEnabled 
+        { 
+            get { return _settings.ScoreboardStripingEnabled; } 
+            set 
+            { 
+                if (_settings.ScoreboardStripingEnabled != value) 
+                { 
+                    _settings.ScoreboardStripingEnabled = value; 
+                    OnPropertyChangedWithValue(value, "ScoreboardStripingEnabled"); 
+                    OnSettingsChanged(); 
+                } 
+            } 
+        }
+        
+        [DataSourceProperty]
+        public string ScoreboardBackgroundOpacityText 
+        { 
+            get { return (_settings.ScoreboardBackgroundOpacity * 100).ToString("F0") + "%"; } 
+        }
+
+        [DataSourceProperty]
+        public string ScoreboardStripingOpacityText 
+        { 
+            get { return (_settings.ScoreboardStripingOpacity * 100).ToString("F0") + "%"; } 
+        }
+
+        [DataSourceProperty]
+        public bool IsScoreboardPageOpen { get { return _currentPage == "Scoreboard"; } }
+
+        public void ExecuteOpenScoreboardPage() { SetPage("Scoreboard"); }
+
+        private void AdjustScoreboardBackgroundOpacity(float delta)
+        {
+            float newValue = _settings.ScoreboardBackgroundOpacity + delta;
+            if (newValue >= 0f && newValue <= 1f)
+            {
+                _settings.ScoreboardBackgroundOpacity = (float)Math.Round(newValue, 2);
+                OnPropertyChangedWithValue(ScoreboardBackgroundOpacityText, "ScoreboardBackgroundOpacityText");
+                OnSettingsChanged();
+            }
+        }
+        
+        private void AdjustScoreboardStripingOpacity(float delta)
+        {
+            float newValue = _settings.ScoreboardStripingOpacity + delta;
+            if (newValue >= 0f && newValue <= 1f)
+            {
+                _settings.ScoreboardStripingOpacity = (float)Math.Round(newValue, 2);
+                OnPropertyChangedWithValue(ScoreboardStripingOpacityText, "ScoreboardStripingOpacityText");
+                OnSettingsChanged();
+            }
+        }
+        
+        public void ExecuteIncreaseScoreboardOpacity() { AdjustScoreboardBackgroundOpacity(0.05f); }
+        public void ExecuteDecreaseScoreboardOpacity() { AdjustScoreboardBackgroundOpacity(-0.05f); }
+        public void ExecuteIncreaseScoreboardOpacityLarge() { AdjustScoreboardBackgroundOpacity(0.1f); }
+        public void ExecuteDecreaseScoreboardOpacityLarge() { AdjustScoreboardBackgroundOpacity(-0.1f); }
+
+        public void ExecuteIncreaseStripingOpacity() { AdjustScoreboardStripingOpacity(0.05f); }
+        public void ExecuteDecreaseStripingOpacity() { AdjustScoreboardStripingOpacity(-0.05f); }
+        public void ExecuteIncreaseStripingOpacityLarge() { AdjustScoreboardStripingOpacity(0.1f); }
+        public void ExecuteDecreaseStripingOpacityLarge() { AdjustScoreboardStripingOpacity(-0.1f); }
+        public void ExecuteIncreaseDeadPlayerOpacity() { AdjustDeadPlayerOpacity(0.05f); }
+        public void ExecuteDecreaseDeadPlayerOpacity() { AdjustDeadPlayerOpacity(-0.05f); }
+        public void ExecuteIncreaseDeadPlayerOpacityLarge() { AdjustDeadPlayerOpacity(0.1f); }
+        public void ExecuteDecreaseDeadPlayerOpacityLarge() { AdjustDeadPlayerOpacity(-0.1f); }
+
+        public void ExecuteSetDeadPlayerColorRed() { _settings.ScoreboardDeadPlayerColor = "#FF4444FF"; OnSettingsChanged(); }
+        public void ExecuteSetDeadPlayerColorGray() { _settings.ScoreboardDeadPlayerColor = "#888888FF"; OnSettingsChanged(); }
+        public void ExecuteSetDeadPlayerColorDark() { _settings.ScoreboardDeadPlayerColor = "#444444FF"; OnSettingsChanged(); }
+        public void ExecuteSetDeadPlayerColorWhite() { _settings.ScoreboardDeadPlayerColor = "#CCCCCCFF"; OnSettingsChanged(); }
+        public void ExecuteSetDeadPlayerColorOrange() { _settings.ScoreboardDeadPlayerColor = "#FF8800FF"; OnSettingsChanged(); }
+        public void ExecuteSetDeadPlayerColorPurple() { _settings.ScoreboardDeadPlayerColor = "#8844FFFF"; OnSettingsChanged(); }
+
+
+        [DataSourceProperty]
+        public bool HideUIWhenScoreboardOpen 
+        { 
+            get { return _settings.HideUIWhenScoreboardOpen; } 
+            set 
+            { 
+                if (_settings.HideUIWhenScoreboardOpen != value) 
+                { 
+                    _settings.HideUIWhenScoreboardOpen = value; 
+                    OnPropertyChangedWithValue(value, "HideUIWhenScoreboardOpen"); 
+                    OnSettingsChanged(); 
+                } 
+            } 
+        }
+
+        [DataSourceProperty]
+        public bool ScoreboardDeadPlayerTintEnabled 
+        { 
+            get { return _settings.ScoreboardDeadPlayerTintEnabled; } 
+            set 
+            { 
+                if (_settings.ScoreboardDeadPlayerTintEnabled != value) 
+                { 
+                    _settings.ScoreboardDeadPlayerTintEnabled = value; 
+                    OnPropertyChangedWithValue(value, "ScoreboardDeadPlayerTintEnabled"); 
+                    OnSettingsChanged(); 
+                } 
+            } 
+        }
+        
+        [DataSourceProperty]
+        public string ScoreboardDeadPlayerOpacityText 
+        { 
+            get { return (_settings.ScoreboardDeadPlayerOpacity * 100).ToString("F0") + "%"; } 
+        }
+
+        private void AdjustDeadPlayerOpacity(float delta)
+        {
+            float newValue = _settings.ScoreboardDeadPlayerOpacity + delta;
+            if (newValue >= 0f && newValue <= 1f)
+            {
+                _settings.ScoreboardDeadPlayerOpacity = (float)Math.Round(newValue, 2);
+                OnPropertyChangedWithValue(ScoreboardDeadPlayerOpacityText, "ScoreboardDeadPlayerOpacityText");
+                OnSettingsChanged();
+            }
+        }
+        
+        public void ExecuteResetScoreboard()
+        {
+            _settings.ScoreboardBackgroundEnabled = true;
+            _settings.ScoreboardBackgroundOpacity = 0.8f;
+            _settings.ScoreboardStripingEnabled = true;
+            _settings.ScoreboardStripingOpacity = 0.2f;
+            _settings.ScoreboardDeadPlayerOpacity = 0.3f;
+            _settings.ScoreboardDeadPlayerColor = "";
+            _settings.ScoreboardDeadPlayerTintEnabled = false;
+            _settings.HideUIWhenScoreboardOpen = false;
+    
+            RefreshScoreboardDisplay();
+            OnSettingsChanged();
+        }
+        
+        private void RefreshScoreboardDisplay()
+        {
+            OnPropertyChangedWithValue(ScoreboardBackgroundEnabled, "ScoreboardBackgroundEnabled");
+            OnPropertyChangedWithValue(ScoreboardBackgroundOpacityText, "ScoreboardBackgroundOpacityText");
+            OnPropertyChangedWithValue(ScoreboardStripingEnabled, "ScoreboardStripingEnabled");
+            OnPropertyChangedWithValue(ScoreboardStripingOpacityText, "ScoreboardStripingOpacityText");
+            OnPropertyChangedWithValue(ScoreboardDeadPlayerOpacityText, "ScoreboardDeadPlayerOpacityText");
+            OnPropertyChangedWithValue(ScoreboardDeadPlayerTintEnabled, "ScoreboardDeadPlayerTintEnabled");
+            OnPropertyChangedWithValue(HideUIWhenScoreboardOpen, "HideUIWhenScoreboardOpen");
+        }
     }
 }

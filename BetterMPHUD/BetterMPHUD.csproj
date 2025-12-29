@@ -72,6 +72,7 @@
     <Compile Include="Handlers\CrosshairHandler.cs" />
     <Compile Include="Handlers\HealthNumbersHandler.cs" />
     <Compile Include="Handlers\KillfeedHandler.cs" />
+    <Compile Include="Handlers\ScoreboardHandler.cs" />
     <Compile Include="Handlers\TopBarHandler.cs" />
     <Compile Include="Services\AgentHelper.cs" />
     <Compile Include="Services\LayerFinder.cs" />

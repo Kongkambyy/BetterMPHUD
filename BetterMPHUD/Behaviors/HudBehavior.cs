@@ -26,6 +26,7 @@ namespace BetterMPHUD.Behaviors
         private CameraSnapbackHandler _camera;
         private HealthNumbersHandler _healthNumbers;
         private CrosshairHandler _crosshair;
+        private ScoreboardHandler _scoreboard;
 
         public HudBehavior()
         {
@@ -35,6 +36,7 @@ namespace BetterMPHUD.Behaviors
             _camera = new CameraSnapbackHandler();
             _healthNumbers = new HealthNumbersHandler();
             _crosshair = new CrosshairHandler();
+            _scoreboard = new ScoreboardHandler(); 
         }
 
         public override MissionBehaviorType BehaviorType
@@ -153,6 +155,8 @@ namespace BetterMPHUD.Behaviors
             _menuVM.OnCleanupAvatarsRequested = OnCleanupAvatars;
             _menuVM.OnDebugAvatarStructure = () => _topBar.DebugAvatarStructure();
             _menuVM.OnBetterAvatarsToggled = OnBetterAvatarsToggled;
+            _menuVM.OnDebugScoreboardStructure = () => _scoreboard.DebugPrintStructure();
+            
 
             _configLayer = new GauntletLayer("GauntletLayer", 50, false);
             _configLayer.LoadMovie("HudConfig", _menuVM);
@@ -185,6 +189,7 @@ namespace BetterMPHUD.Behaviors
             _topBar.Apply(settings, Mission.Current);
             _agentStatus.Apply(settings, Mission.Current);
             _topBar.ApplyBetterAvatars(settings.BetterAvatarsEnabled);
+            _scoreboard.Apply(settings, Mission.Current);
 
             MissionScreen screen = ScreenManager.TopScreen as MissionScreen;
             if (screen != null)
@@ -240,6 +245,7 @@ namespace BetterMPHUD.Behaviors
                 if (_agentStatus != null) _agentStatus.Reset();
                 if (_camera != null) _camera.Reset();
                 if (_crosshair != null) _crosshair.Cleanup(screen);
+                if (_scoreboard != null) _scoreboard.Reset();
             }
             catch (Exception ex)
             {

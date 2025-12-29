@@ -47,6 +47,15 @@ namespace BetterMPHUD
         
         public float AllyAvatarsSpacing { get; set; } = 0f;
         public float EnemyAvatarsSpacing { get; set; } = 0f;
+        
+        public bool ScoreboardBackgroundEnabled { get; set; } = true;
+        public float ScoreboardBackgroundOpacity { get; set; } = 0.8f;
+        public bool ScoreboardStripingEnabled { get; set; } = true;
+        public float ScoreboardStripingOpacity { get; set; } = 0.2f;
+        public float ScoreboardDeadPlayerOpacity { get; set; } = 0.3f;
+        public string ScoreboardDeadPlayerColor { get; set; } = ""; 
+        public bool ScoreboardDeadPlayerTintEnabled { get; set; } = false;
+        public bool HideUIWhenScoreboardOpen { get; set; } = false;
 
         public ElementCustomization TimeAndScoresCustom { get; set; }
         public ElementCustomization TeamAvatarsCustom { get; set; }
