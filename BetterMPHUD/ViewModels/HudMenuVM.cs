@@ -1,193 +1,221 @@
 ﻿using System;
 using TaleWorlds.Library;
-using TaleWorlds.MountAndBlade;
-using BetterMPHUD.Core;
+using BetterMPHUD.ViewModels.Settings;
 
 namespace BetterMPHUD.ViewModels
 {
     public class HudMenuVM : ViewModel
     {
         private HudSettings _settings;
-        private ElementEditorVM _topBarEditor;
-        private ElementEditorVM _hpEditor;
-        private int _selectedProfileIndex;
-        private int _newProfileCounter = 1;
-        private string _tempProfileName;
-        
-        public Action OnDebugAvatarStructure;
-        public Action<bool> OnBetterAvatarsToggled;
-
         private bool _isConfigMenuOpen;
-        private string _currentPage = "Killfeed";
-        private ElementEditorVM _avatarSideEditor;
-        private int _selectedAvatarSide = 0;
-        
-        private MBBindingList<ColorItemVM> _crosshairColorList;
-        private MBBindingList<ColorItemVM> _dotColorList;
 
+        // Sub ViewModels
+        private NavigationVM _navigation;
+        private ProfileManagerVM _profileManager;
+        private KillfeedSettingsVM _killfeed;
+        private CrosshairSettingsVM _crosshair;
+        private DotSettingsVM _dot;
+        private TopBarSettingsVM _topBar;
+        private AvatarSettingsVM _avatar;
+        private AgentStatusSettingsVM _agentStatus;
+        private ScoreboardSettingsVM _scoreboard;
+        private ChatSettingsVM _chat;
+        private MiscSettingsVM _misc;
+        private VisibilitySettingsVM _visibility;
+
+        // External callbacks
         public Action OnCloseConfigMenu;
         public Action<bool> OnWarbandKillfeedToggled;
         public Action OnHudSettingsChanged;
         public Action OnCleanupAvatarsRequested;
         public Action OnDebugScoreboardStructure;
-        
         public Action OnDebugChatStructure;
         public Action<bool> OnChatToggled;
-        
-        public void ExecuteDebugScoreboard()
-        {
-            if (OnDebugScoreboardStructure != null)
-                OnDebugScoreboardStructure();
-        }
+        public Action OnDebugAvatarStructure;
+        public Action<bool> OnBetterAvatarsToggled;
+
         public HudMenuVM()
         {
             _settings = ConfigManager.LoadSettings();
-    
-            _topBarEditor = new ElementEditorVM(0, _settings.TimeAndScoresCustom, "Time & Scores");
-            _topBarEditor.SetOnChanged(OnSettingsChanged);
-
-            _hpEditor = new ElementEditorVM(0, _settings.AgentHealthCustom, "Agent Health");
-            _hpEditor.SetOnChanged(OnSettingsChanged);
-            _selectedProfileIndex = ProfileManager.GetActiveProfileIndex();
-            _tempProfileName = ProfileManager.GetActiveProfile().Name;
-            _avatarSideEditor = new ElementEditorVM(0, _settings.AllyAvatarsCustom, "Ally (Left)");
-            _avatarSideEditor.SetOnChanged(OnSettingsChanged);
-
-            ApplyNativeKillfeedSetting();
+            InitializeSubViewModels();
+            WireUpCallbacks();
         }
-        
-        [DataSourceProperty]
-        public bool AvatarSortingEnabled 
-        { 
-            get { return _settings.AvatarSortingEnabled; } 
-            set 
-            { 
-                if (_settings.AvatarSortingEnabled != value) 
-                { 
-                    _settings.AvatarSortingEnabled = value; 
-                    OnPropertyChangedWithValue(value, "AvatarSortingEnabled"); 
-                    OnSettingsChanged(); 
-                } 
-            } 
+
+        private void InitializeSubViewModels()
+        {
+            _navigation = new NavigationVM();
+            _navigation.SetOnPageChanged(OnNavigationChanged);
+            _profileManager = new ProfileManagerVM(OnProfileChanged);
+            _profileManager.SetOnPropertyRefresh(RefreshProfileProperties);
+            _killfeed = new KillfeedSettingsVM(_settings, OnSettingsChanged);
+            _crosshair = new CrosshairSettingsVM(_settings, OnSettingsChanged);
+            _dot = new DotSettingsVM(_settings, OnSettingsChanged);
+            _topBar = new TopBarSettingsVM(_settings, OnSettingsChanged);
+            _avatar = new AvatarSettingsVM(_settings, OnSettingsChanged);
+            _agentStatus = new AgentStatusSettingsVM(_settings, OnSettingsChanged);
+            _scoreboard = new ScoreboardSettingsVM(_settings, OnSettingsChanged);
+            _chat = new ChatSettingsVM(_settings, OnSettingsChanged);
+            _misc = new MiscSettingsVM(_settings, OnSettingsChanged);
+            _visibility = new VisibilitySettingsVM(_settings, OnSettingsChanged);
+        }
+
+        private void WireUpCallbacks()
+        {
+            // External callbacks
+            _killfeed.OnWarbandKillfeedToggled = (enabled) => OnWarbandKillfeedToggled?.Invoke(enabled);
+            _avatar.OnBetterAvatarsToggled = (enabled) => OnBetterAvatarsToggled?.Invoke(enabled);
+            _avatar.OnCleanupAvatarsRequested = () => OnCleanupAvatarsRequested?.Invoke();
+            _scoreboard.OnDebugScoreboardStructure = () => OnDebugScoreboardStructure?.Invoke();
+            _chat.OnChatToggled = (enabled) => OnChatToggled?.Invoke(enabled);
+            _chat.OnDebugChatStructure = () => OnDebugChatStructure?.Invoke();
+
+            // Property refresh callbacks
+            _killfeed.SetOnPropertyRefresh(RefreshKillfeedProperties);
+            _crosshair.SetOnPropertyRefresh(RefreshCrosshairProperties);
+            _dot.SetOnPropertyRefresh(RefreshDotProperties);
+            _topBar.SetOnPropertyRefresh(RefreshTopBarProperties);
+            _avatar.SetOnPropertyRefresh(RefreshAvatarProperties);
+            _agentStatus.SetOnPropertyRefresh(RefreshAgentStatusProperties);
+            _scoreboard.SetOnPropertyRefresh(RefreshScoreboardProperties);
+            _chat.SetOnPropertyRefresh(RefreshChatProperties);
+            _misc.SetOnPropertyRefresh(RefreshMiscProperties);
+            _visibility.SetOnPropertyRefresh(RefreshVisibilityProperties);
+        }
+
+        private void RefreshKillfeedProperties()
+        {
+            OnPropertyChangedWithValue(KillfeedOffsetXText, "KillfeedOffsetXText");
+            OnPropertyChangedWithValue(KillfeedOffsetYText, "KillfeedOffsetYText");
+            OnPropertyChangedWithValue(KillfeedScaleText, "KillfeedScaleText");
+            OnPropertyChangedWithValue(KillfeedFadeoutTimeText, "KillfeedFadeoutTimeText");
+            OnPropertyChangedWithValue(KillfeedMaxEntriesText, "KillfeedMaxEntriesText");
+            OnPropertyChangedWithValue(KillfeedBackgroundOpacityText, "KillfeedBackgroundOpacityText");
+            OnPropertyChangedWithValue(KillfeedBackgroundColorText, "KillfeedBackgroundColorText");
+            OnPropertyChangedWithValue(NativeKillfeedEnabled, "NativeKillfeedEnabled");
+            OnPropertyChangedWithValue(WarbandKillfeedEnabled, "WarbandKillfeedEnabled");
+            OnPropertyChangedWithValue(KillfeedBackgroundEnabled, "KillfeedBackgroundEnabled");
+        }
+
+        private void RefreshCrosshairProperties()
+        {
+            OnPropertyChangedWithValue(CustomCrosshairEnabled, "CustomCrosshairEnabled");
+            OnPropertyChangedWithValue(CrosshairWidthInt, "CrosshairWidthInt");
+            OnPropertyChangedWithValue(CrosshairLengthInt, "CrosshairLengthInt");
+            OnPropertyChangedWithValue(CrosshairOffsetInt, "CrosshairOffsetInt");
+            OnPropertyChangedWithValue(CrosshairOpacityFloat, "CrosshairOpacityFloat");
+            OnPropertyChangedWithValue(CrosshairWidthText, "CrosshairWidthText");
+            OnPropertyChangedWithValue(CrosshairLengthText, "CrosshairLengthText");
+            OnPropertyChangedWithValue(CrosshairOffsetText, "CrosshairOffsetText");
+            OnPropertyChangedWithValue(CrosshairOpacityText, "CrosshairOpacityText");
+            OnPropertyChangedWithValue(CrosshairColorText, "CrosshairColorText");
+        }
+
+        private void RefreshDotProperties()
+        {
+            OnPropertyChangedWithValue(DotEnabled, "DotEnabled");
+            OnPropertyChangedWithValue(DotWidthInt, "DotWidthInt");
+            OnPropertyChangedWithValue(DotHeightInt, "DotHeightInt");
+            OnPropertyChangedWithValue(DotWidthText, "DotWidthText");
+            OnPropertyChangedWithValue(DotHeightText, "DotHeightText");
+            OnPropertyChangedWithValue(DotColorText, "DotColorText");
+            OnPropertyChangedWithValue(DotOffsetXText, "DotOffsetXText");
+            OnPropertyChangedWithValue(DotOffsetYText, "DotOffsetYText");
+        }
+
+        private void RefreshTopBarProperties()
+        {
+            OnPropertyChangedWithValue(SelectedElementIndex, "SelectedElementIndex");
+            OnPropertyChangedWithValue(SelectedElementName, "SelectedElementName");
+            OnPropertyChangedWithValue(CurrentOffsetXText, "CurrentOffsetXText");
+            OnPropertyChangedWithValue(CurrentOffsetYText, "CurrentOffsetYText");
+            OnPropertyChangedWithValue(CurrentScaleText, "CurrentScaleText");
+        }
+
+        private void RefreshAvatarProperties()
+        {
+            OnPropertyChangedWithValue(SelectedAvatarSideName, "SelectedAvatarSideName");
+            OnPropertyChangedWithValue(CurrentAvatarOffsetXText, "CurrentAvatarOffsetXText");
+            OnPropertyChangedWithValue(CurrentAvatarOffsetYText, "CurrentAvatarOffsetYText");
+            OnPropertyChangedWithValue(CurrentAvatarScaleText, "CurrentAvatarScaleText");
+            OnPropertyChangedWithValue(CurrentAvatarOrientationText, "CurrentAvatarOrientationText");
+            OnPropertyChangedWithValue(CurrentAvatarSpacingText, "CurrentAvatarSpacingText");
+            OnPropertyChangedWithValue(IsAllyAvatarSelected, "IsAllyAvatarSelected");
+            OnPropertyChangedWithValue(IsEnemyAvatarSelected, "IsEnemyAvatarSelected");
+            OnPropertyChangedWithValue(BetterAvatarsEnabled, "BetterAvatarsEnabled");
+            OnPropertyChangedWithValue(AvatarSortingEnabled, "AvatarSortingEnabled");
+        }
+
+        private void RefreshAgentStatusProperties()
+        {
+            OnPropertyChangedWithValue(SelectedHPElementIndex, "SelectedHPElementIndex");
+            OnPropertyChangedWithValue(SelectedHPElementName, "SelectedHPElementName");
+            OnPropertyChangedWithValue(CurrentHPOffsetXText, "CurrentHPOffsetXText");
+            OnPropertyChangedWithValue(CurrentHPOffsetYText, "CurrentHPOffsetYText");
+            OnPropertyChangedWithValue(CurrentHPScaleText, "CurrentHPScaleText");
+        }
+
+        private void RefreshScoreboardProperties()
+        {
+            OnPropertyChangedWithValue(ScoreboardBackgroundEnabled, "ScoreboardBackgroundEnabled");
+            OnPropertyChangedWithValue(ScoreboardStripingEnabled, "ScoreboardStripingEnabled");
+            OnPropertyChangedWithValue(ScoreboardDeadPlayerTintEnabled, "ScoreboardDeadPlayerTintEnabled");
+            OnPropertyChangedWithValue(HideUIWhenScoreboardOpen, "HideUIWhenScoreboardOpen");
+            OnPropertyChangedWithValue(ScoreboardBackgroundOpacityText, "ScoreboardBackgroundOpacityText");
+            OnPropertyChangedWithValue(ScoreboardStripingOpacityText, "ScoreboardStripingOpacityText");
+            OnPropertyChangedWithValue(ScoreboardDeadPlayerOpacityText, "ScoreboardDeadPlayerOpacityText");
+        }
+
+        private void RefreshChatProperties()
+        {
+            OnPropertyChangedWithValue(ShowChat, "ShowChat");
+            OnPropertyChangedWithValue(ChatMinimalMode, "ChatMinimalMode");
+            OnPropertyChangedWithValue(ChatOffsetXText, "ChatOffsetXText");
+            OnPropertyChangedWithValue(ChatOffsetYText, "ChatOffsetYText");
+            OnPropertyChangedWithValue(ChatScaleText, "ChatScaleText");
+        }
+
+        private void RefreshMiscProperties()
+        {
+            OnPropertyChangedWithValue(CameraSnapbackEnabledProp, "CameraSnapbackEnabledProp");
+        }
+
+        private void RefreshVisibilityProperties()
+        {
+            OnPropertyChangedWithValue(ShowTimeAndScores, "ShowTimeAndScores");
+            OnPropertyChangedWithValue(ShowAvatars, "ShowAvatars");
+            OnPropertyChangedWithValue(ShowEnemyScore, "ShowEnemyScore");
+            OnPropertyChangedWithValue(ShowBanners, "ShowBanners");
+            OnPropertyChangedWithValue(ShowMorale, "ShowMorale");
+            OnPropertyChangedWithValue(ShowPowerLevel, "ShowPowerLevel");
+            OnPropertyChangedWithValue(ShowAgentHealth, "ShowAgentHealth");
+            OnPropertyChangedWithValue(ShowMountHealth, "ShowMountHealth");
+            OnPropertyChangedWithValue(ShowShieldHealth, "ShowShieldHealth");
+            OnPropertyChangedWithValue(ShowWeaponInfo, "ShowWeaponInfo");
+            OnPropertyChangedWithValue(ShowAmmoCount, "ShowAmmoCount");
+            OnPropertyChangedWithValue(ShowGoldAmount, "ShowGoldAmount");
+            OnPropertyChangedWithValue(ShowTroopCount, "ShowTroopCount");
+            OnPropertyChangedWithValue(ShowCouchLanceState, "ShowCouchLanceState");
+            OnPropertyChangedWithValue(ShowDamageFeed, "ShowDamageFeed");
+            OnPropertyChangedWithValue(ShowHealthNumbers, "ShowHealthNumbers");
+            OnPropertyChangedWithValue(ShowMountHealthNumbers, "ShowMountHealthNumbers");
+            OnPropertyChangedWithValue(ShowShieldHealthNumbers, "ShowShieldHealthNumbers");
+        }
+
+        private void RefreshProfileProperties()
+        {
+            OnPropertyChangedWithValue(CurrentProfileName, "CurrentProfileName");
+            OnPropertyChangedWithValue(IsSaveNameButtonVisible, "IsSaveNameButtonVisible");
+            OnPropertyChangedWithValue(ProfileCountText, "ProfileCountText");
+            OnPropertyChangedWithValue(CanDeleteProfile, "CanDeleteProfile");
         }
 
         private void OnSettingsChanged()
         {
             ConfigManager.SaveSettings(_settings);
-            if (OnHudSettingsChanged != null)
-                OnHudSettingsChanged();
+            OnHudSettingsChanged?.Invoke();
         }
 
-        private void ApplyNativeKillfeedSetting()
-        {
-            float value = _settings.NativeKillfeedEnabled ? 0f : 2f;
-            ManagedOptions.SetConfig(ManagedOptions.ManagedOptionsType.ReportCasualtiesType, value);
-        }
-
-        public HudSettings GetSettings() { return _settings; }
-
-        public void ExecuteClose() 
-        { 
-            if (OnCloseConfigMenu != null) 
-                OnCloseConfigMenu(); 
-        }
-        
-        public void ExecuteDebugAvatarStructure()
-        {
-            if (OnDebugAvatarStructure != null)
-                OnDebugAvatarStructure();
-        }
-        
-        private void SetPage(string page) 
-        { 
-            _currentPage = page; 
-            RefreshPageVisibility(); 
-        }
-        
-        private void InitializeCrosshairColorList()
-        {
-            _crosshairColorList = new MBBindingList<ColorItemVM>();
-            _dotColorList = new MBBindingList<ColorItemVM>();
-
-            string[] colors = new string[]
-            {
-                "#FF0000FF", "#00FF00FF", "#0000FFFF", "#FFFFFFFF",
-                "#FFFF00FF", "#00FFFFFF", "#FF00FFFF", "#FFA500FF",
-                "#FF6666FF", "#66FF66FF", "#6666FFFF", "#000000FF",
-                "#888888FF", "#FF1493FF", "#8B4513FF", "#4B0082FF"
-            };
-
-            foreach (string color in colors)
-            {
-                _crosshairColorList.Add(new ColorItemVM(color, OnCrosshairColorSelected));
-                _dotColorList.Add(new ColorItemVM(color, OnDotColorSelected));
-            }
-
-            SelectCurrentCrosshairColor();
-            SelectCurrentDotColor();
-        }
-        
-        private void AdjustDotOffsetX(int delta)
-        {
-            int newValue = _settings.CrosshairSettings.DotOffsetX + delta;
-            if (newValue >= -200 && newValue <= 200)
-            {
-                _settings.CrosshairSettings.DotOffsetX = newValue;
-                OnPropertyChangedWithValue(DotOffsetXText, "DotOffsetXText");
-                OnSettingsChanged();
-            }
-        }
-
-        private void AdjustDotOffsetY(int delta)
-        {
-            int newValue = _settings.CrosshairSettings.DotOffsetY + delta;
-            if (newValue >= -200 && newValue <= 200)
-            {
-                _settings.CrosshairSettings.DotOffsetY = newValue;
-                OnPropertyChangedWithValue(DotOffsetYText, "DotOffsetYText");
-                OnSettingsChanged();
-            }
-        }
-        
-        public void ExecuteIncreaseDotOffsetX() { AdjustDotOffsetX(1); }
-        public void ExecuteDecreaseDotOffsetX() { AdjustDotOffsetX(-1); }
-        public void ExecuteIncreaseDotOffsetXLarge() { AdjustDotOffsetX(5); }
-        public void ExecuteDecreaseDotOffsetXLarge() { AdjustDotOffsetX(-5); }
-        public void ExecuteIncreaseDotOffsetY() { AdjustDotOffsetY(1); }
-        public void ExecuteDecreaseDotOffsetY() { AdjustDotOffsetY(-1); }
-        public void ExecuteIncreaseDotOffsetYLarge() { AdjustDotOffsetY(5); }
-        public void ExecuteDecreaseDotOffsetYLarge() { AdjustDotOffsetY(-5); }
-        
-        [DataSourceProperty] 
-        public string DotOffsetXText { get { return _settings.CrosshairSettings.DotOffsetX.ToString(); } }
-
-        [DataSourceProperty] 
-        public string DotOffsetYText { get { return _settings.CrosshairSettings.DotOffsetY.ToString(); } }
-        
-        
-        
-        public void ExecuteOpenKillfeedPage() { SetPage("Killfeed"); }
-        public void ExecuteOpenTopBarPage() { SetPage("TopBar"); }
-        public void ExecuteOpenVisibilityPage() { SetPage("Visibility"); }
-        public void ExecuteOpenCustomizePage() { SetPage("Customize"); }
-        public void ExecuteOpenChatPage() { SetPage("Chat"); }
-        public void ExecuteOpenLeaderboardPage() { SetPage("Leaderboard"); }
-        public void ExecuteOpenHPPage() { SetPage("HP"); }
-        public void ExecuteOpenHPVisibilityPage() { SetPage("HPVisibility"); }
-        public void ExecuteOpenHPCustomizePage() { SetPage("HPCustomize"); }
-        public void ExecuteOpenCrosshairPage() { SetPage("Crosshair"); }
-        public void ExecuteOpenCrosshairSettingsPage() { SetPage("CrosshairSettings"); }
-        public void ExecuteOpenDotSettingsPage() { SetPage("DotSettings"); }
-        public void ExecuteOpenMiscPage() { SetPage("Misc"); }
-        public void ExecuteBackToTopBar() { SetPage("TopBar"); }
-        public void ExecuteBackToHP() { SetPage("HP"); }
-        public void ExecuteBackToCrosshair() { SetPage("Crosshair"); }
-        public void ExecuteOpenProfilesPage() { SetPage("Profiles"); }
-        public void ExecuteOpenAvatarSidesPage() { SetPage("AvatarSides"); }
-        public void ExecuteBackToCustomize() { SetPage("Customize"); }
-        
-
-        private void RefreshPageVisibility()
+        private void OnNavigationChanged()
         {
             OnPropertyChangedWithValue(IsKillfeedPageOpen, "IsKillfeedPageOpen");
             OnPropertyChangedWithValue(IsTopBarPageOpen, "IsTopBarPageOpen");
@@ -202,1359 +230,463 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(IsCrosshairSettingsPageOpen, "IsCrosshairSettingsPageOpen");
             OnPropertyChangedWithValue(IsDotSettingsPageOpen, "IsDotSettingsPageOpen");
             OnPropertyChangedWithValue(IsMiscPageOpen, "IsMiscPageOpen");
-            OnPropertyChangedWithValue(ShouldShiftMenuRight, "ShouldShiftMenuRight");
-            OnPropertyChangedWithValue(MenuHorizontalOffset, "MenuHorizontalOffset");
             OnPropertyChangedWithValue(IsProfilesPageOpen, "IsProfilesPageOpen");
             OnPropertyChangedWithValue(IsAvatarSidesPageOpen, "IsAvatarSidesPageOpen");
             OnPropertyChangedWithValue(IsScoreboardPageOpen, "IsScoreboardPageOpen");
+            OnPropertyChangedWithValue(ShouldShiftMenuRight, "ShouldShiftMenuRight");
+            OnPropertyChangedWithValue(MenuHorizontalOffset, "MenuHorizontalOffset");
         }
 
-        public void ExecuteSelectTimeAndScores() { _topBarEditor.SelectElement(0, "Time & Scores", _settings.TimeAndScoresCustom); RefreshTopBarDisplay(); }
-        public void ExecuteSelectTeamAvatars() { _topBarEditor.SelectElement(1, "Team Avatars", _settings.TeamAvatarsCustom); RefreshTopBarDisplay(); }
-        public void ExecuteSelectMorale() { _topBarEditor.SelectElement(2, "Morale", _settings.MoraleCustom); RefreshTopBarDisplay(); }
-
-        public void ExecuteSelectAgentHealth() { _hpEditor.SelectElement(0, "Agent Health", _settings.AgentHealthCustom); RefreshHPDisplay(); }
-        public void ExecuteSelectMountHealth() { _hpEditor.SelectElement(1, "Mount Health", _settings.MountHealthCustom); RefreshHPDisplay(); }
-        public void ExecuteSelectShieldHealth() { _hpEditor.SelectElement(2, "Shield Health", _settings.ShieldHealthCustom); RefreshHPDisplay(); }
-        public void ExecuteSelectWeaponInfo() { _hpEditor.SelectElement(3, "Weapon Info", _settings.WeaponInfoCustom); RefreshHPDisplay(); }
-        public void ExecuteSelectGoldAmount() { _hpEditor.SelectElement(4, "Gold Amount", _settings.GoldAmountCustom); RefreshHPDisplay(); }
-        public void ExecuteSelectTroopCount() { _hpEditor.SelectElement(5, "Troop Count", _settings.TroopCountCustom); RefreshHPDisplay(); }
-        public void ExecuteSelectDamageFeed() { _hpEditor.SelectElement(6, "Damage Feed", _settings.DamageFeedCustom); RefreshHPDisplay(); }
-
-        private void RefreshTopBarDisplay()
+        private void OnProfileChanged()
         {
-            OnPropertyChangedWithValue(SelectedElementIndex, "SelectedElementIndex");
-            OnPropertyChangedWithValue(SelectedElementName, "SelectedElementName");
-            OnPropertyChangedWithValue(CurrentOffsetXText, "CurrentOffsetXText");
-            OnPropertyChangedWithValue(CurrentOffsetYText, "CurrentOffsetYText");
-            OnPropertyChangedWithValue(CurrentScaleText, "CurrentScaleText");
+            _settings = BetterMPHUD.ProfileManager.GetActiveSettings();
+            RecreateSubViewModels();
+            RefreshAllSettings();
+            OnHudSettingsChanged?.Invoke();
         }
 
-        private void RefreshHPDisplay()
+        private void RecreateSubViewModels()
         {
-            OnPropertyChangedWithValue(SelectedHPElementIndex, "SelectedHPElementIndex");
-            OnPropertyChangedWithValue(SelectedHPElementName, "SelectedHPElementName");
-            OnPropertyChangedWithValue(CurrentHPOffsetXText, "CurrentHPOffsetXText");
-            OnPropertyChangedWithValue(CurrentHPOffsetYText, "CurrentHPOffsetYText");
-            OnPropertyChangedWithValue(CurrentHPScaleText, "CurrentHPScaleText");
+            _killfeed = new KillfeedSettingsVM(_settings, OnSettingsChanged);
+            _crosshair = new CrosshairSettingsVM(_settings, OnSettingsChanged);
+            _dot = new DotSettingsVM(_settings, OnSettingsChanged);
+            _topBar = new TopBarSettingsVM(_settings, OnSettingsChanged);
+            _avatar = new AvatarSettingsVM(_settings, OnSettingsChanged);
+            _agentStatus = new AgentStatusSettingsVM(_settings, OnSettingsChanged);
+            _scoreboard = new ScoreboardSettingsVM(_settings, OnSettingsChanged);
+            _chat = new ChatSettingsVM(_settings, OnSettingsChanged);
+            _misc = new MiscSettingsVM(_settings, OnSettingsChanged);
+            _visibility = new VisibilitySettingsVM(_settings, OnSettingsChanged);
+            WireUpCallbacks();
         }
 
-        public void ExecuteIncreaseOffsetX() { _topBarEditor.AdjustOffsetX(Constants.Adjustment.PositionStep); RefreshTopBarDisplay(); }
-        public void ExecuteDecreaseOffsetX() { _topBarEditor.AdjustOffsetX(-Constants.Adjustment.PositionStep); RefreshTopBarDisplay(); }
-        public void ExecuteIncreaseOffsetY() { _topBarEditor.AdjustOffsetY(Constants.Adjustment.PositionStep); RefreshTopBarDisplay(); }
-        public void ExecuteDecreaseOffsetY() { _topBarEditor.AdjustOffsetY(-Constants.Adjustment.PositionStep); RefreshTopBarDisplay(); }
-        public void ExecuteIncreaseOffsetXLarge() { _topBarEditor.AdjustOffsetX(Constants.Adjustment.PositionStepLarge); RefreshTopBarDisplay(); }
-        public void ExecuteDecreaseOffsetXLarge() { _topBarEditor.AdjustOffsetX(-Constants.Adjustment.PositionStepLarge); RefreshTopBarDisplay(); }
-        public void ExecuteIncreaseOffsetYLarge() { _topBarEditor.AdjustOffsetY(Constants.Adjustment.PositionStepLarge); RefreshTopBarDisplay(); }
-        public void ExecuteDecreaseOffsetYLarge() { _topBarEditor.AdjustOffsetY(-Constants.Adjustment.PositionStepLarge); RefreshTopBarDisplay(); }
-        public void ExecuteIncreaseScale() { _topBarEditor.AdjustScale(Constants.Adjustment.ScaleStep); RefreshTopBarDisplay(); }
-        public void ExecuteDecreaseScale() { _topBarEditor.AdjustScale(-Constants.Adjustment.ScaleStep); RefreshTopBarDisplay(); }
-        public void ExecuteIncreaseScaleLarge() { _topBarEditor.AdjustScale(Constants.Adjustment.ScaleStepLarge); RefreshTopBarDisplay(); }
-        public void ExecuteDecreaseScaleLarge() { _topBarEditor.AdjustScale(-Constants.Adjustment.ScaleStepLarge); RefreshTopBarDisplay(); }
-        public void ExecuteResetElement() { _topBarEditor.Reset(); RefreshTopBarDisplay(); }
-
-        public void ExecuteResetAllElements()
+        private void RefreshAllSettings()
         {
-            _settings.TimeAndScoresCustom.Reset();
-            _settings.TeamAvatarsCustom.Reset();
-            _settings.MoraleCustom.Reset();
-            ExecuteSelectTimeAndScores();
-            OnSettingsChanged();
+            _killfeed.RefreshAll();
+            _crosshair.RefreshAll();
+            _dot.RefreshAll();
+            _topBar.RefreshAll();
+            _avatar.RefreshAll();
+            _agentStatus.RefreshAll();
+            _scoreboard.RefreshAll();
+            _chat.RefreshAll();
+            _misc.RefreshAll();
+            _visibility.RefreshAll();
         }
 
-        public void ExecuteIncreaseHPOffsetX() { _hpEditor.AdjustOffsetX(Constants.Adjustment.PositionStep); RefreshHPDisplay(); }
-        public void ExecuteDecreaseHPOffsetX() { _hpEditor.AdjustOffsetX(-Constants.Adjustment.PositionStep); RefreshHPDisplay(); }
-        public void ExecuteIncreaseHPOffsetY() { _hpEditor.AdjustOffsetY(Constants.Adjustment.PositionStep); RefreshHPDisplay(); }
-        public void ExecuteDecreaseHPOffsetY() { _hpEditor.AdjustOffsetY(-Constants.Adjustment.PositionStep); RefreshHPDisplay(); }
-        public void ExecuteIncreaseHPOffsetXLarge() { _hpEditor.AdjustOffsetX(Constants.Adjustment.PositionStepLarge); RefreshHPDisplay(); }
-        public void ExecuteDecreaseHPOffsetXLarge() { _hpEditor.AdjustOffsetX(-Constants.Adjustment.PositionStepLarge); RefreshHPDisplay(); }
-        public void ExecuteIncreaseHPOffsetYLarge() { _hpEditor.AdjustOffsetY(Constants.Adjustment.PositionStepLarge); RefreshHPDisplay(); }
-        public void ExecuteDecreaseHPOffsetYLarge() { _hpEditor.AdjustOffsetY(-Constants.Adjustment.PositionStepLarge); RefreshHPDisplay(); }
-        public void ExecuteIncreaseHPScale() { _hpEditor.AdjustScale(Constants.Adjustment.ScaleStep); RefreshHPDisplay(); }
-        public void ExecuteDecreaseHPScale() { _hpEditor.AdjustScale(-Constants.Adjustment.ScaleStep); RefreshHPDisplay(); }
-        public void ExecuteIncreaseHPScaleLarge() { _hpEditor.AdjustScale(Constants.Adjustment.ScaleStepLarge); RefreshHPDisplay(); }
-        public void ExecuteDecreaseHPScaleLarge() { _hpEditor.AdjustScale(-Constants.Adjustment.ScaleStepLarge); RefreshHPDisplay(); }
-        public void ExecuteResetHPElement() { _hpEditor.Reset(); RefreshHPDisplay(); }
+        public HudSettings GetSettings() => _settings;
 
-        public void ExecuteResetAllHPElements()
+        public void ExecuteClose() => OnCloseConfigMenu?.Invoke();
+
+        public void ExecuteDebugAvatarStructure() => OnDebugAvatarStructure?.Invoke();
+
+        [DataSourceProperty]
+        public bool IsConfigMenuOpen
         {
-            _settings.AgentHealthCustom.Reset();
-            _settings.MountHealthCustom.Reset();
-            _settings.ShieldHealthCustom.Reset();
-            _settings.WeaponInfoCustom.Reset();
-            _settings.GoldAmountCustom.Reset();
-            _settings.TroopCountCustom.Reset();
-            _settings.DamageFeedCustom.Reset();
-            ExecuteSelectAgentHealth();
-            OnSettingsChanged();
-        }
-
-        private void AdjustFadeout(float delta)
-        {
-            float newTime = _settings.KillfeedFadeoutTime + delta;
-            if (newTime >= Constants.Adjustment.MinFadeout && newTime <= Constants.Adjustment.MaxFadeout)
-            {
-                _settings.KillfeedFadeoutTime = newTime;
-                OnPropertyChangedWithValue(KillfeedFadeoutTimeText, "KillfeedFadeoutTimeText");
-                OnSettingsChanged();
-            }
-        }
-
-        public void ExecuteIncreaseFadeoutTime() { AdjustFadeout(Constants.Adjustment.FadeoutStep); }
-        public void ExecuteDecreaseFadeoutTime() { AdjustFadeout(-Constants.Adjustment.FadeoutStep); }
-        public void ExecuteIncreaseFadeoutTimeLarge() { AdjustFadeout(5f); }
-        public void ExecuteDecreaseFadeoutTimeLarge() { AdjustFadeout(-5f); }
-
-        private void AdjustKillfeedOffset(float dx, float dy)
-        {
-            _settings.KillfeedCustom.OffsetX += dx;
-            _settings.KillfeedCustom.OffsetY += dy;
-            RefreshKillfeedDisplay();
-        }
-
-        private void AdjustKillfeedScale(float delta)
-        {
-            float newScale = _settings.KillfeedCustom.Scale + delta;
-            if (newScale >= Constants.Adjustment.MinScale && newScale <= Constants.Adjustment.MaxScale)
-            {
-                _settings.KillfeedCustom.Scale = (float)Math.Round(newScale, 2);
-                RefreshKillfeedDisplay();
-            }
-        }
-
-        public void ExecuteIncreaseKillfeedOffsetX() { AdjustKillfeedOffset(Constants.Adjustment.PositionStep, 0); }
-        public void ExecuteDecreaseKillfeedOffsetX() { AdjustKillfeedOffset(-Constants.Adjustment.PositionStep, 0); }
-        public void ExecuteIncreaseKillfeedOffsetY() { AdjustKillfeedOffset(0, Constants.Adjustment.PositionStep); }
-        public void ExecuteDecreaseKillfeedOffsetY() { AdjustKillfeedOffset(0, -Constants.Adjustment.PositionStep); }
-        public void ExecuteIncreaseKillfeedOffsetXLarge() { AdjustKillfeedOffset(Constants.Adjustment.PositionStepLarge, 0); }
-        public void ExecuteDecreaseKillfeedOffsetXLarge() { AdjustKillfeedOffset(-Constants.Adjustment.PositionStepLarge, 0); }
-        public void ExecuteIncreaseKillfeedOffsetYLarge() { AdjustKillfeedOffset(0, Constants.Adjustment.PositionStepLarge); }
-        public void ExecuteDecreaseKillfeedOffsetYLarge() { AdjustKillfeedOffset(0, -Constants.Adjustment.PositionStepLarge); }
-        public void ExecuteIncreaseKillfeedScale() { AdjustKillfeedScale(Constants.Adjustment.ScaleStep); }
-        public void ExecuteDecreaseKillfeedScale() { AdjustKillfeedScale(-Constants.Adjustment.ScaleStep); }
-        public void ExecuteIncreaseKillfeedScaleLarge() { AdjustKillfeedScale(Constants.Adjustment.ScaleStepLarge); }
-        public void ExecuteDecreaseKillfeedScaleLarge() { AdjustKillfeedScale(-Constants.Adjustment.ScaleStepLarge); }
-
-        private void AdjustKillfeedBackgroundOpacity(float delta)
-        {
-            float newValue = _settings.KillfeedBackgroundOpacity + delta;
-            if (newValue >= 0f && newValue <= 1f)
-            {
-                _settings.KillfeedBackgroundOpacity = (float)Math.Round(newValue, 2);
-                RefreshKillfeedDisplay();
-                
-                if (OnHudSettingsChanged != null)
-                    OnHudSettingsChanged();
-            }
-        }
-
-        public void ExecuteIncreaseKillfeedBackgroundOpacity() { AdjustKillfeedBackgroundOpacity(0.05f); }
-        public void ExecuteDecreaseKillfeedBackgroundOpacity() { AdjustKillfeedBackgroundOpacity(-0.05f); }
-        public void ExecuteIncreaseKillfeedBackgroundOpacityLarge() { AdjustKillfeedBackgroundOpacity(0.1f); }
-        public void ExecuteDecreaseKillfeedBackgroundOpacityLarge() { AdjustKillfeedBackgroundOpacity(-0.1f); }
-
-        public void ExecuteResetKillfeed()
-        {
-            _settings.KillfeedCustom.Reset();
-            _settings.KillfeedFadeoutTime = Constants.Adjustment.DefaultFadeout;
-            RefreshKillfeedDisplay();
-            OnPropertyChangedWithValue(KillfeedFadeoutTimeText, "KillfeedFadeoutTimeText");
-        }
-
-        private void RefreshKillfeedDisplay()
-        {
-            OnPropertyChangedWithValue(KillfeedOffsetXText, "KillfeedOffsetXText");
-            OnPropertyChangedWithValue(KillfeedOffsetYText, "KillfeedOffsetYText");
-            OnPropertyChangedWithValue(KillfeedScaleText, "KillfeedScaleText");
-            OnPropertyChangedWithValue(KillfeedBackgroundOpacityText, "KillfeedBackgroundOpacityText");
-            OnPropertyChangedWithValue(KillfeedBackgroundColorText, "KillfeedBackgroundColorText");
-            OnPropertyChangedWithValue(KillfeedBackgroundEnabled, "KillfeedBackgroundEnabled");
-            OnPropertyChangedWithValue(KillfeedMaxEntriesText, "KillfeedMaxEntriesText"); 
-            OnSettingsChanged();
-        }
-
-        
-        public void ExecuteSelectAllyAvatars() 
-        { 
-            _selectedAvatarSide = 0;
-            _avatarSideEditor.SelectElement(0, "Ally (Left)", _settings.AllyAvatarsCustom); 
-            RefreshAvatarSideDisplay(); 
-        }
-
-        public void ExecuteSelectEnemyAvatars() 
-        { 
-            _selectedAvatarSide = 1;
-            _avatarSideEditor.SelectElement(1, "Enemy (Right)", _settings.EnemyAvatarsCustom); 
-            RefreshAvatarSideDisplay(); 
-        }
-        
-        private void RefreshAvatarSideDisplay()
-        {
-            OnPropertyChangedWithValue(SelectedAvatarSideName, "SelectedAvatarSideName");
-            OnPropertyChangedWithValue(CurrentAvatarOffsetXText, "CurrentAvatarOffsetXText");
-            OnPropertyChangedWithValue(CurrentAvatarOffsetYText, "CurrentAvatarOffsetYText");
-            OnPropertyChangedWithValue(CurrentAvatarScaleText, "CurrentAvatarScaleText");
-            OnPropertyChangedWithValue(CurrentAvatarOrientationText, "CurrentAvatarOrientationText");
-            OnPropertyChangedWithValue(CurrentAvatarSpacingText, "CurrentAvatarSpacingText");
-            OnPropertyChangedWithValue(IsAllyAvatarSelected, "IsAllyAvatarSelected");
-            OnPropertyChangedWithValue(IsEnemyAvatarSelected, "IsEnemyAvatarSelected");
-        }
-        
-        private void AdjustCrosshairWidth(int delta)
-        {
-            int newValue = _settings.CrosshairSettings.SizeHorizontal + delta;
-            if (newValue >= 1 && newValue <= 75)
-            {
-                _settings.CrosshairSettings.SizeHorizontal = newValue;
-                RefreshCrosshairDisplay();
-            }
-        }
-        
-        private void AdjustAvatarSpacing(float delta)
-        {
-            if (_selectedAvatarSide == 0)
-            {
-                float newValue = _settings.AllyAvatarsSpacing + delta;
-                if (newValue >= -20f && newValue <= 50f)
-                    _settings.AllyAvatarsSpacing = newValue;
-            }
-            else
-            {
-                float newValue = _settings.EnemyAvatarsSpacing + delta;
-                if (newValue >= -20f && newValue <= 50f)
-                    _settings.EnemyAvatarsSpacing = newValue;
-            }
-            RefreshAvatarSideDisplay();
-            OnSettingsChanged();
-        }
-        
-        public void ExecuteIncreaseAvatarSpacing() { AdjustAvatarSpacing(1f); }
-        public void ExecuteDecreaseAvatarSpacing() { AdjustAvatarSpacing(-1f); }
-        public void ExecuteIncreaseAvatarSpacingLarge() { AdjustAvatarSpacing(5f); }
-        public void ExecuteDecreaseAvatarSpacingLarge() { AdjustAvatarSpacing(-5f); }
-
-        private void AdjustCrosshairLength(int delta)
-        {
-            int newValue = _settings.CrosshairSettings.SizeVertical + delta;
-            if (newValue >= 1 && newValue <= 75)
-            {
-                _settings.CrosshairSettings.SizeVertical = newValue;
-                RefreshCrosshairDisplay();
-            }
-        }
-
-        private void AdjustCrosshairOffset(int delta)
-        {
-            int newValue = _settings.CrosshairSettings.Offset + delta;
-            if (newValue >= 0 && newValue <= 15)
-            {
-                _settings.CrosshairSettings.Offset = newValue;
-                RefreshCrosshairDisplay();
-            }
-        }
-
-        private void AdjustCrosshairOpacity(float delta)
-        {
-            float newValue = _settings.CrosshairSettings.Opacity + delta;
-            if (newValue >= 0f && newValue <= 1f)
-            {
-                _settings.CrosshairSettings.Opacity = (float)Math.Round(newValue, 2);
-                RefreshCrosshairDisplay();
-            }
-        }
-        
-        public void ExecuteResetDot()
-        {
-            _settings.CrosshairSettings.DotEnabled = false;
-            _settings.CrosshairSettings.DotColor = "#FFFFFFFF";
-            _settings.CrosshairSettings.DotSizeWidth = 6;
-            _settings.CrosshairSettings.DotSizeHeight = 6;
-            _settings.CrosshairSettings.DotIsCircular = true;
-            _settings.CrosshairSettings.DotOffsetX = 0;      
-            _settings.CrosshairSettings.DotOffsetY = 0;      
-
-            OnPropertyChangedWithValue(DotEnabled, "DotEnabled");
-            OnPropertyChangedWithValue(DotWidthText, "DotWidthText");
-            OnPropertyChangedWithValue(DotHeightText, "DotHeightText");
-            OnPropertyChangedWithValue(DotColorText, "DotColorText");
-            OnPropertyChangedWithValue(DotOffsetXText, "DotOffsetXText"); 
-            OnPropertyChangedWithValue(DotOffsetYText, "DotOffsetYText");  
-
-            OnSettingsChanged();
-        }
-
-        private void AdjustDotWidth(int delta)
-        {
-            int newValue = _settings.CrosshairSettings.DotSizeWidth + delta;
-            if (newValue >= 1 && newValue <= 20)
-            {
-                _settings.CrosshairSettings.DotSizeWidth = newValue;
-                RefreshCrosshairDisplay();
-            }
-        }
-
-        private void AdjustDotHeight(int delta)
-        {
-            int newValue = _settings.CrosshairSettings.DotSizeHeight + delta;
-            if (newValue >= 1 && newValue <= 20)
-            {
-                _settings.CrosshairSettings.DotSizeHeight = newValue;
-                RefreshCrosshairDisplay();
-            }
-        }
-
-        public void ExecuteIncreaseCrosshairWidth() { AdjustCrosshairWidth(1); }
-        public void ExecuteDecreaseCrosshairWidth() { AdjustCrosshairWidth(-1); }
-        public void ExecuteIncreaseCrosshairWidthLarge() { AdjustCrosshairWidth(5); }
-        public void ExecuteDecreaseCrosshairWidthLarge() { AdjustCrosshairWidth(-5); }
-        public void ExecuteIncreaseCrosshairLength() { AdjustCrosshairLength(1); }
-        public void ExecuteDecreaseCrosshairLength() { AdjustCrosshairLength(-1); }
-        public void ExecuteIncreaseCrosshairLengthLarge() { AdjustCrosshairLength(5); }
-        public void ExecuteDecreaseCrosshairLengthLarge() { AdjustCrosshairLength(-5); }
-        public void ExecuteIncreaseCrosshairOffset() { AdjustCrosshairOffset(1); }
-        public void ExecuteDecreaseCrosshairOffset() { AdjustCrosshairOffset(-1); }
-        public void ExecuteIncreaseCrosshairOffsetLarge() { AdjustCrosshairOffset(5); }
-        public void ExecuteDecreaseCrosshairOffsetLarge() { AdjustCrosshairOffset(-5); }
-        public void ExecuteIncreaseCrosshairOpacity() { AdjustCrosshairOpacity(0.05f); }
-        public void ExecuteDecreaseCrosshairOpacity() { AdjustCrosshairOpacity(-0.05f); }
-        public void ExecuteIncreaseCrosshairOpacityLarge() { AdjustCrosshairOpacity(0.1f); }
-        public void ExecuteDecreaseCrosshairOpacityLarge() { AdjustCrosshairOpacity(-0.1f); }
-
-        public void ExecuteSetCrosshairColorRed() { _settings.CrosshairSettings.Color = "#FF0000FF"; RefreshCrosshairDisplay(); }
-        public void ExecuteSetCrosshairColorGreen() { _settings.CrosshairSettings.Color = "#00FF00FF"; RefreshCrosshairDisplay(); }
-        public void ExecuteSetCrosshairColorBlue() { _settings.CrosshairSettings.Color = "#0000FFFF"; RefreshCrosshairDisplay(); }
-        public void ExecuteSetCrosshairColorWhite() { _settings.CrosshairSettings.Color = "#FFFFFFFF"; RefreshCrosshairDisplay(); }
-        public void ExecuteSetCrosshairColorYellow() { _settings.CrosshairSettings.Color = "#FFFF00FF"; RefreshCrosshairDisplay(); }
-        public void ExecuteSetCrosshairColorCyan() { _settings.CrosshairSettings.Color = "#00FFFFFF"; RefreshCrosshairDisplay(); }
-        public void ExecuteSetCrosshairColorMagenta() { _settings.CrosshairSettings.Color = "#FF00FFFF"; RefreshCrosshairDisplay(); }
-        public void ExecuteSetCrosshairColorOrange() { _settings.CrosshairSettings.Color = "#FFA500FF"; RefreshCrosshairDisplay(); }
-
-        public void ExecuteIncreaseDotWidth() { AdjustDotWidth(1); }
-        public void ExecuteDecreaseDotWidth() { AdjustDotWidth(-1); }
-        public void ExecuteIncreaseDotWidthLarge() { AdjustDotWidth(2); }
-        public void ExecuteDecreaseDotWidthLarge() { AdjustDotWidth(-2); }
-        public void ExecuteIncreaseDotHeight() { AdjustDotHeight(1); }
-        public void ExecuteDecreaseDotHeight() { AdjustDotHeight(-1); }
-        public void ExecuteIncreaseDotHeightLarge() { AdjustDotHeight(2); }
-        public void ExecuteDecreaseDotHeightLarge() { AdjustDotHeight(-2); }
-
-        public void ExecuteSetDotColorRed() { _settings.CrosshairSettings.DotColor = "#FF0000FF"; RefreshCrosshairDisplay(); }
-        public void ExecuteSetDotColorGreen() { _settings.CrosshairSettings.DotColor = "#00FF00FF"; RefreshCrosshairDisplay(); }
-        public void ExecuteSetDotColorBlue() { _settings.CrosshairSettings.DotColor = "#0000FFFF"; RefreshCrosshairDisplay(); }
-        public void ExecuteSetDotColorWhite() { _settings.CrosshairSettings.DotColor = "#FFFFFFFF"; RefreshCrosshairDisplay(); }
-        public void ExecuteSetDotColorYellow() { _settings.CrosshairSettings.DotColor = "#FFFF00FF"; RefreshCrosshairDisplay(); }
-        public void ExecuteSetDotColorCyan() { _settings.CrosshairSettings.DotColor = "#00FFFFFF"; RefreshCrosshairDisplay(); }
-        public void ExecuteSetDotColorMagenta() { _settings.CrosshairSettings.DotColor = "#FF00FFFF"; RefreshCrosshairDisplay(); }
-        public void ExecuteSetDotColorOrange() { _settings.CrosshairSettings.DotColor = "#FFA500FF"; RefreshCrosshairDisplay(); }
-
-        public void ExecuteResetCrosshair()
-        {
-            _settings.CrosshairSettings.Reset();
-            
-            string resetColor = _settings.CrosshairSettings.Color;
-            if (_crosshairColorList != null)
-            {
-                foreach (var item in _crosshairColorList)
-                    item.IsSelected = string.Equals(item.ColorHex, resetColor, StringComparison.OrdinalIgnoreCase);
-            }
-    
-            OnPropertyChangedWithValue(CrosshairWidthInt, "CrosshairWidthInt");
-            OnPropertyChangedWithValue(CrosshairLengthInt, "CrosshairLengthInt");
-            OnPropertyChangedWithValue(CrosshairOffsetInt, "CrosshairOffsetInt");
-            OnPropertyChangedWithValue(CrosshairOpacityFloat, "CrosshairOpacityFloat");
-            OnPropertyChangedWithValue(CustomCrosshairEnabled, "CustomCrosshairEnabled");
-            OnPropertyChangedWithValue(DotEnabled, "DotEnabled");
-            OnPropertyChangedWithValue(DotColorText, "DotColorText");
-            OnPropertyChangedWithValue(DotWidthText, "DotWidthText");
-            OnPropertyChangedWithValue(DotHeightText, "DotHeightText");
-    
-            OnSettingsChanged();
-        }
-        
-        public void ExecuteIncreaseAvatarOffsetX() { _avatarSideEditor.AdjustOffsetX(Constants.Adjustment.PositionStep); RefreshAvatarSideDisplay(); }
-        public void ExecuteDecreaseAvatarOffsetX() { _avatarSideEditor.AdjustOffsetX(-Constants.Adjustment.PositionStep); RefreshAvatarSideDisplay(); }
-        public void ExecuteIncreaseAvatarOffsetY() { _avatarSideEditor.AdjustOffsetY(Constants.Adjustment.PositionStep); RefreshAvatarSideDisplay(); }
-        public void ExecuteDecreaseAvatarOffsetY() { _avatarSideEditor.AdjustOffsetY(-Constants.Adjustment.PositionStep); RefreshAvatarSideDisplay(); }
-        public void ExecuteIncreaseAvatarOffsetXLarge() { _avatarSideEditor.AdjustOffsetX(Constants.Adjustment.PositionStepLarge); RefreshAvatarSideDisplay(); }
-        public void ExecuteDecreaseAvatarOffsetXLarge() { _avatarSideEditor.AdjustOffsetX(-Constants.Adjustment.PositionStepLarge); RefreshAvatarSideDisplay(); }
-        public void ExecuteIncreaseAvatarOffsetYLarge() { _avatarSideEditor.AdjustOffsetY(Constants.Adjustment.PositionStepLarge); RefreshAvatarSideDisplay(); }
-        public void ExecuteDecreaseAvatarOffsetYLarge() { _avatarSideEditor.AdjustOffsetY(-Constants.Adjustment.PositionStepLarge); RefreshAvatarSideDisplay(); }
-        public void ExecuteIncreaseAvatarScale() { _avatarSideEditor.AdjustScale(Constants.Adjustment.ScaleStep); RefreshAvatarSideDisplay(); }
-        public void ExecuteDecreaseAvatarScale() { _avatarSideEditor.AdjustScale(-Constants.Adjustment.ScaleStep); RefreshAvatarSideDisplay(); }
-        public void ExecuteIncreaseAvatarScaleLarge() { _avatarSideEditor.AdjustScale(Constants.Adjustment.ScaleStepLarge); RefreshAvatarSideDisplay(); }
-        public void ExecuteDecreaseAvatarScaleLarge() { _avatarSideEditor.AdjustScale(-Constants.Adjustment.ScaleStepLarge); RefreshAvatarSideDisplay(); }
-        
-        public void ExecuteToggleAvatarSideOrientation()
-        {
-            if (_selectedAvatarSide == 0)
-                _settings.AllyAvatarsVertical = !_settings.AllyAvatarsVertical;
-            else
-                _settings.EnemyAvatarsVertical = !_settings.EnemyAvatarsVertical;
-    
-            RefreshAvatarSideDisplay();
-            OnSettingsChanged();
-        }
-
-        public void ExecuteResetAvatarSide() 
-        { 
-            _avatarSideEditor.Reset();
-            if (_selectedAvatarSide == 0)
-                _settings.AllyAvatarsVertical = false;
-            else
-                _settings.EnemyAvatarsVertical = false;
-            RefreshAvatarSideDisplay(); 
-        }
-
-        public void ExecuteResetAllAvatarSides()
-        {
-            _settings.AllyAvatarsCustom.Reset();
-            _settings.EnemyAvatarsCustom.Reset();
-            _settings.AllyAvatarsVertical = false;
-            _settings.EnemyAvatarsVertical = false;
-            ExecuteSelectAllyAvatars();
-            OnSettingsChanged();
-        }
-        
-        public void ExecuteSelectPowerLevel() 
-        { 
-            _topBarEditor.SelectElement(3, "Power Level", _settings.PowerLevelCustom); 
-            RefreshTopBarDisplay(); 
-        }
-        
-        
-
-        private void RefreshCrosshairDisplay()
-        {
-            if (_settings == null || _settings.CrosshairSettings == null)
-                return;
-        
-            OnPropertyChangedWithValue(CrosshairWidthInt, "CrosshairWidthInt");
-            OnPropertyChangedWithValue(CrosshairLengthInt, "CrosshairLengthInt");
-            OnPropertyChangedWithValue(CrosshairOffsetInt, "CrosshairOffsetInt");
-            OnPropertyChangedWithValue(CrosshairOpacityFloat, "CrosshairOpacityFloat");
-            OnPropertyChangedWithValue(CustomCrosshairEnabled, "CustomCrosshairEnabled");
-            OnPropertyChangedWithValue(DotEnabled, "DotEnabled");
-            OnPropertyChangedWithValue(DotColorText, "DotColorText");
-            OnPropertyChangedWithValue(DotWidthText, "DotWidthText");
-            OnPropertyChangedWithValue(DotHeightText, "DotHeightText");
-    
-            SelectCurrentCrosshairColor();
-            SelectCurrentDotColor();
-    
-            OnSettingsChanged();
-        }
-
-        [DataSourceProperty]
-        public bool IsConfigMenuOpen 
-        { 
-            get { return _isConfigMenuOpen; } 
-            set { if (_isConfigMenuOpen != value) { _isConfigMenuOpen = value; OnPropertyChangedWithValue(value, "IsConfigMenuOpen"); } } 
-        }
-        
-        [DataSourceProperty] public bool IsKillfeedPageOpen { get { return _currentPage == "Killfeed"; } }
-        [DataSourceProperty] public bool IsTopBarPageOpen { get { return _currentPage == "TopBar"; } }
-        [DataSourceProperty] public bool IsVisibilityPageOpen { get { return _currentPage == "Visibility"; } }
-        [DataSourceProperty] public bool IsCustomizePageOpen { get { return _currentPage == "Customize"; } }
-        [DataSourceProperty] public bool IsChatPageOpen { get { return _currentPage == "Chat"; } }
-        [DataSourceProperty] public bool IsLeaderboardPageOpen { get { return _currentPage == "Leaderboard"; } }
-        [DataSourceProperty] public bool IsHPPageOpen { get { return _currentPage == "HP"; } }
-        [DataSourceProperty] public bool IsHPVisibilityPageOpen { get { return _currentPage == "HPVisibility"; } }
-        [DataSourceProperty] public bool IsHPCustomizePageOpen { get { return _currentPage == "HPCustomize"; } }
-        [DataSourceProperty] public bool IsCrosshairPageOpen { get { return _currentPage == "Crosshair"; } }
-        [DataSourceProperty] public bool IsCrosshairSettingsPageOpen { get { return _currentPage == "CrosshairSettings"; } }
-        [DataSourceProperty] public bool IsDotSettingsPageOpen { get { return _currentPage == "DotSettings"; } }
-        [DataSourceProperty] public bool IsMiscPageOpen { get { return _currentPage == "Misc"; } }
-        
-        [DataSourceProperty] 
-        public bool IsAvatarSidesPageOpen { get { return _currentPage == "AvatarSides"; } }
-        
-        [DataSourceProperty]
-        public string SelectedAvatarSideName { get { return _avatarSideEditor.SelectedName; } }
-
-        [DataSourceProperty]
-        public string CurrentAvatarOffsetXText { get { return _avatarSideEditor.OffsetXText; } }
-
-        [DataSourceProperty]
-        public string CurrentAvatarOffsetYText { get { return _avatarSideEditor.OffsetYText; } }
-
-        [DataSourceProperty]
-        public string CurrentAvatarScaleText { get { return _avatarSideEditor.ScaleText; } }
-
-        [DataSourceProperty]
-        public string CurrentAvatarOrientationText 
-        { 
-            get 
-            { 
-                if (_selectedAvatarSide == 0)
-                    return _settings.AllyAvatarsVertical ? "Vertical" : "Horizontal";
-                else
-                    return _settings.EnemyAvatarsVertical ? "Vertical" : "Horizontal";
-            } 
-        }
-        
-        [DataSourceProperty]
-        public bool IsAllyAvatarSelected { get { return _selectedAvatarSide == 0; } }
-
-        [DataSourceProperty]
-        public bool IsEnemyAvatarSelected { get { return _selectedAvatarSide == 1; } }
-
-        [DataSourceProperty] 
-        public bool ShouldShiftMenuRight 
-        { 
-            get { return IsCrosshairSettingsPageOpen || IsDotSettingsPageOpen; } 
-        }
-
-        [DataSourceProperty]
-        public bool NativeKillfeedEnabled 
-        { 
-            get { return _settings.NativeKillfeedEnabled; } 
-            set { if (_settings.NativeKillfeedEnabled != value) { _settings.NativeKillfeedEnabled = value; OnPropertyChangedWithValue(value, "NativeKillfeedEnabled"); ApplyNativeKillfeedSetting(); OnSettingsChanged(); } } 
-        }
-        
-        [DataSourceProperty]
-        public bool WarbandKillfeedEnabled 
-        { 
-            get { return _settings.WarbandKillfeedEnabled; } 
-            set { if (_settings.WarbandKillfeedEnabled != value) { _settings.WarbandKillfeedEnabled = value; OnPropertyChangedWithValue(value, "WarbandKillfeedEnabled"); if (OnWarbandKillfeedToggled != null) OnWarbandKillfeedToggled(value); OnSettingsChanged(); } } 
-        }
-        
-        [DataSourceProperty]
-        public bool ShowPowerLevel { get { return _settings.ShowPowerLevel; } set { if (_settings.ShowPowerLevel != value) { _settings.ShowPowerLevel = value; OnPropertyChangedWithValue(value, "ShowPowerLevel"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
-        public bool ShowTimeAndScores { get { return _settings.ShowTimeAndScores; } set { if (_settings.ShowTimeAndScores != value) { _settings.ShowTimeAndScores = value; OnPropertyChangedWithValue(value, "ShowTimeAndScores"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
-        public bool ShowAvatars { get { return _settings.ShowAvatars; } set { if (_settings.ShowAvatars != value) { _settings.ShowAvatars = value; OnPropertyChangedWithValue(value, "ShowAvatars"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
-        public bool ShowEnemyScore { get { return _settings.ShowEnemyScore; } set { if (_settings.ShowEnemyScore != value) { _settings.ShowEnemyScore = value; OnPropertyChangedWithValue(value, "ShowEnemyScore"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
-        public bool ShowBanners { get { return _settings.ShowBanners; } set { if (_settings.ShowBanners != value) { _settings.ShowBanners = value; OnPropertyChangedWithValue(value, "ShowBanners"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
-        public bool ShowMorale { get { return _settings.ShowMorale; } set { if (_settings.ShowMorale != value) { _settings.ShowMorale = value; OnPropertyChangedWithValue(value, "ShowMorale"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
-        public bool ShowAgentHealth { get { return _settings.ShowAgentHealth; } set { if (_settings.ShowAgentHealth != value) { _settings.ShowAgentHealth = value; OnPropertyChangedWithValue(value, "ShowAgentHealth"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
-        public bool ShowMountHealth { get { return _settings.ShowMountHealth; } set { if (_settings.ShowMountHealth != value) { _settings.ShowMountHealth = value; OnPropertyChangedWithValue(value, "ShowMountHealth"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
-        public bool ShowShieldHealth { get { return _settings.ShowShieldHealth; } set { if (_settings.ShowShieldHealth != value) { _settings.ShowShieldHealth = value; OnPropertyChangedWithValue(value, "ShowShieldHealth"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
-        public bool ShowWeaponInfo { get { return _settings.ShowWeaponInfo; } set { if (_settings.ShowWeaponInfo != value) { _settings.ShowWeaponInfo = value; OnPropertyChangedWithValue(value, "ShowWeaponInfo"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
-        public bool ShowAmmoCount { get { return _settings.ShowAmmoCount; } set { if (_settings.ShowAmmoCount != value) { _settings.ShowAmmoCount = value; OnPropertyChangedWithValue(value, "ShowAmmoCount"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
-        public bool ShowGoldAmount { get { return _settings.ShowGoldAmount; } set { if (_settings.ShowGoldAmount != value) { _settings.ShowGoldAmount = value; OnPropertyChangedWithValue(value, "ShowGoldAmount"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
-        public bool ShowTroopCount { get { return _settings.ShowTroopCount; } set { if (_settings.ShowTroopCount != value) { _settings.ShowTroopCount = value; OnPropertyChangedWithValue(value, "ShowTroopCount"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
-        public bool ShowCouchLanceState { get { return _settings.ShowCouchLanceState; } set { if (_settings.ShowCouchLanceState != value) { _settings.ShowCouchLanceState = value; OnPropertyChangedWithValue(value, "ShowCouchLanceState"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
-        public bool ShowDamageFeed { get { return _settings.ShowDamageFeed; } set { if (_settings.ShowDamageFeed != value) { _settings.ShowDamageFeed = value; OnPropertyChangedWithValue(value, "ShowDamageFeed"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
-        public bool ShowHealthNumbers { get { return _settings.ShowHealthNumbers; } set { if (_settings.ShowHealthNumbers != value) { _settings.ShowHealthNumbers = value; OnPropertyChangedWithValue(value, "ShowHealthNumbers"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
-        public bool ShowMountHealthNumbers { get { return _settings.ShowMountHealthNumbers; } set { if (_settings.ShowMountHealthNumbers != value) { _settings.ShowMountHealthNumbers = value; OnPropertyChangedWithValue(value, "ShowMountHealthNumbers"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
-        public bool ShowShieldHealthNumbers { get { return _settings.ShowShieldHealthNumbers; } set { if (_settings.ShowShieldHealthNumbers != value) { _settings.ShowShieldHealthNumbers = value; OnPropertyChangedWithValue(value, "ShowShieldHealthNumbers"); OnSettingsChanged(); } } }
-        
-        [DataSourceProperty]
-        public bool CameraSnapbackEnabled { get { return _settings.CameraSnapbackEnabled; } set { if (_settings.CameraSnapbackEnabled != value) { _settings.CameraSnapbackEnabled = value; OnPropertyChangedWithValue(value, "CameraSnapbackEnabled"); OnSettingsChanged(); } } }
-
-        [DataSourceProperty]
-        public bool CustomCrosshairEnabled { get { return _settings.CrosshairSettings.CustomCrosshairEnabled; } set { if (_settings.CrosshairSettings.CustomCrosshairEnabled != value) { _settings.CrosshairSettings.CustomCrosshairEnabled = value; OnPropertyChangedWithValue(value, "CustomCrosshairEnabled"); OnSettingsChanged(); } } }
-
-        [DataSourceProperty] public int SelectedElementIndex { get { return _topBarEditor.SelectedIndex; } }
-        [DataSourceProperty] public string SelectedElementName { get { return _topBarEditor.SelectedName; } }
-        [DataSourceProperty] public string CurrentOffsetXText { get { return _topBarEditor.OffsetXText; } }
-        [DataSourceProperty] public string CurrentOffsetYText { get { return _topBarEditor.OffsetYText; } }
-        [DataSourceProperty] public string CurrentScaleText { get { return _topBarEditor.ScaleText; } }
-
-        [DataSourceProperty] public int SelectedHPElementIndex { get { return _hpEditor.SelectedIndex; } }
-        [DataSourceProperty] public string SelectedHPElementName { get { return _hpEditor.SelectedName; } }
-        [DataSourceProperty] public string CurrentHPOffsetXText { get { return _hpEditor.OffsetXText; } }
-        [DataSourceProperty] public string CurrentHPOffsetYText { get { return _hpEditor.OffsetYText; } }
-        [DataSourceProperty] public string CurrentHPScaleText { get { return _hpEditor.ScaleText; } }
-
-        [DataSourceProperty] public string KillfeedOffsetXText { get { return _settings.KillfeedCustom.OffsetX.ToString("F0"); } }
-        [DataSourceProperty] public string KillfeedOffsetYText { get { return _settings.KillfeedCustom.OffsetY.ToString("F0"); } }
-        [DataSourceProperty] public string KillfeedScaleText { get { return (_settings.KillfeedCustom.Scale * 100).ToString("F0") + "%"; } }
-        [DataSourceProperty] public string KillfeedFadeoutTimeText { get { return _settings.KillfeedFadeoutTime.ToString("F0") + "s"; } }
-
-        [DataSourceProperty] public string CrosshairWidthText { get { return _settings.CrosshairSettings.SizeHorizontal.ToString(); } }
-        [DataSourceProperty] public string CrosshairLengthText { get { return _settings.CrosshairSettings.SizeVertical.ToString(); } }
-        [DataSourceProperty] public string CrosshairOffsetText { get { return _settings.CrosshairSettings.Offset.ToString(); } }
-        [DataSourceProperty] public string CrosshairOpacityText { get { return (_settings.CrosshairSettings.Opacity * 100).ToString("F0") + "%"; } }
-        [DataSourceProperty] public string CrosshairColorText { get { return _settings.CrosshairSettings.Color; } }
-
-        [DataSourceProperty]
-        public bool DotEnabled 
-        { 
-            get { return _settings.CrosshairSettings.DotEnabled; } 
-            set 
-            { 
-                if (_settings.CrosshairSettings.DotEnabled != value) 
-                { 
-                    _settings.CrosshairSettings.DotEnabled = value; 
-                    OnPropertyChangedWithValue(value, "DotEnabled"); 
-                    OnSettingsChanged(); 
-                } 
-            } 
-        }
-
-        [DataSourceProperty] 
-        public string DotColorText { get { return _settings.CrosshairSettings.DotColor; } }
-
-        [DataSourceProperty] 
-        public string DotWidthText { get { return _settings.CrosshairSettings.DotSizeWidth.ToString(); } }
-        
-        [DataSourceProperty] 
-        public string DotHeightText { get { return _settings.CrosshairSettings.DotSizeHeight.ToString(); } }
-
-        public void ExecuteSetDotCircular() 
-        { 
-            _settings.CrosshairSettings.DotIsCircular = true; 
-            OnPropertyChangedWithValue(true, "DotIsCircular");
-            OnSettingsChanged(); 
-        }
-
-        public void ExecuteSetDotSquare() 
-        { 
-            _settings.CrosshairSettings.DotIsCircular = false; 
-            OnPropertyChangedWithValue(false, "DotIsCircular");
-            OnSettingsChanged(); 
-        }
-        
-        [DataSourceProperty]
-        public float MenuHorizontalOffset
-        {
-            get { return ShouldShiftMenuRight ? 610f : 0f; }
-        }
-
-        [DataSourceProperty]
-        public bool KillfeedBackgroundEnabled 
-        { 
-            get { return _settings.KillfeedBackgroundEnabled; } 
-            set 
-            { 
-                if (_settings.KillfeedBackgroundEnabled != value) 
-                { 
-                    _settings.KillfeedBackgroundEnabled = value; 
-                    OnPropertyChangedWithValue(value, "KillfeedBackgroundEnabled"); 
-                    OnSettingsChanged(); 
-                } 
-            } 
-        }
-
-        [DataSourceProperty] 
-        public string KillfeedBackgroundOpacityText 
-        { 
-            get { return (_settings.KillfeedBackgroundOpacity * 100).ToString("F0") + "%"; } 
-        }
-
-        [DataSourceProperty] 
-        public string KillfeedBackgroundColorText 
-        { 
-            get { return _settings.KillfeedBackgroundColor; } 
-        }
-        
-        [DataSourceProperty] 
-        public bool IsProfilesPageOpen { get { return _currentPage == "Profiles"; } }
-
-        [DataSourceProperty]
-        public string CurrentProfileName
-        {
-            get 
-            { 
-                return _tempProfileName; 
-            }
+            get => _isConfigMenuOpen;
             set
             {
-                if (_tempProfileName != value)
+                if (_isConfigMenuOpen != value)
                 {
-                    _tempProfileName = value;
-                    OnPropertyChanged("CurrentProfileName");
-            
-                    OnPropertyChanged("IsSaveNameButtonVisible"); 
-                }
-            }
-        }
-        
-        [DataSourceProperty]
-        public bool IsSaveNameButtonVisible
-        {
-            get 
-            { 
-                return _tempProfileName != ProfileManager.GetActiveProfile().Name; 
-            }
-        }
-
-        [DataSourceProperty]
-        public string ProfileCountText 
-        { 
-            get 
-            { 
-                return (_selectedProfileIndex + 1) + "/" + ProfileManager.GetProfileCount(); 
-            } 
-        }
-
-        [DataSourceProperty]
-        public bool CanDeleteProfile { get { return ProfileManager.GetProfileCount() > 1; } }
-        
-        
-        public void ExecuteSaveProfileName()
-        {
-            string currentRealName = ProfileManager.GetActiveProfile().Name;
-    
-            bool success = ProfileManager.RenameProfile(currentRealName, _tempProfileName);
-    
-            if (success)
-            {
-                OnPropertyChanged("IsSaveNameButtonVisible");
-            }
-            else
-            {
-                _tempProfileName = currentRealName;
-                OnPropertyChanged("CurrentProfileName");
-                OnPropertyChanged("IsSaveNameButtonVisible");
-            }
-        }
-        
-        public void ExecuteCleanupAvatars()
-        {
-            if (OnCleanupAvatarsRequested != null)
-                OnCleanupAvatarsRequested();
-            InformationManager.DisplayMessage(new InformationMessage("[BetterMPHUD] Cleaned up disconnected avatars.", Colors.Green));
-        }
-        
-        private void AdjustKillfeedMaxEntries(int delta)
-        {
-            int newValue = _settings.KillfeedMaxEntries + delta;
-            if (newValue >= 1 && newValue <= 15)
-            {
-                _settings.KillfeedMaxEntries = newValue;
-                OnPropertyChangedWithValue(KillfeedMaxEntriesText, "KillfeedMaxEntriesText");
-                OnSettingsChanged();
-            }
-        }
-        
-        public void ExecuteNextProfile()
-        {
-            int count = ProfileManager.GetProfileCount();
-            if (count <= 1) return;
-    
-            _selectedProfileIndex = (_selectedProfileIndex + 1) % count;
-            ProfileManager.SetActiveProfileByIndex(_selectedProfileIndex);
-            ReloadSettingsFromProfile();
-        }
-        
-        public void ExecutePreviousProfile()
-        {
-            int count = ProfileManager.GetProfileCount();
-            if (count <= 1) return;
-    
-            _selectedProfileIndex = (_selectedProfileIndex - 1 + count) % count;
-            ProfileManager.SetActiveProfileByIndex(_selectedProfileIndex);
-            ReloadSettingsFromProfile();
-        }
-        
-        public void ExecuteCreateProfile()
-        {
-            string newName = "Profile " + _newProfileCounter;
-            while (ProfileManager.GetProfileNames().Contains(newName))
-            {
-                _newProfileCounter++;
-                newName = "Profile " + _newProfileCounter;
-            }
-    
-            if (ProfileManager.CreateProfile(newName))
-            {
-                _newProfileCounter++;
-                RefreshProfileDisplay();
-            }
-        }
-        
-        [DataSourceProperty]
-        public string CurrentAvatarSpacingText 
-        { 
-            get 
-            { 
-                float spacing = _selectedAvatarSide == 0 ? _settings.AllyAvatarsSpacing : _settings.EnemyAvatarsSpacing;
-                return spacing.ToString("F0");
-            } 
-        }
-        
-        public void ExecuteDuplicateProfile()
-        {
-            string currentName = ProfileManager.GetActiveProfile().Name;
-            string newName = currentName + " Copy";
-            int copyNum = 1;
-    
-            while (ProfileManager.GetProfileNames().Contains(newName))
-            {
-                copyNum++;
-                newName = currentName + " Copy " + copyNum;
-            }
-    
-            if (ProfileManager.DuplicateProfile(currentName, newName))
-            {
-                ProfileManager.SetActiveProfile(newName);
-                _selectedProfileIndex = ProfileManager.GetActiveProfileIndex();
-                ReloadSettingsFromProfile();
-            }
-        }
-        
-        public void ExecuteDeleteProfile()
-        {
-            string currentName = ProfileManager.GetActiveProfile().Name;
-            if (ProfileManager.DeleteProfile(currentName))
-            {
-                _selectedProfileIndex = ProfileManager.GetActiveProfileIndex();
-                ReloadSettingsFromProfile();
-            }
-        }
-        
-        private void ReloadSettingsFromProfile()
-        {
-            _settings = ProfileManager.GetActiveSettings();
-
-            _topBarEditor = new ElementEditorVM(0, _settings.TimeAndScoresCustom, "Time & Scores");
-            _topBarEditor.SetOnChanged(OnSettingsChanged);
-            _hpEditor = new ElementEditorVM(0, _settings.AgentHealthCustom, "Agent Health");
-            _hpEditor.SetOnChanged(OnSettingsChanged);
-    
-            _avatarSideEditor = new ElementEditorVM(0, _settings.AllyAvatarsCustom, "Ally (Left)");
-            _avatarSideEditor.SetOnChanged(OnSettingsChanged);
-
-            ApplyNativeKillfeedSetting();
-            RefreshProfileDisplay();
-            RefreshAllSettingsDisplay();
-
-            if (OnHudSettingsChanged != null)
-                OnHudSettingsChanged();
-        }
-        
-        private void RefreshProfileDisplay()
-        {
-            _tempProfileName = ProfileManager.GetActiveProfile().Name;
-    
-            OnPropertyChangedWithValue(CurrentProfileName, "CurrentProfileName");
-            OnPropertyChangedWithValue(ProfileCountText, "ProfileCountText");
-            OnPropertyChangedWithValue(CanDeleteProfile, "CanDeleteProfile");
-            OnPropertyChangedWithValue(IsSaveNameButtonVisible, "IsSaveNameButtonVisible");
-        }
-        
-        private void RefreshAllSettingsDisplay()
-        {
-            OnPropertyChangedWithValue(NativeKillfeedEnabled, "NativeKillfeedEnabled");
-            OnPropertyChangedWithValue(WarbandKillfeedEnabled, "WarbandKillfeedEnabled");
-            OnPropertyChangedWithValue(ShowTimeAndScores, "ShowTimeAndScores");
-            OnPropertyChangedWithValue(ShowAvatars, "ShowAvatars");
-            OnPropertyChangedWithValue(ShowEnemyScore, "ShowEnemyScore");
-            OnPropertyChangedWithValue(ShowBanners, "ShowBanners");
-            OnPropertyChangedWithValue(ShowMorale, "ShowMorale");
-            OnPropertyChangedWithValue(ShowAgentHealth, "ShowAgentHealth");
-            OnPropertyChangedWithValue(ShowMountHealth, "ShowMountHealth");
-            OnPropertyChangedWithValue(ShowShieldHealth, "ShowShieldHealth");
-            OnPropertyChangedWithValue(ShowWeaponInfo, "ShowWeaponInfo");
-            OnPropertyChangedWithValue(ShowGoldAmount, "ShowGoldAmount");
-            OnPropertyChangedWithValue(ShowTroopCount, "ShowTroopCount");
-            OnPropertyChangedWithValue(ShowCouchLanceState, "ShowCouchLanceState");
-            OnPropertyChangedWithValue(ShowDamageFeed, "ShowDamageFeed");
-            OnPropertyChangedWithValue(CustomCrosshairEnabled, "CustomCrosshairEnabled");
-            OnPropertyChangedWithValue(DotEnabled, "DotEnabled");
-            OnPropertyChangedWithValue(CameraSnapbackEnabled, "CameraSnapbackEnabled");
-            OnPropertyChangedWithValue(KillfeedFadeoutTimeText, "KillfeedFadeoutTimeText");
-            OnPropertyChangedWithValue(KillfeedMaxEntriesText, "KillfeedMaxEntriesText");
-            OnPropertyChangedWithValue(KillfeedBackgroundEnabled, "KillfeedBackgroundEnabled");
-            OnPropertyChangedWithValue(KillfeedBackgroundOpacityText, "KillfeedBackgroundOpacityText");
-            OnPropertyChangedWithValue(_settings.AllyAvatarsVertical, "AllyAvatarsVertical");
-            OnPropertyChangedWithValue(_settings.EnemyAvatarsVertical, "EnemyAvatarsVertical");
-            OnPropertyChangedWithValue(BetterAvatarsEnabled, "BetterAvatarsEnabled");
-            OnPropertyChangedWithValue(AvatarSortingEnabled, "AvatarSortingEnabled");
-            OnPropertyChangedWithValue(ScoreboardBackgroundEnabled, "ScoreboardBackgroundEnabled");
-            OnPropertyChangedWithValue(ScoreboardStripingEnabled, "ScoreboardStripingEnabled");
-            OnPropertyChangedWithValue(ScoreboardBackgroundOpacityText, "ScoreboardBackgroundOpacityText");
-            OnPropertyChangedWithValue(ScoreboardStripingOpacityText, "ScoreboardStripingOpacityText");
-            OnPropertyChangedWithValue(ScoreboardDeadPlayerOpacityText, "ScoreboardDeadPlayerOpacityText");
-            OnPropertyChangedWithValue(ScoreboardDeadPlayerTintEnabled, "ScoreboardDeadPlayerTintEnabled");
-            OnPropertyChangedWithValue(HideUIWhenScoreboardOpen , "HideUIWhenScoreboardOpen");
-            OnPropertyChangedWithValue(ShowChat, "ShowChat");
-            RefreshAvatarSideDisplay();
-            RefreshCrosshairDisplay();
-            RefreshTopBarDisplay();
-            RefreshHPDisplay();
-            RefreshKillfeedDisplay();
-        }
-        
-        private void SelectCurrentColors()
-        {
-            foreach (var item in _crosshairColorList)
-                item.IsSelected = item.ColorHex == _settings.CrosshairSettings.Color;
-    
-            foreach (var item in _dotColorList)
-                item.IsSelected = item.ColorHex == _settings.CrosshairSettings.DotColor;
-        }
-
-        private void OnCrosshairColorSelected(ColorItemVM selected)
-        {
-            foreach (var item in _crosshairColorList)
-                item.IsSelected = false;
-    
-            selected.IsSelected = true;
-            _settings.CrosshairSettings.Color = selected.ColorHex;
-            OnSettingsChanged();
-        }
-        
-        private void OnDotColorSelected(ColorItemVM selected)
-        {
-            foreach (var item in _dotColorList)
-                item.IsSelected = false;
-    
-            selected.IsSelected = true;
-            _settings.CrosshairSettings.DotColor = selected.ColorHex;
-            OnSettingsChanged();
-        }
-        
-        private void SelectCurrentCrosshairColor()
-        {
-            if (_crosshairColorList == null || _settings == null || _settings.CrosshairSettings == null) 
-                return;
-        
-            string currentColor = _settings.CrosshairSettings.Color;
-            if (string.IsNullOrEmpty(currentColor))
-                currentColor = "#FF0000FF";
-    
-            foreach (var item in _crosshairColorList)
-            {
-                if (item != null)
-                    item.IsSelected = string.Equals(item.ColorHex, currentColor, StringComparison.OrdinalIgnoreCase);
-            }
-        }
-        
-        private void SelectCurrentDotColor()
-        {
-            if (_dotColorList == null || _settings == null || _settings.CrosshairSettings == null) 
-                return;
-        
-            string currentColor = _settings.CrosshairSettings.DotColor;
-            if (string.IsNullOrEmpty(currentColor))
-                currentColor = "#FFFFFFFF";
-    
-            foreach (var item in _dotColorList)
-            {
-                if (item != null)
-                    item.IsSelected = string.Equals(item.ColorHex, currentColor, StringComparison.OrdinalIgnoreCase);
-            }
-        }
-        
-        
-        
-        public void ExecuteIncreaseKillfeedMaxEntries() { AdjustKillfeedMaxEntries(1); }
-        public void ExecuteDecreaseKillfeedMaxEntries() { AdjustKillfeedMaxEntries(-1); }
-        public void ExecuteIncreaseKillfeedMaxEntriesLarge() { AdjustKillfeedMaxEntries(5); }
-        public void ExecuteDecreaseKillfeedMaxEntriesLarge() { AdjustKillfeedMaxEntries(-5); }
-
-        [DataSourceProperty] 
-        public string KillfeedMaxEntriesText 
-        { 
-            get { return _settings.KillfeedMaxEntries.ToString(); } 
-        }
-        
-        [DataSourceProperty]
-        public MBBindingList<ColorItemVM> CrosshairColorList
-        {
-            get { return _crosshairColorList; }
-        }
-
-        [DataSourceProperty]
-        public MBBindingList<ColorItemVM> DotColorList
-        {
-            get { return _dotColorList; }
-        }
-
-        [DataSourceProperty]
-        public int CrosshairWidthInt
-        {
-            get { return _settings.CrosshairSettings.SizeHorizontal; }
-            set
-            {
-                if (_settings.CrosshairSettings.SizeHorizontal != value)
-                {
-                    _settings.CrosshairSettings.SizeHorizontal = value;
-                    OnPropertyChangedWithValue(value, "CrosshairWidthInt");
-                    OnSettingsChanged();
-                }
-            }
-        }
-        
-        [DataSourceProperty]
-        public int CrosshairLengthInt
-        {
-            get { return _settings.CrosshairSettings.SizeVertical; }
-            set
-            {
-                if (_settings.CrosshairSettings.SizeVertical != value)
-                {
-                    _settings.CrosshairSettings.SizeVertical = value;
-                    OnPropertyChangedWithValue(value, "CrosshairLengthInt");
-                    OnSettingsChanged();
+                    _isConfigMenuOpen = value;
+                    OnPropertyChangedWithValue(value, "IsConfigMenuOpen");
                 }
             }
         }
 
-        [DataSourceProperty]
-        public int CrosshairOffsetInt
-        {
-            get { return _settings.CrosshairSettings.Offset; }
-            set
-            {
-                if (_settings.CrosshairSettings.Offset != value)
-                {
-                    _settings.CrosshairSettings.Offset = value;
-                    OnPropertyChangedWithValue(value, "CrosshairOffsetInt");
-                    OnSettingsChanged();
-                }
-            }
-        }
+        public bool CameraSnapbackEnabled => _misc.CameraSnapbackEnabled;
 
-        [DataSourceProperty]
-        public float CrosshairOpacityFloat
-        {
-            get { return _settings.CrosshairSettings.Opacity; }
-            set
-            {
-                float rounded = (float)Math.Round(value, 2);
-                if (_settings.CrosshairSettings.Opacity != rounded)
-                {
-                    _settings.CrosshairSettings.Opacity = rounded;
-                    OnPropertyChangedWithValue(rounded, "CrosshairOpacityFloat");
-                    OnSettingsChanged();
-                }
-            }
-        }
-        
-        [DataSourceProperty]
-        public int DotWidthInt
-        {
-            get { return _settings.CrosshairSettings.DotSizeWidth; }
-            set
-            {
-                if (_settings.CrosshairSettings.DotSizeWidth != value)
-                {
-                    _settings.CrosshairSettings.DotSizeWidth = value;
-                    OnPropertyChangedWithValue(value, "DotWidthInt");
-                    OnSettingsChanged();
-                }
-            }
-        }
+        #region Sub ViewModel Properties
 
-        [DataSourceProperty]
-        public int DotHeightInt
-        {
-            get { return _settings.CrosshairSettings.DotSizeHeight; }
-            set
-            {
-                if (_settings.CrosshairSettings.DotSizeHeight != value)
-                {
-                    _settings.CrosshairSettings.DotSizeHeight = value;
-                    OnPropertyChangedWithValue(value, "DotHeightInt");
-                    OnSettingsChanged();
-                }
-            }
-        }
-        
-        [DataSourceProperty]
-        public bool BetterAvatarsEnabled 
+        [DataSourceProperty] public NavigationVM Navigation => _navigation;
+        [DataSourceProperty] public ProfileManagerVM ProfileManager => _profileManager;
+        [DataSourceProperty] public KillfeedSettingsVM Killfeed => _killfeed;
+        [DataSourceProperty] public CrosshairSettingsVM Crosshair => _crosshair;
+        [DataSourceProperty] public DotSettingsVM Dot => _dot;
+        [DataSourceProperty] public TopBarSettingsVM TopBar => _topBar;
+        [DataSourceProperty] public AvatarSettingsVM Avatar => _avatar;
+        [DataSourceProperty] public AgentStatusSettingsVM AgentStatus => _agentStatus;
+        [DataSourceProperty] public ScoreboardSettingsVM Scoreboard => _scoreboard;
+        [DataSourceProperty] public ChatSettingsVM Chat => _chat;
+        [DataSourceProperty] public MiscSettingsVM Misc => _misc;
+        [DataSourceProperty] public VisibilitySettingsVM Visibility => _visibility;
+
+        #endregion
+
+        #region Navigation Delegation
+
+        public void ExecuteOpenKillfeedPage() => _navigation.ExecuteOpenKillfeedPage();
+        public void ExecuteOpenTopBarPage() => _navigation.ExecuteOpenTopBarPage();
+        public void ExecuteOpenVisibilityPage() => _navigation.ExecuteOpenVisibilityPage();
+        public void ExecuteOpenCustomizePage() => _navigation.ExecuteOpenCustomizePage();
+        public void ExecuteOpenChatPage() => _navigation.ExecuteOpenChatPage();
+        public void ExecuteOpenLeaderboardPage() => _navigation.ExecuteOpenLeaderboardPage();
+        public void ExecuteOpenHPPage() => _navigation.ExecuteOpenHPPage();
+        public void ExecuteOpenHPVisibilityPage() => _navigation.ExecuteOpenHPVisibilityPage();
+        public void ExecuteOpenHPCustomizePage() => _navigation.ExecuteOpenHPCustomizePage();
+        public void ExecuteOpenCrosshairPage() => _navigation.ExecuteOpenCrosshairPage();
+        public void ExecuteOpenCrosshairSettingsPage() => _navigation.ExecuteOpenCrosshairSettingsPage();
+        public void ExecuteOpenDotSettingsPage() => _navigation.ExecuteOpenDotSettingsPage();
+        public void ExecuteOpenMiscPage() => _navigation.ExecuteOpenMiscPage();
+        public void ExecuteOpenProfilesPage() => _navigation.ExecuteOpenProfilesPage();
+        public void ExecuteOpenAvatarSidesPage() => _navigation.ExecuteOpenAvatarSidesPage();
+        public void ExecuteOpenScoreboardPage() => _navigation.ExecuteOpenScoreboardPage();
+        public void ExecuteBackToTopBar() => _navigation.ExecuteBackToTopBar();
+        public void ExecuteBackToHP() => _navigation.ExecuteBackToHP();
+        public void ExecuteBackToCrosshair() => _navigation.ExecuteBackToCrosshair();
+        public void ExecuteBackToCustomize() => _navigation.ExecuteBackToCustomize();
+
+        [DataSourceProperty] public bool IsKillfeedPageOpen => _navigation.IsKillfeedPageOpen;
+        [DataSourceProperty] public bool IsTopBarPageOpen => _navigation.IsTopBarPageOpen;
+        [DataSourceProperty] public bool IsVisibilityPageOpen => _navigation.IsVisibilityPageOpen;
+        [DataSourceProperty] public bool IsCustomizePageOpen => _navigation.IsCustomizePageOpen;
+        [DataSourceProperty] public bool IsChatPageOpen => _navigation.IsChatPageOpen;
+        [DataSourceProperty] public bool IsLeaderboardPageOpen => _navigation.IsLeaderboardPageOpen;
+        [DataSourceProperty] public bool IsHPPageOpen => _navigation.IsHPPageOpen;
+        [DataSourceProperty] public bool IsHPVisibilityPageOpen => _navigation.IsHPVisibilityPageOpen;
+        [DataSourceProperty] public bool IsHPCustomizePageOpen => _navigation.IsHPCustomizePageOpen;
+        [DataSourceProperty] public bool IsCrosshairPageOpen => _navigation.IsCrosshairPageOpen;
+        [DataSourceProperty] public bool IsCrosshairSettingsPageOpen => _navigation.IsCrosshairSettingsPageOpen;
+        [DataSourceProperty] public bool IsDotSettingsPageOpen => _navigation.IsDotSettingsPageOpen;
+        [DataSourceProperty] public bool IsMiscPageOpen => _navigation.IsMiscPageOpen;
+        [DataSourceProperty] public bool IsProfilesPageOpen => _navigation.IsProfilesPageOpen;
+        [DataSourceProperty] public bool IsAvatarSidesPageOpen => _navigation.IsAvatarSidesPageOpen;
+        [DataSourceProperty] public bool IsScoreboardPageOpen => _navigation.IsScoreboardPageOpen;
+        [DataSourceProperty] public bool ShouldShiftMenuRight => _navigation.ShouldShiftMenuRight;
+        [DataSourceProperty] public float MenuHorizontalOffset => _navigation.MenuHorizontalOffset;
+
+        #endregion
+
+        #region Killfeed Delegation
+
+        public void ExecuteIncreaseFadeoutTime() => _killfeed.ExecuteIncreaseFadeoutTime();
+        public void ExecuteDecreaseFadeoutTime() => _killfeed.ExecuteDecreaseFadeoutTime();
+        public void ExecuteIncreaseFadeoutTimeLarge() => _killfeed.ExecuteIncreaseFadeoutTimeLarge();
+        public void ExecuteDecreaseFadeoutTimeLarge() => _killfeed.ExecuteDecreaseFadeoutTimeLarge();
+        public void ExecuteIncreaseKillfeedOffsetX() => _killfeed.ExecuteIncreaseOffsetX();
+        public void ExecuteDecreaseKillfeedOffsetX() => _killfeed.ExecuteDecreaseOffsetX();
+        public void ExecuteIncreaseKillfeedOffsetY() => _killfeed.ExecuteIncreaseOffsetY();
+        public void ExecuteDecreaseKillfeedOffsetY() => _killfeed.ExecuteDecreaseOffsetY();
+        public void ExecuteIncreaseKillfeedOffsetXLarge() => _killfeed.ExecuteIncreaseOffsetXLarge();
+        public void ExecuteDecreaseKillfeedOffsetXLarge() => _killfeed.ExecuteDecreaseOffsetXLarge();
+        public void ExecuteIncreaseKillfeedOffsetYLarge() => _killfeed.ExecuteIncreaseOffsetYLarge();
+        public void ExecuteDecreaseKillfeedOffsetYLarge() => _killfeed.ExecuteDecreaseOffsetYLarge();
+        public void ExecuteIncreaseKillfeedScale() => _killfeed.ExecuteIncreaseScale();
+        public void ExecuteDecreaseKillfeedScale() => _killfeed.ExecuteDecreaseScale();
+        public void ExecuteIncreaseKillfeedScaleLarge() => _killfeed.ExecuteIncreaseScaleLarge();
+        public void ExecuteDecreaseKillfeedScaleLarge() => _killfeed.ExecuteDecreaseScaleLarge();
+        public void ExecuteIncreaseKillfeedBackgroundOpacity() => _killfeed.ExecuteIncreaseBackgroundOpacity();
+        public void ExecuteDecreaseKillfeedBackgroundOpacity() => _killfeed.ExecuteDecreaseBackgroundOpacity();
+        public void ExecuteIncreaseKillfeedBackgroundOpacityLarge() => _killfeed.ExecuteIncreaseBackgroundOpacityLarge();
+        public void ExecuteDecreaseKillfeedBackgroundOpacityLarge() => _killfeed.ExecuteDecreaseBackgroundOpacityLarge();
+        public void ExecuteIncreaseKillfeedMaxEntries() => _killfeed.ExecuteIncreaseMaxEntries();
+        public void ExecuteDecreaseKillfeedMaxEntries() => _killfeed.ExecuteDecreaseMaxEntries();
+        public void ExecuteIncreaseKillfeedMaxEntriesLarge() => _killfeed.ExecuteIncreaseMaxEntriesLarge();
+        public void ExecuteDecreaseKillfeedMaxEntriesLarge() => _killfeed.ExecuteDecreaseMaxEntriesLarge();
+        public void ExecuteResetKillfeed() => _killfeed.ExecuteReset();
+
+        [DataSourceProperty] public bool NativeKillfeedEnabled { get => _killfeed.NativeKillfeedEnabled; set => _killfeed.NativeKillfeedEnabled = value; }
+        [DataSourceProperty] public bool WarbandKillfeedEnabled { get => _killfeed.WarbandKillfeedEnabled; set => _killfeed.WarbandKillfeedEnabled = value; }
+        [DataSourceProperty] public bool KillfeedBackgroundEnabled { get => _killfeed.KillfeedBackgroundEnabled; set => _killfeed.KillfeedBackgroundEnabled = value; }
+        [DataSourceProperty] public string KillfeedOffsetXText => _killfeed.OffsetXText;
+        [DataSourceProperty] public string KillfeedOffsetYText => _killfeed.OffsetYText;
+        [DataSourceProperty] public string KillfeedScaleText => _killfeed.ScaleText;
+        [DataSourceProperty] public string KillfeedFadeoutTimeText => _killfeed.FadeoutTimeText;
+        [DataSourceProperty] public string KillfeedMaxEntriesText => _killfeed.MaxEntriesText;
+        [DataSourceProperty] public string KillfeedBackgroundOpacityText => _killfeed.BackgroundOpacityText;
+        [DataSourceProperty] public string KillfeedBackgroundColorText => _killfeed.BackgroundColorText;
+
+        #endregion
+
+        #region TopBar Delegation
+
+        public void ExecuteSelectTimeAndScores() => _topBar.SelectTimeAndScores();
+        public void ExecuteSelectTeamAvatars() => _topBar.SelectTeamAvatars();
+        public void ExecuteSelectMorale() => _topBar.SelectMorale();
+        public void ExecuteSelectPowerLevel() => _topBar.SelectPowerLevel();
+        public void ExecuteIncreaseOffsetX() => _topBar.ExecuteIncreaseOffsetX();
+        public void ExecuteDecreaseOffsetX() => _topBar.ExecuteDecreaseOffsetX();
+        public void ExecuteIncreaseOffsetY() => _topBar.ExecuteIncreaseOffsetY();
+        public void ExecuteDecreaseOffsetY() => _topBar.ExecuteDecreaseOffsetY();
+        public void ExecuteIncreaseOffsetXLarge() => _topBar.ExecuteIncreaseOffsetXLarge();
+        public void ExecuteDecreaseOffsetXLarge() => _topBar.ExecuteDecreaseOffsetXLarge();
+        public void ExecuteIncreaseOffsetYLarge() => _topBar.ExecuteIncreaseOffsetYLarge();
+        public void ExecuteDecreaseOffsetYLarge() => _topBar.ExecuteDecreaseOffsetYLarge();
+        public void ExecuteIncreaseScale() => _topBar.ExecuteIncreaseScale();
+        public void ExecuteDecreaseScale() => _topBar.ExecuteDecreaseScale();
+        public void ExecuteIncreaseScaleLarge() => _topBar.ExecuteIncreaseScaleLarge();
+        public void ExecuteDecreaseScaleLarge() => _topBar.ExecuteDecreaseScaleLarge();
+        public void ExecuteResetElement() => _topBar.ExecuteResetElement();
+        public void ExecuteResetAllElements() => _topBar.ExecuteResetAll();
+
+        [DataSourceProperty] public int SelectedElementIndex => _topBar.SelectedIndex;
+        [DataSourceProperty] public string SelectedElementName => _topBar.SelectedName;
+        [DataSourceProperty] public string CurrentOffsetXText => _topBar.OffsetXText;
+        [DataSourceProperty] public string CurrentOffsetYText => _topBar.OffsetYText;
+        [DataSourceProperty] public string CurrentScaleText => _topBar.ScaleText;
+
+        #endregion
+
+        #region AgentStatus (HP) Delegation
+
+        public void ExecuteSelectAgentHealth() => _agentStatus.SelectAgentHealth();
+        public void ExecuteSelectMountHealth() => _agentStatus.SelectMountHealth();
+        public void ExecuteSelectShieldHealth() => _agentStatus.SelectShieldHealth();
+        public void ExecuteSelectWeaponInfo() => _agentStatus.SelectWeaponInfo();
+        public void ExecuteSelectGoldAmount() => _agentStatus.SelectGoldAmount();
+        public void ExecuteSelectTroopCount() => _agentStatus.SelectTroopCount();
+        public void ExecuteSelectDamageFeed() => _agentStatus.SelectDamageFeed();
+        public void ExecuteIncreaseHPOffsetX() => _agentStatus.ExecuteIncreaseOffsetX();
+        public void ExecuteDecreaseHPOffsetX() => _agentStatus.ExecuteDecreaseOffsetX();
+        public void ExecuteIncreaseHPOffsetY() => _agentStatus.ExecuteIncreaseOffsetY();
+        public void ExecuteDecreaseHPOffsetY() => _agentStatus.ExecuteDecreaseOffsetY();
+        public void ExecuteIncreaseHPOffsetXLarge() => _agentStatus.ExecuteIncreaseOffsetXLarge();
+        public void ExecuteDecreaseHPOffsetXLarge() => _agentStatus.ExecuteDecreaseOffsetXLarge();
+        public void ExecuteIncreaseHPOffsetYLarge() => _agentStatus.ExecuteIncreaseOffsetYLarge();
+        public void ExecuteDecreaseHPOffsetYLarge() => _agentStatus.ExecuteDecreaseOffsetYLarge();
+        public void ExecuteIncreaseHPScale() => _agentStatus.ExecuteIncreaseScale();
+        public void ExecuteDecreaseHPScale() => _agentStatus.ExecuteDecreaseScale();
+        public void ExecuteIncreaseHPScaleLarge() => _agentStatus.ExecuteIncreaseScaleLarge();
+        public void ExecuteDecreaseHPScaleLarge() => _agentStatus.ExecuteDecreaseScaleLarge();
+        public void ExecuteResetHPElement() => _agentStatus.ExecuteResetElement();
+        public void ExecuteResetAllHPElements() => _agentStatus.ExecuteResetAll();
+
+        [DataSourceProperty] public int SelectedHPElementIndex => _agentStatus.SelectedIndex;
+        [DataSourceProperty] public string SelectedHPElementName => _agentStatus.SelectedName;
+        [DataSourceProperty] public string CurrentHPOffsetXText => _agentStatus.OffsetXText;
+        [DataSourceProperty] public string CurrentHPOffsetYText => _agentStatus.OffsetYText;
+        [DataSourceProperty] public string CurrentHPScaleText => _agentStatus.ScaleText;
+
+        #endregion
+
+        #region Visibility Delegation
+
+        [DataSourceProperty] public bool ShowTimeAndScores { get => _visibility.ShowTimeAndScores; set => _visibility.ShowTimeAndScores = value; }
+        [DataSourceProperty] public bool ShowAvatars { get => _visibility.ShowAvatars; set => _visibility.ShowAvatars = value; }
+        [DataSourceProperty] public bool ShowEnemyScore { get => _visibility.ShowEnemyScore; set => _visibility.ShowEnemyScore = value; }
+        [DataSourceProperty] public bool ShowBanners { get => _visibility.ShowBanners; set => _visibility.ShowBanners = value; }
+        [DataSourceProperty] public bool ShowMorale { get => _visibility.ShowMorale; set => _visibility.ShowMorale = value; }
+        [DataSourceProperty] public bool ShowPowerLevel { get => _visibility.ShowPowerLevel; set => _visibility.ShowPowerLevel = value; }
+        [DataSourceProperty] public bool ShowAgentHealth { get => _visibility.ShowAgentHealth; set => _visibility.ShowAgentHealth = value; }
+        [DataSourceProperty] public bool ShowMountHealth { get => _visibility.ShowMountHealth; set => _visibility.ShowMountHealth = value; }
+        [DataSourceProperty] public bool ShowShieldHealth { get => _visibility.ShowShieldHealth; set => _visibility.ShowShieldHealth = value; }
+        [DataSourceProperty] public bool ShowWeaponInfo { get => _visibility.ShowWeaponInfo; set => _visibility.ShowWeaponInfo = value; }
+        [DataSourceProperty] public bool ShowAmmoCount { get => _visibility.ShowAmmoCount; set => _visibility.ShowAmmoCount = value; }
+        [DataSourceProperty] public bool ShowGoldAmount { get => _visibility.ShowGoldAmount; set => _visibility.ShowGoldAmount = value; }
+        [DataSourceProperty] public bool ShowTroopCount { get => _visibility.ShowTroopCount; set => _visibility.ShowTroopCount = value; }
+        [DataSourceProperty] public bool ShowCouchLanceState { get => _visibility.ShowCouchLanceState; set => _visibility.ShowCouchLanceState = value; }
+        [DataSourceProperty] public bool ShowDamageFeed { get => _visibility.ShowDamageFeed; set => _visibility.ShowDamageFeed = value; }
+        [DataSourceProperty] public bool ShowHealthNumbers { get => _visibility.ShowHealthNumbers; set => _visibility.ShowHealthNumbers = value; }
+        [DataSourceProperty] public bool ShowMountHealthNumbers { get => _visibility.ShowMountHealthNumbers; set => _visibility.ShowMountHealthNumbers = value; }
+        [DataSourceProperty] public bool ShowShieldHealthNumbers { get => _visibility.ShowShieldHealthNumbers; set => _visibility.ShowShieldHealthNumbers = value; }
+
+        #endregion
+
+        #region Crosshair Delegation
+
+        public void ExecuteIncreaseCrosshairWidth() => _crosshair.ExecuteIncreaseWidth();
+        public void ExecuteDecreaseCrosshairWidth() => _crosshair.ExecuteDecreaseWidth();
+        public void ExecuteIncreaseCrosshairWidthLarge() => _crosshair.ExecuteIncreaseWidthLarge();
+        public void ExecuteDecreaseCrosshairWidthLarge() => _crosshair.ExecuteDecreaseWidthLarge();
+        public void ExecuteIncreaseCrosshairLength() => _crosshair.ExecuteIncreaseLength();
+        public void ExecuteDecreaseCrosshairLength() => _crosshair.ExecuteDecreaseLength();
+        public void ExecuteIncreaseCrosshairLengthLarge() => _crosshair.ExecuteIncreaseLengthLarge();
+        public void ExecuteDecreaseCrosshairLengthLarge() => _crosshair.ExecuteDecreaseLengthLarge();
+        public void ExecuteIncreaseCrosshairOffset() => _crosshair.ExecuteIncreaseOffset();
+        public void ExecuteDecreaseCrosshairOffset() => _crosshair.ExecuteDecreaseOffset();
+        public void ExecuteIncreaseCrosshairOffsetLarge() => _crosshair.ExecuteIncreaseOffsetLarge();
+        public void ExecuteDecreaseCrosshairOffsetLarge() => _crosshair.ExecuteDecreaseOffsetLarge();
+        public void ExecuteIncreaseCrosshairOpacity() => _crosshair.ExecuteIncreaseOpacity();
+        public void ExecuteDecreaseCrosshairOpacity() => _crosshair.ExecuteDecreaseOpacity();
+        public void ExecuteIncreaseCrosshairOpacityLarge() => _crosshair.ExecuteIncreaseOpacityLarge();
+        public void ExecuteDecreaseCrosshairOpacityLarge() => _crosshair.ExecuteDecreaseOpacityLarge();
+        public void ExecuteSetCrosshairColorRed() => _crosshair.ExecuteSetColorRed();
+        public void ExecuteSetCrosshairColorGreen() => _crosshair.ExecuteSetColorGreen();
+        public void ExecuteSetCrosshairColorBlue() => _crosshair.ExecuteSetColorBlue();
+        public void ExecuteSetCrosshairColorWhite() => _crosshair.ExecuteSetColorWhite();
+        public void ExecuteSetCrosshairColorYellow() => _crosshair.ExecuteSetColorYellow();
+        public void ExecuteSetCrosshairColorCyan() => _crosshair.ExecuteSetColorCyan();
+        public void ExecuteSetCrosshairColorMagenta() => _crosshair.ExecuteSetColorMagenta();
+        public void ExecuteSetCrosshairColorOrange() => _crosshair.ExecuteSetColorOrange();
+        public void ExecuteResetCrosshair() => _crosshair.ExecuteReset();
+
+        [DataSourceProperty] public bool CustomCrosshairEnabled { get => _crosshair.CustomCrosshairEnabled; set => _crosshair.CustomCrosshairEnabled = value; }
+        [DataSourceProperty] public int CrosshairWidthInt { get => _crosshair.WidthInt; set => _crosshair.WidthInt = value; }
+        [DataSourceProperty] public int CrosshairLengthInt { get => _crosshair.LengthInt; set => _crosshair.LengthInt = value; }
+        [DataSourceProperty] public int CrosshairOffsetInt { get => _crosshair.OffsetInt; set => _crosshair.OffsetInt = value; }
+        [DataSourceProperty] public float CrosshairOpacityFloat { get => _crosshair.OpacityFloat; set => _crosshair.OpacityFloat = value; }
+        [DataSourceProperty] public string CrosshairWidthText => _crosshair.WidthInt.ToString();
+        [DataSourceProperty] public string CrosshairLengthText => _crosshair.LengthInt.ToString();
+        [DataSourceProperty] public string CrosshairOffsetText => _crosshair.OffsetInt.ToString();
+        [DataSourceProperty] public string CrosshairOpacityText => (_crosshair.OpacityFloat * 100).ToString("F0") + "%";
+        [DataSourceProperty] public string CrosshairColorText => _crosshair.ColorText;
+        [DataSourceProperty] public MBBindingList<ColorItemVM> CrosshairColorList => _crosshair.ColorList;
+
+        #endregion
+
+        #region Dot Delegation
+
+        public void ExecuteIncreaseDotWidth() => _dot.ExecuteIncreaseWidth();
+        public void ExecuteDecreaseDotWidth() => _dot.ExecuteDecreaseWidth();
+        public void ExecuteIncreaseDotWidthLarge() => _dot.ExecuteIncreaseWidthLarge();
+        public void ExecuteDecreaseDotWidthLarge() => _dot.ExecuteDecreaseWidthLarge();
+        public void ExecuteIncreaseDotHeight() => _dot.ExecuteIncreaseHeight();
+        public void ExecuteDecreaseDotHeight() => _dot.ExecuteDecreaseHeight();
+        public void ExecuteIncreaseDotHeightLarge() => _dot.ExecuteIncreaseHeightLarge();
+        public void ExecuteDecreaseDotHeightLarge() => _dot.ExecuteDecreaseHeightLarge();
+        public void ExecuteIncreaseDotOffsetX() => _dot.ExecuteIncreaseOffsetX();
+        public void ExecuteDecreaseDotOffsetX() => _dot.ExecuteDecreaseOffsetX();
+        public void ExecuteIncreaseDotOffsetXLarge() => _dot.ExecuteIncreaseOffsetXLarge();
+        public void ExecuteDecreaseDotOffsetXLarge() => _dot.ExecuteDecreaseOffsetXLarge();
+        public void ExecuteIncreaseDotOffsetY() => _dot.ExecuteIncreaseOffsetY();
+        public void ExecuteDecreaseDotOffsetY() => _dot.ExecuteDecreaseOffsetY();
+        public void ExecuteIncreaseDotOffsetYLarge() => _dot.ExecuteIncreaseOffsetYLarge();
+        public void ExecuteDecreaseDotOffsetYLarge() => _dot.ExecuteDecreaseOffsetYLarge();
+        public void ExecuteSetDotColorRed() => _dot.ExecuteSetColorRed();
+        public void ExecuteSetDotColorGreen() => _dot.ExecuteSetColorGreen();
+        public void ExecuteSetDotColorBlue() => _dot.ExecuteSetColorBlue();
+        public void ExecuteSetDotColorWhite() => _dot.ExecuteSetColorWhite();
+        public void ExecuteSetDotColorYellow() => _dot.ExecuteSetColorYellow();
+        public void ExecuteSetDotColorCyan() => _dot.ExecuteSetColorCyan();
+        public void ExecuteSetDotColorMagenta() => _dot.ExecuteSetColorMagenta();
+        public void ExecuteSetDotColorOrange() => _dot.ExecuteSetColorOrange();
+        public void ExecuteSetDotCircular() => _dot.ExecuteSetCircular();
+        public void ExecuteSetDotSquare() => _dot.ExecuteSetSquare();
+        public void ExecuteResetDot() => _dot.ExecuteReset();
+
+        [DataSourceProperty] public bool DotEnabled { get => _dot.DotEnabled; set => _dot.DotEnabled = value; }
+        [DataSourceProperty] public int DotWidthInt { get => _dot.WidthInt; set => _dot.WidthInt = value; }
+        [DataSourceProperty] public int DotHeightInt { get => _dot.HeightInt; set => _dot.HeightInt = value; }
+        [DataSourceProperty] public string DotWidthText => _dot.WidthText;
+        [DataSourceProperty] public string DotHeightText => _dot.HeightText;
+        [DataSourceProperty] public string DotColorText => _dot.ColorText;
+        [DataSourceProperty] public string DotOffsetXText => _dot.OffsetXText;
+        [DataSourceProperty] public string DotOffsetYText => _dot.OffsetYText;
+        [DataSourceProperty] public MBBindingList<ColorItemVM> DotColorList => _dot.ColorList;
+
+        #endregion
+
+        #region Avatar Delegation
+
+        public void ExecuteSelectAllyAvatars() => _avatar.SelectAlly();
+        public void ExecuteSelectEnemyAvatars() => _avatar.SelectEnemy();
+        public void ExecuteIncreaseAvatarOffsetX() => _avatar.ExecuteIncreaseOffsetX();
+        public void ExecuteDecreaseAvatarOffsetX() => _avatar.ExecuteDecreaseOffsetX();
+        public void ExecuteIncreaseAvatarOffsetY() => _avatar.ExecuteIncreaseOffsetY();
+        public void ExecuteDecreaseAvatarOffsetY() => _avatar.ExecuteDecreaseOffsetY();
+        public void ExecuteIncreaseAvatarOffsetXLarge() => _avatar.ExecuteIncreaseOffsetXLarge();
+        public void ExecuteDecreaseAvatarOffsetXLarge() => _avatar.ExecuteDecreaseOffsetXLarge();
+        public void ExecuteIncreaseAvatarOffsetYLarge() => _avatar.ExecuteIncreaseOffsetYLarge();
+        public void ExecuteDecreaseAvatarOffsetYLarge() => _avatar.ExecuteDecreaseOffsetYLarge();
+        public void ExecuteIncreaseAvatarScale() => _avatar.ExecuteIncreaseScale();
+        public void ExecuteDecreaseAvatarScale() => _avatar.ExecuteDecreaseScale();
+        public void ExecuteIncreaseAvatarScaleLarge() => _avatar.ExecuteIncreaseScaleLarge();
+        public void ExecuteDecreaseAvatarScaleLarge() => _avatar.ExecuteDecreaseScaleLarge();
+        public void ExecuteIncreaseAvatarSpacing() => _avatar.ExecuteIncreaseSpacing();
+        public void ExecuteDecreaseAvatarSpacing() => _avatar.ExecuteDecreaseSpacing();
+        public void ExecuteIncreaseAvatarSpacingLarge() => _avatar.ExecuteIncreaseSpacingLarge();
+        public void ExecuteDecreaseAvatarSpacingLarge() => _avatar.ExecuteDecreaseSpacingLarge();
+        public void ExecuteToggleAvatarSideOrientation() => _avatar.ExecuteToggleOrientation();
+        public void ExecuteResetAvatarSide() => _avatar.ExecuteResetCurrent();
+        public void ExecuteResetAllAvatarSides() => _avatar.ExecuteResetAll();
+        public void ExecuteCleanupAvatars() => _avatar.ExecuteCleanupAvatars();
+
+        [DataSourceProperty] public string SelectedAvatarSideName => _avatar.SelectedName;
+        [DataSourceProperty] public string CurrentAvatarOffsetXText => _avatar.OffsetXText;
+        [DataSourceProperty] public string CurrentAvatarOffsetYText => _avatar.OffsetYText;
+        [DataSourceProperty] public string CurrentAvatarScaleText => _avatar.ScaleText;
+        [DataSourceProperty] public string CurrentAvatarOrientationText => _avatar.OrientationText;
+        [DataSourceProperty] public string CurrentAvatarSpacingText => _avatar.SpacingText;
+        [DataSourceProperty] public bool IsAllyAvatarSelected => _avatar.IsAllySelected;
+        [DataSourceProperty] public bool IsEnemyAvatarSelected => _avatar.IsEnemySelected;
+        [DataSourceProperty] public bool BetterAvatarsEnabled { get => _avatar.BetterAvatarsEnabled; set => _avatar.BetterAvatarsEnabled = value; }
+        [DataSourceProperty] public bool AvatarSortingEnabled { get => _avatar.AvatarSortingEnabled; set => _avatar.AvatarSortingEnabled = value; }
+
+        #endregion
+
+        #region Scoreboard Delegation
+
+        public void ExecuteIncreaseScoreboardOpacity() => _scoreboard.ExecuteIncreaseBackgroundOpacity();
+        public void ExecuteDecreaseScoreboardOpacity() => _scoreboard.ExecuteDecreaseBackgroundOpacity();
+        public void ExecuteIncreaseScoreboardOpacityLarge() => _scoreboard.ExecuteIncreaseBackgroundOpacityLarge();
+        public void ExecuteDecreaseScoreboardOpacityLarge() => _scoreboard.ExecuteDecreaseBackgroundOpacityLarge();
+        public void ExecuteIncreaseStripingOpacity() => _scoreboard.ExecuteIncreaseStripingOpacity();
+        public void ExecuteDecreaseStripingOpacity() => _scoreboard.ExecuteDecreaseStripingOpacity();
+        public void ExecuteIncreaseStripingOpacityLarge() => _scoreboard.ExecuteIncreaseStripingOpacityLarge();
+        public void ExecuteDecreaseStripingOpacityLarge() => _scoreboard.ExecuteDecreaseStripingOpacityLarge();
+        public void ExecuteIncreaseDeadPlayerOpacity() => _scoreboard.ExecuteIncreaseDeadPlayerOpacity();
+        public void ExecuteDecreaseDeadPlayerOpacity() => _scoreboard.ExecuteDecreaseDeadPlayerOpacity();
+        public void ExecuteIncreaseDeadPlayerOpacityLarge() => _scoreboard.ExecuteIncreaseDeadPlayerOpacityLarge();
+        public void ExecuteDecreaseDeadPlayerOpacityLarge() => _scoreboard.ExecuteDecreaseDeadPlayerOpacityLarge();
+        public void ExecuteSetDeadPlayerColorRed() => _scoreboard.ExecuteSetDeadPlayerColorRed();
+        public void ExecuteSetDeadPlayerColorGray() => _scoreboard.ExecuteSetDeadPlayerColorGray();
+        public void ExecuteSetDeadPlayerColorDark() => _scoreboard.ExecuteSetDeadPlayerColorDark();
+        public void ExecuteSetDeadPlayerColorWhite() => _scoreboard.ExecuteSetDeadPlayerColorWhite();
+        public void ExecuteSetDeadPlayerColorOrange() => _scoreboard.ExecuteSetDeadPlayerColorOrange();
+        public void ExecuteSetDeadPlayerColorPurple() => _scoreboard.ExecuteSetDeadPlayerColorPurple();
+        public void ExecuteDebugScoreboard() => _scoreboard.ExecuteDebugStructure();
+        public void ExecuteResetScoreboard() => _scoreboard.ExecuteReset();
+
+        [DataSourceProperty] public bool ScoreboardBackgroundEnabled { get => _scoreboard.BackgroundEnabled; set => _scoreboard.BackgroundEnabled = value; }
+        [DataSourceProperty] public bool ScoreboardStripingEnabled { get => _scoreboard.StripingEnabled; set => _scoreboard.StripingEnabled = value; }
+        [DataSourceProperty] public bool ScoreboardDeadPlayerTintEnabled { get => _scoreboard.DeadPlayerTintEnabled; set => _scoreboard.DeadPlayerTintEnabled = value; }
+        [DataSourceProperty] public bool HideUIWhenScoreboardOpen { get => _scoreboard.HideUIWhenOpen; set => _scoreboard.HideUIWhenOpen = value; }
+        [DataSourceProperty] public string ScoreboardBackgroundOpacityText => _scoreboard.BackgroundOpacityText;
+        [DataSourceProperty] public string ScoreboardStripingOpacityText => _scoreboard.StripingOpacityText;
+        [DataSourceProperty] public string ScoreboardDeadPlayerOpacityText => _scoreboard.DeadPlayerOpacityText;
+
+        #endregion
+
+        #region Chat Delegation
+
+        public void ExecuteIncreaseChatOffsetX() => _chat.ExecuteIncreaseOffsetX();
+        public void ExecuteDecreaseChatOffsetX() => _chat.ExecuteDecreaseOffsetX();
+        public void ExecuteIncreaseChatOffsetY() => _chat.ExecuteIncreaseOffsetY();
+        public void ExecuteDecreaseChatOffsetY() => _chat.ExecuteDecreaseOffsetY();
+        public void ExecuteIncreaseChatOffsetXLarge() => _chat.ExecuteIncreaseOffsetXLarge();
+        public void ExecuteDecreaseChatOffsetXLarge() => _chat.ExecuteDecreaseOffsetXLarge();
+        public void ExecuteIncreaseChatOffsetYLarge() => _chat.ExecuteIncreaseOffsetYLarge();
+        public void ExecuteDecreaseChatOffsetYLarge() => _chat.ExecuteDecreaseOffsetYLarge();
+        public void ExecuteIncreaseChatScale() => _chat.ExecuteIncreaseScale();
+        public void ExecuteDecreaseChatScale() => _chat.ExecuteDecreaseScale();
+        public void ExecuteIncreaseChatScaleLarge() => _chat.ExecuteIncreaseScaleLarge();
+        public void ExecuteDecreaseChatScaleLarge() => _chat.ExecuteDecreaseScaleLarge();
+        public void ExecuteDebugChat() => _chat.ExecuteDebugStructure();
+        public void ExecuteResetChat() => _chat.ExecuteReset();
+
+        [DataSourceProperty] public bool ShowChat { get => _chat.ShowChat; set => _chat.ShowChat = value; }
+        [DataSourceProperty] public bool ChatMinimalMode { get => _chat.MinimalMode; set => _chat.MinimalMode = value; }
+        [DataSourceProperty] public string ChatOffsetXText => _chat.OffsetXText;
+        [DataSourceProperty] public string ChatOffsetYText => _chat.OffsetYText;
+        [DataSourceProperty] public string ChatScaleText => _chat.ScaleText;
+
+        #endregion
+
+        #region Profile Delegation
+
+        public void ExecuteNextProfile() => _profileManager.ExecuteNextProfile();
+        public void ExecutePreviousProfile() => _profileManager.ExecutePreviousProfile();
+        public void ExecuteCreateProfile() => _profileManager.ExecuteCreateProfile();
+        public void ExecuteDuplicateProfile() => _profileManager.ExecuteDuplicateProfile();
+        public void ExecuteDeleteProfile() => _profileManager.ExecuteDeleteProfile();
+        public void ExecuteSaveProfileName() => _profileManager.ExecuteSaveProfileName();
+
+        [DataSourceProperty] public string CurrentProfileName { get => _profileManager.CurrentProfileName; set => _profileManager.CurrentProfileName = value; }
+        [DataSourceProperty] public bool IsSaveNameButtonVisible => _profileManager.IsSaveNameButtonVisible;
+        [DataSourceProperty] public string ProfileCountText => _profileManager.ProfileCountText;
+        [DataSourceProperty] public bool CanDeleteProfile => _profileManager.CanDeleteProfile;
+
+        #endregion
+
+        #region Misc Delegation
+
+        [DataSourceProperty] 
+        public bool CameraSnapbackEnabledProp 
         { 
-            get { return _settings.BetterAvatarsEnabled; } 
-            set 
-            { 
-                if (_settings.BetterAvatarsEnabled != value) 
-                { 
-                    _settings.BetterAvatarsEnabled = value; 
-                    OnPropertyChangedWithValue(value, "BetterAvatarsEnabled"); 
-                    if (OnBetterAvatarsToggled != null)
-                        OnBetterAvatarsToggled(value);
-                    OnSettingsChanged(); 
-                } 
-            } 
-        }
-        
-        [DataSourceProperty]
-        public bool ScoreboardBackgroundEnabled 
-        { 
-            get { return _settings.ScoreboardBackgroundEnabled; } 
-            set 
-            { 
-                if (_settings.ScoreboardBackgroundEnabled != value) 
-                { 
-                    _settings.ScoreboardBackgroundEnabled = value; 
-                    OnPropertyChangedWithValue(value, "ScoreboardBackgroundEnabled"); 
-                    OnSettingsChanged(); 
-                } 
-            } 
-        }
-        
-        [DataSourceProperty]
-        public bool ScoreboardStripingEnabled 
-        { 
-            get { return _settings.ScoreboardStripingEnabled; } 
-            set 
-            { 
-                if (_settings.ScoreboardStripingEnabled != value) 
-                { 
-                    _settings.ScoreboardStripingEnabled = value; 
-                    OnPropertyChangedWithValue(value, "ScoreboardStripingEnabled"); 
-                    OnSettingsChanged(); 
-                } 
-            } 
-        }
-        
-        [DataSourceProperty]
-        public string ScoreboardBackgroundOpacityText 
-        { 
-            get { return (_settings.ScoreboardBackgroundOpacity * 100).ToString("F0") + "%"; } 
+            get => _misc.CameraSnapbackEnabled; 
+            set => _misc.CameraSnapbackEnabled = value; 
         }
 
-        [DataSourceProperty]
-        public string ScoreboardStripingOpacityText 
-        { 
-            get { return (_settings.ScoreboardStripingOpacity * 100).ToString("F0") + "%"; } 
-        }
-
-        [DataSourceProperty]
-        public bool IsScoreboardPageOpen { get { return _currentPage == "Scoreboard"; } }
-
-        public void ExecuteOpenScoreboardPage() { SetPage("Scoreboard"); }
-
-        private void AdjustScoreboardBackgroundOpacity(float delta)
-        {
-            float newValue = _settings.ScoreboardBackgroundOpacity + delta;
-            if (newValue >= 0f && newValue <= 1f)
-            {
-                _settings.ScoreboardBackgroundOpacity = (float)Math.Round(newValue, 2);
-                OnPropertyChangedWithValue(ScoreboardBackgroundOpacityText, "ScoreboardBackgroundOpacityText");
-                OnSettingsChanged();
-            }
-        }
-        
-        private void AdjustScoreboardStripingOpacity(float delta)
-        {
-            float newValue = _settings.ScoreboardStripingOpacity + delta;
-            if (newValue >= 0f && newValue <= 1f)
-            {
-                _settings.ScoreboardStripingOpacity = (float)Math.Round(newValue, 2);
-                OnPropertyChangedWithValue(ScoreboardStripingOpacityText, "ScoreboardStripingOpacityText");
-                OnSettingsChanged();
-            }
-        }
-        
-        public void ExecuteIncreaseScoreboardOpacity() { AdjustScoreboardBackgroundOpacity(0.05f); }
-        public void ExecuteDecreaseScoreboardOpacity() { AdjustScoreboardBackgroundOpacity(-0.05f); }
-        public void ExecuteIncreaseScoreboardOpacityLarge() { AdjustScoreboardBackgroundOpacity(0.1f); }
-        public void ExecuteDecreaseScoreboardOpacityLarge() { AdjustScoreboardBackgroundOpacity(-0.1f); }
-
-        public void ExecuteIncreaseStripingOpacity() { AdjustScoreboardStripingOpacity(0.05f); }
-        public void ExecuteDecreaseStripingOpacity() { AdjustScoreboardStripingOpacity(-0.05f); }
-        public void ExecuteIncreaseStripingOpacityLarge() { AdjustScoreboardStripingOpacity(0.1f); }
-        public void ExecuteDecreaseStripingOpacityLarge() { AdjustScoreboardStripingOpacity(-0.1f); }
-        public void ExecuteIncreaseDeadPlayerOpacity() { AdjustDeadPlayerOpacity(0.05f); }
-        public void ExecuteDecreaseDeadPlayerOpacity() { AdjustDeadPlayerOpacity(-0.05f); }
-        public void ExecuteIncreaseDeadPlayerOpacityLarge() { AdjustDeadPlayerOpacity(0.1f); }
-        public void ExecuteDecreaseDeadPlayerOpacityLarge() { AdjustDeadPlayerOpacity(-0.1f); }
-
-        public void ExecuteSetDeadPlayerColorRed() { _settings.ScoreboardDeadPlayerColor = "#FF4444FF"; OnSettingsChanged(); }
-        public void ExecuteSetDeadPlayerColorGray() { _settings.ScoreboardDeadPlayerColor = "#888888FF"; OnSettingsChanged(); }
-        public void ExecuteSetDeadPlayerColorDark() { _settings.ScoreboardDeadPlayerColor = "#444444FF"; OnSettingsChanged(); }
-        public void ExecuteSetDeadPlayerColorWhite() { _settings.ScoreboardDeadPlayerColor = "#CCCCCCFF"; OnSettingsChanged(); }
-        public void ExecuteSetDeadPlayerColorOrange() { _settings.ScoreboardDeadPlayerColor = "#FF8800FF"; OnSettingsChanged(); }
-        public void ExecuteSetDeadPlayerColorPurple() { _settings.ScoreboardDeadPlayerColor = "#8844FFFF"; OnSettingsChanged(); }
-
-
-        [DataSourceProperty]
-        public bool HideUIWhenScoreboardOpen 
-        { 
-            get { return _settings.HideUIWhenScoreboardOpen; } 
-            set 
-            { 
-                if (_settings.HideUIWhenScoreboardOpen != value) 
-                { 
-                    _settings.HideUIWhenScoreboardOpen = value; 
-                    OnPropertyChangedWithValue(value, "HideUIWhenScoreboardOpen"); 
-                    OnSettingsChanged(); 
-                } 
-            } 
-        }
-
-        [DataSourceProperty]
-        public bool ScoreboardDeadPlayerTintEnabled 
-        { 
-            get { return _settings.ScoreboardDeadPlayerTintEnabled; } 
-            set 
-            { 
-                if (_settings.ScoreboardDeadPlayerTintEnabled != value) 
-                { 
-                    _settings.ScoreboardDeadPlayerTintEnabled = value; 
-                    OnPropertyChangedWithValue(value, "ScoreboardDeadPlayerTintEnabled"); 
-                    OnSettingsChanged(); 
-                } 
-            } 
-        }
-        
-        [DataSourceProperty]
-        public string ScoreboardDeadPlayerOpacityText 
-        { 
-            get { return (_settings.ScoreboardDeadPlayerOpacity * 100).ToString("F0") + "%"; } 
-        }
-
-        private void AdjustDeadPlayerOpacity(float delta)
-        {
-            float newValue = _settings.ScoreboardDeadPlayerOpacity + delta;
-            if (newValue >= 0f && newValue <= 1f)
-            {
-                _settings.ScoreboardDeadPlayerOpacity = (float)Math.Round(newValue, 2);
-                OnPropertyChangedWithValue(ScoreboardDeadPlayerOpacityText, "ScoreboardDeadPlayerOpacityText");
-                OnSettingsChanged();
-            }
-        }
-        
-        public void ExecuteResetScoreboard()
-        {
-            _settings.ScoreboardBackgroundEnabled = true;
-            _settings.ScoreboardBackgroundOpacity = 0.8f;
-            _settings.ScoreboardStripingEnabled = true;
-            _settings.ScoreboardStripingOpacity = 0.2f;
-            _settings.ScoreboardDeadPlayerOpacity = 0.3f;
-            _settings.ScoreboardDeadPlayerColor = "";
-            _settings.ScoreboardDeadPlayerTintEnabled = false;
-            _settings.HideUIWhenScoreboardOpen = false;
-    
-            RefreshScoreboardDisplay();
-            OnSettingsChanged();
-        }
-        
-        private void RefreshScoreboardDisplay()
-        {
-            OnPropertyChangedWithValue(ScoreboardBackgroundEnabled, "ScoreboardBackgroundEnabled");
-            OnPropertyChangedWithValue(ScoreboardBackgroundOpacityText, "ScoreboardBackgroundOpacityText");
-            OnPropertyChangedWithValue(ScoreboardStripingEnabled, "ScoreboardStripingEnabled");
-            OnPropertyChangedWithValue(ScoreboardStripingOpacityText, "ScoreboardStripingOpacityText");
-            OnPropertyChangedWithValue(ScoreboardDeadPlayerOpacityText, "ScoreboardDeadPlayerOpacityText");
-            OnPropertyChangedWithValue(ScoreboardDeadPlayerTintEnabled, "ScoreboardDeadPlayerTintEnabled");
-            OnPropertyChangedWithValue(HideUIWhenScoreboardOpen, "HideUIWhenScoreboardOpen");
-        }
-        
-        [DataSourceProperty]
-        public bool ShowChat 
-        { 
-            get { return _settings.ShowChat; } 
-            set 
-            { 
-                if (_settings.ShowChat != value) 
-                { 
-                    _settings.ShowChat = value; 
-                    OnPropertyChangedWithValue(value, "ShowChat"); 
-                    if (OnChatToggled != null)
-                        OnChatToggled(value);
-                    OnSettingsChanged(); 
-                } 
-            } 
-        }
-        
-        public void ExecuteDebugChat()
-        {
-            if (OnDebugChatStructure != null)
-                OnDebugChatStructure();
-        }
-        
-        [DataSourceProperty]
-        public string ChatOffsetXText { get { return _settings.ChatCustom.OffsetX.ToString("F0"); } }
-
-        [DataSourceProperty]
-        public string ChatOffsetYText { get { return _settings.ChatCustom.OffsetY.ToString("F0"); } }
-
-        [DataSourceProperty]
-        public string ChatScaleText { get { return (_settings.ChatCustom.Scale * 100).ToString("F0") + "%"; } }
-
-        private void AdjustChatOffsetX(float delta)
-        {
-            _settings.ChatCustom.OffsetX += delta;
-            RefreshChatDisplay();
-        }
-
-        private void AdjustChatOffsetY(float delta)
-        {
-            _settings.ChatCustom.OffsetY += delta;
-            RefreshChatDisplay();
-        }
-
-        private void AdjustChatScale(float delta)
-        {
-            float newScale = _settings.ChatCustom.Scale + delta;
-            if (newScale >= Constants.Adjustment.MinScale && newScale <= Constants.Adjustment.MaxScale)
-            {
-                _settings.ChatCustom.Scale = (float)Math.Round(newScale, 2);
-                RefreshChatDisplay();
-            }
-        }
-        
-        private void RefreshChatDisplay()
-        {
-            OnPropertyChangedWithValue(ChatOffsetXText, "ChatOffsetXText");
-            OnPropertyChangedWithValue(ChatOffsetYText, "ChatOffsetYText");
-            OnPropertyChangedWithValue(ChatScaleText, "ChatScaleText");
-            OnSettingsChanged();
-        }
-        
-        public void ExecuteIncreaseChatOffsetX() { AdjustChatOffsetX(Constants.Adjustment.PositionStep); }
-        public void ExecuteDecreaseChatOffsetX() { AdjustChatOffsetX(-Constants.Adjustment.PositionStep); }
-        public void ExecuteIncreaseChatOffsetXLarge() { AdjustChatOffsetX(Constants.Adjustment.PositionStepLarge); }
-        public void ExecuteDecreaseChatOffsetXLarge() { AdjustChatOffsetX(-Constants.Adjustment.PositionStepLarge); }
-
-        public void ExecuteIncreaseChatOffsetY() { AdjustChatOffsetY(Constants.Adjustment.PositionStep); }
-        public void ExecuteDecreaseChatOffsetY() { AdjustChatOffsetY(-Constants.Adjustment.PositionStep); }
-        public void ExecuteIncreaseChatOffsetYLarge() { AdjustChatOffsetY(Constants.Adjustment.PositionStepLarge); }
-        public void ExecuteDecreaseChatOffsetYLarge() { AdjustChatOffsetY(-Constants.Adjustment.PositionStepLarge); }
-
-        public void ExecuteIncreaseChatScale() { AdjustChatScale(Constants.Adjustment.ScaleStep); }
-        public void ExecuteDecreaseChatScale() { AdjustChatScale(-Constants.Adjustment.ScaleStep); }
-        public void ExecuteIncreaseChatScaleLarge() { AdjustChatScale(Constants.Adjustment.ScaleStepLarge); }
-        public void ExecuteDecreaseChatScaleLarge() { AdjustChatScale(-Constants.Adjustment.ScaleStepLarge); }
-
-        public void ExecuteResetChat()
-        {
-            _settings.ChatCustom.Reset();
-            RefreshChatDisplay();
-        }
-        
-        [DataSourceProperty]
-        public bool ChatMinimalMode 
-        { 
-            get { return _settings.ChatMinimalMode; } 
-            set 
-            { 
-                if (_settings.ChatMinimalMode != value) 
-                { 
-                    _settings.ChatMinimalMode = value; 
-                    OnPropertyChangedWithValue(value, "ChatMinimalMode"); 
-                    OnSettingsChanged(); 
-                } 
-            } 
-        }
+        #endregion
     }
 }

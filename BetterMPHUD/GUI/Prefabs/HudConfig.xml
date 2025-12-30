@@ -898,21 +898,6 @@
 																</ButtonWidget>
 															</Children>
 														</ListPanel>
-
-														<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="1" Sprite="BlankWhiteSquare_9" Color="#FFFFFF33" MarginTop="15" MarginBottom="15"/>
-
-														<!-- Debug Button -->
-														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
-															<Children>
-																<TextWidget Text="Debug Structure" WidthSizePolicy="Fixed" SuggestedWidth="150" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="16" Brush.FontColor="#E0E0E0FF"/>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="35" Brush="HUDButton" Command.Click="ExecuteDebugChat">
-																	<Children>
-																		<TextWidget Text="Print" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="16" Brush.FontColor="#00FF00FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
-																	</Children>
-																</ButtonWidget>
-															</Children>
-														</ListPanel>
-
 													</Children>
 												</ListPanel>
 

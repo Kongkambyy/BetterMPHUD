@@ -88,7 +88,20 @@
     <Compile Include="ViewModels\HudMenuVM.cs" />
     <Compile Include="ViewModels\KillfeedItemVM.cs" />
     <Compile Include="ViewModels\KillfeedVM.cs" />
+    <Compile Include="ViewModels\NavigationVM.cs" />
+    <Compile Include="ViewModels\ProfileManagerVM.cs" />
     <Compile Include="ViewModels\ReloadPhaseItemVM.cs" />
+    <Compile Include="ViewModels\Settings\AgentStatusSettingsVM.cs" />
+    <Compile Include="ViewModels\Settings\AvatarSettingsVM.cs" />
+    <Compile Include="ViewModels\Settings\BaseSettingsVM.cs" />
+    <Compile Include="ViewModels\Settings\ChatSettingsVM.cs" />
+    <Compile Include="ViewModels\Settings\CrosshairSettingsVM.cs" />
+    <Compile Include="ViewModels\Settings\DotSettingsVM.cs" />
+    <Compile Include="ViewModels\Settings\KillfeedSettingsVM.cs" />
+    <Compile Include="ViewModels\Settings\MiscSettingsVM.cs" />
+    <Compile Include="ViewModels\Settings\ScoreboardSettingsVM.cs" />
+    <Compile Include="ViewModels\Settings\TopBarSettingsVM.cs" />
+    <Compile Include="ViewModels\Settings\VisibilitySettingsVM.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="GUI\BetterMPHUDSpriteData.xml" />
