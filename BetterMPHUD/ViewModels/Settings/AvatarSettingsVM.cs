@@ -14,7 +14,7 @@ namespace BetterMPHUD.ViewModels.Settings
         public AvatarSettingsVM(HudSettings settings, Action onSettingsChanged) 
             : base(settings, onSettingsChanged)
         {
-            SelectAlly();
+            _selectedSide = 0;
         }
 
         private ElementCustomization CurrentCustomization => 
@@ -48,12 +48,14 @@ namespace BetterMPHUD.ViewModels.Settings
         {
             _selectedSide = 0;
             RefreshDisplay();
+            NotifyPropertyRefresh();
         }
 
         public void SelectEnemy()
         {
             _selectedSide = 1;
             RefreshDisplay();
+            NotifyPropertyRefresh();
         }
 
         [DataSourceProperty]
@@ -111,19 +113,38 @@ namespace BetterMPHUD.ViewModels.Settings
             }
         }
 
-        public void ExecuteIncreaseOffsetX() => AdjustOffset(CurrentCustomization, Constants.Adjustment.PositionStep, 0, RefreshDisplay);
-        public void ExecuteDecreaseOffsetX() => AdjustOffset(CurrentCustomization, -Constants.Adjustment.PositionStep, 0, RefreshDisplay);
-        public void ExecuteIncreaseOffsetY() => AdjustOffset(CurrentCustomization, 0, Constants.Adjustment.PositionStep, RefreshDisplay);
-        public void ExecuteDecreaseOffsetY() => AdjustOffset(CurrentCustomization, 0, -Constants.Adjustment.PositionStep, RefreshDisplay);
-        public void ExecuteIncreaseOffsetXLarge() => AdjustOffset(CurrentCustomization, Constants.Adjustment.PositionStepLarge, 0, RefreshDisplay);
-        public void ExecuteDecreaseOffsetXLarge() => AdjustOffset(CurrentCustomization, -Constants.Adjustment.PositionStepLarge, 0, RefreshDisplay);
-        public void ExecuteIncreaseOffsetYLarge() => AdjustOffset(CurrentCustomization, 0, Constants.Adjustment.PositionStepLarge, RefreshDisplay);
-        public void ExecuteDecreaseOffsetYLarge() => AdjustOffset(CurrentCustomization, 0, -Constants.Adjustment.PositionStepLarge, RefreshDisplay);
+        public void ExecuteIncreaseOffsetX() => AdjustCurrentOffset(Constants.Adjustment.PositionStep, 0);
+        public void ExecuteDecreaseOffsetX() => AdjustCurrentOffset(-Constants.Adjustment.PositionStep, 0);
+        public void ExecuteIncreaseOffsetY() => AdjustCurrentOffset(0, Constants.Adjustment.PositionStep);
+        public void ExecuteDecreaseOffsetY() => AdjustCurrentOffset(0, -Constants.Adjustment.PositionStep);
+        public void ExecuteIncreaseOffsetXLarge() => AdjustCurrentOffset(Constants.Adjustment.PositionStepLarge, 0);
+        public void ExecuteDecreaseOffsetXLarge() => AdjustCurrentOffset(-Constants.Adjustment.PositionStepLarge, 0);
+        public void ExecuteIncreaseOffsetYLarge() => AdjustCurrentOffset(0, Constants.Adjustment.PositionStepLarge);
+        public void ExecuteDecreaseOffsetYLarge() => AdjustCurrentOffset(0, -Constants.Adjustment.PositionStepLarge);
 
-        public void ExecuteIncreaseScale() => AdjustScale(CurrentCustomization, Constants.Adjustment.ScaleStep, RefreshDisplay);
-        public void ExecuteDecreaseScale() => AdjustScale(CurrentCustomization, -Constants.Adjustment.ScaleStep, RefreshDisplay);
-        public void ExecuteIncreaseScaleLarge() => AdjustScale(CurrentCustomization, Constants.Adjustment.ScaleStepLarge, RefreshDisplay);
-        public void ExecuteDecreaseScaleLarge() => AdjustScale(CurrentCustomization, -Constants.Adjustment.ScaleStepLarge, RefreshDisplay);
+        private void AdjustCurrentOffset(float dx, float dy)
+        {
+            CurrentCustomization.OffsetX += dx;
+            CurrentCustomization.OffsetY += dy;
+            RefreshDisplay();
+            NotifyChanged();
+        }
+
+        public void ExecuteIncreaseScale() => AdjustCurrentScale(Constants.Adjustment.ScaleStep);
+        public void ExecuteDecreaseScale() => AdjustCurrentScale(-Constants.Adjustment.ScaleStep);
+        public void ExecuteIncreaseScaleLarge() => AdjustCurrentScale(Constants.Adjustment.ScaleStepLarge);
+        public void ExecuteDecreaseScaleLarge() => AdjustCurrentScale(-Constants.Adjustment.ScaleStepLarge);
+
+        private void AdjustCurrentScale(float delta)
+        {
+            float newScale = CurrentCustomization.Scale + delta;
+            if (newScale >= Constants.Adjustment.MinScale && newScale <= Constants.Adjustment.MaxScale)
+            {
+                CurrentCustomization.Scale = (float)Math.Round(newScale, 2);
+                RefreshDisplay();
+                NotifyChanged();
+            }
+        }
 
         public void ExecuteIncreaseSpacing() => AdjustSpacing(1f);
         public void ExecuteDecreaseSpacing() => AdjustSpacing(-1f);
@@ -136,7 +157,7 @@ namespace BetterMPHUD.ViewModels.Settings
             if (newValue >= -20f && newValue <= 50f)
             {
                 CurrentSpacing = newValue;
-                OnPropertyChangedWithValue(SpacingText, "SpacingText");
+                RefreshDisplay();
                 NotifyChanged();
             }
         }
@@ -144,7 +165,7 @@ namespace BetterMPHUD.ViewModels.Settings
         public void ExecuteToggleOrientation()
         {
             CurrentVertical = !CurrentVertical;
-            OnPropertyChangedWithValue(OrientationText, "OrientationText");
+            RefreshDisplay();
             NotifyChanged();
         }
 
@@ -160,6 +181,7 @@ namespace BetterMPHUD.ViewModels.Settings
             CurrentVertical = false;
             CurrentSpacing = 0f;
             RefreshDisplay();
+            NotifyChanged();
         }
 
         public void ExecuteResetAll()
@@ -170,7 +192,8 @@ namespace BetterMPHUD.ViewModels.Settings
             Settings.EnemyAvatarsVertical = false;
             Settings.AllyAvatarsSpacing = 0f;
             Settings.EnemyAvatarsSpacing = 0f;
-            SelectAlly();
+            _selectedSide = 0;
+            RefreshDisplay();
             NotifyChanged();
         }
 
@@ -184,7 +207,6 @@ namespace BetterMPHUD.ViewModels.Settings
             OnPropertyChangedWithValue(ScaleText, "ScaleText");
             OnPropertyChangedWithValue(OrientationText, "OrientationText");
             OnPropertyChangedWithValue(SpacingText, "SpacingText");
-            NotifyChanged();
         }
 
         public override void RefreshAll()
@@ -192,6 +214,7 @@ namespace BetterMPHUD.ViewModels.Settings
             OnPropertyChangedWithValue(BetterAvatarsEnabled, "BetterAvatarsEnabled");
             OnPropertyChangedWithValue(AvatarSortingEnabled, "AvatarSortingEnabled");
             RefreshDisplay();
+            NotifyPropertyRefresh();
         }
     }
 }

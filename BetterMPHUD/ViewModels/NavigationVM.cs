@@ -56,7 +56,7 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty] public bool IsDotSettingsPageOpen => _currentPage == "DotSettings";
         [DataSourceProperty] public bool IsMiscPageOpen => _currentPage == "Misc";
         [DataSourceProperty] public bool IsProfilesPageOpen => _currentPage == "Profiles";
-        [DataSourceProperty] public bool IsAvatarSidesPageOpen => _currentPage == "AvatarSidesPage";
+        [DataSourceProperty] public bool IsAvatarSidesPageOpen => _currentPage == "AvatarSides";
         [DataSourceProperty] public bool IsScoreboardPageOpen => _currentPage == "Scoreboard";
 
         [DataSourceProperty] 

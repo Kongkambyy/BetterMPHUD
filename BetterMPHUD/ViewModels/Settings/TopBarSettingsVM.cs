@@ -13,7 +13,9 @@ namespace BetterMPHUD.ViewModels.Settings
         public TopBarSettingsVM(HudSettings settings, Action onSettingsChanged) 
             : base(settings, onSettingsChanged)
         {
-            SelectTimeAndScores();
+            _selectedIndex = 0;
+            _selectedName = "Time & Scores";
+            _currentCustomization = Settings.TimeAndScoresCustom;
         }
 
         private void SelectElement(int index, string name, ElementCustomization customization)
@@ -22,6 +24,7 @@ namespace BetterMPHUD.ViewModels.Settings
             _selectedName = name;
             _currentCustomization = customization;
             RefreshDisplay();
+            NotifyPropertyRefresh();
         }
 
         public void SelectTimeAndScores() => SelectElement(0, "Time & Scores", Settings.TimeAndScoresCustom);
@@ -58,7 +61,10 @@ namespace BetterMPHUD.ViewModels.Settings
         private void AdjustCurrentOffset(float dx, float dy)
         {
             if (_currentCustomization == null) return;
-            AdjustOffset(_currentCustomization, dx, dy, RefreshDisplay);
+            _currentCustomization.OffsetX += dx;
+            _currentCustomization.OffsetY += dy;
+            RefreshDisplay();
+            NotifyChanged();
         }
 
         public void ExecuteIncreaseScale() => AdjustCurrentScale(Constants.Adjustment.ScaleStep);
@@ -69,13 +75,20 @@ namespace BetterMPHUD.ViewModels.Settings
         private void AdjustCurrentScale(float delta)
         {
             if (_currentCustomization == null) return;
-            AdjustScale(_currentCustomization, delta, RefreshDisplay);
+            float newScale = _currentCustomization.Scale + delta;
+            if (newScale >= Constants.Adjustment.MinScale && newScale <= Constants.Adjustment.MaxScale)
+            {
+                _currentCustomization.Scale = (float)Math.Round(newScale, 2);
+                RefreshDisplay();
+                NotifyChanged();
+            }
         }
 
         public void ExecuteResetElement()
         {
             _currentCustomization?.Reset();
             RefreshDisplay();
+            NotifyChanged();
         }
 
         public void ExecuteResetAll()
@@ -95,12 +108,12 @@ namespace BetterMPHUD.ViewModels.Settings
             OnPropertyChangedWithValue(OffsetXText, "OffsetXText");
             OnPropertyChangedWithValue(OffsetYText, "OffsetYText");
             OnPropertyChangedWithValue(ScaleText, "ScaleText");
-            NotifyChanged();
         }
 
         public override void RefreshAll()
         {
             RefreshDisplay();
+            NotifyPropertyRefresh();
         }
     }
 }
