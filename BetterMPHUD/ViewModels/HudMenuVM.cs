@@ -176,7 +176,7 @@ namespace BetterMPHUD.ViewModels
 
         private void RefreshMiscProperties()
         {
-            OnPropertyChangedWithValue(CameraSnapbackEnabledProp, "CameraSnapbackEnabledProp");
+            OnPropertyChangedWithValue(CameraSnapbackEnabled, "CameraSnapbackEnabled");
         }
 
         private void RefreshVisibilityProperties()
@@ -294,7 +294,6 @@ namespace BetterMPHUD.ViewModels
             }
         }
 
-        public bool CameraSnapbackEnabled => _misc.CameraSnapbackEnabled;
 
         #region Sub ViewModel Properties
 
@@ -681,7 +680,7 @@ namespace BetterMPHUD.ViewModels
         #region Misc Delegation
 
         [DataSourceProperty] 
-        public bool CameraSnapbackEnabledProp 
+        public bool CameraSnapbackEnabled 
         { 
             get => _misc.CameraSnapbackEnabled; 
             set => _misc.CameraSnapbackEnabled = value; 
