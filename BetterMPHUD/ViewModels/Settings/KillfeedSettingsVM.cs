@@ -8,6 +8,7 @@ namespace BetterMPHUD.ViewModels.Settings
     public class KillfeedSettingsVM : BaseSettingsVM
     {
         public Action<bool> OnWarbandKillfeedToggled;
+        public Action OnPreviewUpdate;
 
         public KillfeedSettingsVM(HudSettings settings, Action onSettingsChanged) 
             : base(settings, onSettingsChanged)
@@ -19,6 +20,11 @@ namespace BetterMPHUD.ViewModels.Settings
         {
             float value = Settings.NativeKillfeedEnabled ? 0f : 2f;
             ManagedOptions.SetConfig(ManagedOptions.ManagedOptionsType.ReportCasualtiesType, value);
+        }
+
+        private void NotifyPreviewUpdate()
+        {
+            OnPreviewUpdate?.Invoke();
         }
 
         [DataSourceProperty]
@@ -64,6 +70,7 @@ namespace BetterMPHUD.ViewModels.Settings
                     Settings.KillfeedBackgroundEnabled = value;
                     OnPropertyChangedWithValue(value, "KillfeedBackgroundEnabled");
                     NotifyChanged();
+                    NotifyPreviewUpdate();
                 }
             }
         }
@@ -89,19 +96,77 @@ namespace BetterMPHUD.ViewModels.Settings
         [DataSourceProperty]
         public string BackgroundColorText => Settings.KillfeedBackgroundColor;
 
-        public void ExecuteIncreaseOffsetX() => AdjustOffset(Settings.KillfeedCustom, Constants.Adjustment.PositionStep, 0, RefreshDisplay);
-        public void ExecuteDecreaseOffsetX() => AdjustOffset(Settings.KillfeedCustom, -Constants.Adjustment.PositionStep, 0, RefreshDisplay);
-        public void ExecuteIncreaseOffsetY() => AdjustOffset(Settings.KillfeedCustom, 0, Constants.Adjustment.PositionStep, RefreshDisplay);
-        public void ExecuteDecreaseOffsetY() => AdjustOffset(Settings.KillfeedCustom, 0, -Constants.Adjustment.PositionStep, RefreshDisplay);
-        public void ExecuteIncreaseOffsetXLarge() => AdjustOffset(Settings.KillfeedCustom, Constants.Adjustment.PositionStepLarge, 0, RefreshDisplay);
-        public void ExecuteDecreaseOffsetXLarge() => AdjustOffset(Settings.KillfeedCustom, -Constants.Adjustment.PositionStepLarge, 0, RefreshDisplay);
-        public void ExecuteIncreaseOffsetYLarge() => AdjustOffset(Settings.KillfeedCustom, 0, Constants.Adjustment.PositionStepLarge, RefreshDisplay);
-        public void ExecuteDecreaseOffsetYLarge() => AdjustOffset(Settings.KillfeedCustom, 0, -Constants.Adjustment.PositionStepLarge, RefreshDisplay);
+        public void ExecuteIncreaseOffsetX() 
+        { 
+            AdjustOffset(Settings.KillfeedCustom, Constants.Adjustment.PositionStep, 0, RefreshDisplay); 
+            NotifyPreviewUpdate(); 
+        }
+        
+        public void ExecuteDecreaseOffsetX() 
+        { 
+            AdjustOffset(Settings.KillfeedCustom, -Constants.Adjustment.PositionStep, 0, RefreshDisplay); 
+            NotifyPreviewUpdate(); 
+        }
+        
+        public void ExecuteIncreaseOffsetY() 
+        { 
+            AdjustOffset(Settings.KillfeedCustom, 0, Constants.Adjustment.PositionStep, RefreshDisplay); 
+            NotifyPreviewUpdate(); 
+        }
+        
+        public void ExecuteDecreaseOffsetY() 
+        { 
+            AdjustOffset(Settings.KillfeedCustom, 0, -Constants.Adjustment.PositionStep, RefreshDisplay); 
+            NotifyPreviewUpdate(); 
+        }
+        
+        public void ExecuteIncreaseOffsetXLarge() 
+        { 
+            AdjustOffset(Settings.KillfeedCustom, Constants.Adjustment.PositionStepLarge, 0, RefreshDisplay); 
+            NotifyPreviewUpdate(); 
+        }
+        
+        public void ExecuteDecreaseOffsetXLarge() 
+        { 
+            AdjustOffset(Settings.KillfeedCustom, -Constants.Adjustment.PositionStepLarge, 0, RefreshDisplay); 
+            NotifyPreviewUpdate(); 
+        }
+        
+        public void ExecuteIncreaseOffsetYLarge() 
+        { 
+            AdjustOffset(Settings.KillfeedCustom, 0, Constants.Adjustment.PositionStepLarge, RefreshDisplay); 
+            NotifyPreviewUpdate(); 
+        }
+        
+        public void ExecuteDecreaseOffsetYLarge() 
+        { 
+            AdjustOffset(Settings.KillfeedCustom, 0, -Constants.Adjustment.PositionStepLarge, RefreshDisplay); 
+            NotifyPreviewUpdate(); 
+        }
 
-        public void ExecuteIncreaseScale() => AdjustScale(Settings.KillfeedCustom, Constants.Adjustment.ScaleStep, RefreshDisplay);
-        public void ExecuteDecreaseScale() => AdjustScale(Settings.KillfeedCustom, -Constants.Adjustment.ScaleStep, RefreshDisplay);
-        public void ExecuteIncreaseScaleLarge() => AdjustScale(Settings.KillfeedCustom, Constants.Adjustment.ScaleStepLarge, RefreshDisplay);
-        public void ExecuteDecreaseScaleLarge() => AdjustScale(Settings.KillfeedCustom, -Constants.Adjustment.ScaleStepLarge, RefreshDisplay);
+        public void ExecuteIncreaseScale() 
+        { 
+            AdjustScale(Settings.KillfeedCustom, Constants.Adjustment.ScaleStep, RefreshDisplay); 
+            NotifyPreviewUpdate(); 
+        }
+        
+        public void ExecuteDecreaseScale() 
+        { 
+            AdjustScale(Settings.KillfeedCustom, -Constants.Adjustment.ScaleStep, RefreshDisplay); 
+            NotifyPreviewUpdate(); 
+        }
+        
+        public void ExecuteIncreaseScaleLarge() 
+        { 
+            AdjustScale(Settings.KillfeedCustom, Constants.Adjustment.ScaleStepLarge, RefreshDisplay); 
+            NotifyPreviewUpdate(); 
+        }
+        
+        public void ExecuteDecreaseScaleLarge() 
+        { 
+            AdjustScale(Settings.KillfeedCustom, -Constants.Adjustment.ScaleStepLarge, RefreshDisplay); 
+            NotifyPreviewUpdate(); 
+        }
 
         public void ExecuteIncreaseFadeoutTime() => AdjustFadeout(Constants.Adjustment.FadeoutStep);
         public void ExecuteDecreaseFadeoutTime() => AdjustFadeout(-Constants.Adjustment.FadeoutStep);
@@ -135,10 +200,29 @@ namespace BetterMPHUD.ViewModels.Settings
             }
         }
 
-        public void ExecuteIncreaseBackgroundOpacity() => AdjustBackgroundOpacity(0.05f);
-        public void ExecuteDecreaseBackgroundOpacity() => AdjustBackgroundOpacity(-0.05f);
-        public void ExecuteIncreaseBackgroundOpacityLarge() => AdjustBackgroundOpacity(0.1f);
-        public void ExecuteDecreaseBackgroundOpacityLarge() => AdjustBackgroundOpacity(-0.1f);
+        public void ExecuteIncreaseBackgroundOpacity() 
+        { 
+            AdjustBackgroundOpacity(0.05f); 
+            NotifyPreviewUpdate(); 
+        }
+        
+        public void ExecuteDecreaseBackgroundOpacity() 
+        { 
+            AdjustBackgroundOpacity(-0.05f); 
+            NotifyPreviewUpdate(); 
+        }
+        
+        public void ExecuteIncreaseBackgroundOpacityLarge() 
+        { 
+            AdjustBackgroundOpacity(0.1f); 
+            NotifyPreviewUpdate(); 
+        }
+        
+        public void ExecuteDecreaseBackgroundOpacityLarge() 
+        { 
+            AdjustBackgroundOpacity(-0.1f); 
+            NotifyPreviewUpdate(); 
+        }
 
         private void AdjustBackgroundOpacity(float delta)
         {
@@ -158,6 +242,7 @@ namespace BetterMPHUD.ViewModels.Settings
             Settings.KillfeedBackgroundOpacity = 0.7f;
             Settings.KillfeedMaxEntries = 15;
             RefreshAll();
+            NotifyPreviewUpdate();
         }
 
         private void RefreshDisplay()

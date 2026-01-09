@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using TaleWorlds.Engine.GauntletUI;
+﻿using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.GauntletUI.BaseTypes;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.MountAndBlade.View.Screens;
@@ -37,6 +35,7 @@ namespace BetterMPHUD.Handlers
         {
             if (_viewModel == null || settings == null || !settings.WarbandKillfeedEnabled) return;
             if (victim == null || killer == null || !victim.IsHuman) return;
+            if (_viewModel.IsPreviewMode) return;
 
             TaleWorlds.Library.Color color;
             var playerTeam = Mission.Current != null ? Mission.Current.PlayerTeam : null;
@@ -79,17 +78,40 @@ namespace BetterMPHUD.Handlers
         public void UpdateExpiredEntries(float currentTime)
         {
             if (_viewModel == null || _viewModel.KillList == null || _viewModel.KillList.Count == 0) return;
+            if (_viewModel.IsPreviewMode) return;
             
-            List<KillfeedItemVM> expired = _viewModel.KillList.Where(i => i.ExpireTime <= currentTime).ToList();
-            foreach (KillfeedItemVM item in expired)
-                _viewModel.RemoveKill(item);
+            for (int i = _viewModel.KillList.Count - 1; i >= 0; i--)
+            {
+                if (_viewModel.KillList[i].ExpireTime <= currentTime)
+                    _viewModel.RemoveKill(_viewModel.KillList[i]);
+            }
+        }
+
+        public void UpdatePreview(HudSettings settings)
+        {
+            if (_viewModel == null) return;
+            
+            if (!_viewModel.IsPreviewMode)
+                _viewModel.ShowPreview(settings);
+            else
+                _viewModel.UpdatePreview(settings);
+            
+            ApplyCustomization(settings);
+        }
+
+        public void HidePreview(HudSettings settings)
+        {
+            if (_viewModel == null) return;
+            _viewModel.HidePreview();
+            _viewModel.IsVisible = settings.WarbandKillfeedEnabled;
         }
 
         public void ApplySettings(HudSettings settings)
         {
             if (_viewModel != null)
             {
-                _viewModel.IsVisible = settings.WarbandKillfeedEnabled;
+                if (!_viewModel.IsPreviewMode)
+                    _viewModel.IsVisible = settings.WarbandKillfeedEnabled;
                 
                 _viewModel.UpdateBackgrounds(
                     settings.KillfeedBackgroundEnabled,
@@ -118,6 +140,8 @@ namespace BetterMPHUD.Handlers
         public void SetEnabled(bool enabled)
         {
             if (_viewModel == null) return;
+            if (_viewModel.IsPreviewMode) return;
+            
             _viewModel.IsVisible = enabled;
             if (!enabled) _viewModel.Clear();
         }

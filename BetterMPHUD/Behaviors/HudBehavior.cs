@@ -163,6 +163,9 @@ namespace BetterMPHUD.Behaviors
             _menuVM.OnDebugScoreboardStructure = () => _scoreboard.DebugPrintStructure();
             _menuVM.OnDebugChatStructure = () => _chat.DebugPrintStructure(); 
             _menuVM.OnChatToggled = OnChatToggled; 
+            
+            _menuVM.OnHideKillfeedPreview = (settings) => _killfeed.HidePreview(settings);
+            _menuVM.OnUpdateKillfeedPreview = (settings) => _killfeed.UpdatePreview(settings);
 
             _configLayer = new GauntletLayer("GauntletLayer", 50, false);
             _configLayer.LoadMovie("HudConfig", _menuVM);

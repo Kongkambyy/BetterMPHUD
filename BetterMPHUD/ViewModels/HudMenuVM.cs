@@ -33,6 +33,8 @@ namespace BetterMPHUD.ViewModels
         public Action<bool> OnChatToggled;
         public Action OnDebugAvatarStructure;
         public Action<bool> OnBetterAvatarsToggled;
+        public Action<HudSettings> OnHideKillfeedPreview;
+        public Action<HudSettings> OnUpdateKillfeedPreview; 
 
         public HudMenuVM()
         {
@@ -61,15 +63,15 @@ namespace BetterMPHUD.ViewModels
 
         private void WireUpCallbacks()
         {
-            // External callbacks
             _killfeed.OnWarbandKillfeedToggled = (enabled) => OnWarbandKillfeedToggled?.Invoke(enabled);
+            _killfeed.OnPreviewUpdate = () => OnUpdateKillfeedPreview?.Invoke(_settings);  
+    
             _avatar.OnBetterAvatarsToggled = (enabled) => OnBetterAvatarsToggled?.Invoke(enabled);
             _avatar.OnCleanupAvatarsRequested = () => OnCleanupAvatarsRequested?.Invoke();
             _scoreboard.OnDebugScoreboardStructure = () => OnDebugScoreboardStructure?.Invoke();
             _chat.OnChatToggled = (enabled) => OnChatToggled?.Invoke(enabled);
             _chat.OnDebugChatStructure = () => OnDebugChatStructure?.Invoke();
 
-            // Property refresh callbacks
             _killfeed.SetOnPropertyRefresh(RefreshKillfeedProperties);
             _crosshair.SetOnPropertyRefresh(RefreshCrosshairProperties);
             _dot.SetOnPropertyRefresh(RefreshDotProperties);
@@ -235,6 +237,9 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(IsScoreboardPageOpen, "IsScoreboardPageOpen");
             OnPropertyChangedWithValue(ShouldShiftMenuRight, "ShouldShiftMenuRight");
             OnPropertyChangedWithValue(MenuHorizontalOffset, "MenuHorizontalOffset");
+            
+            if (!IsKillfeedPageOpen)
+                OnHideKillfeedPreview?.Invoke(_settings);
         }
 
         private void OnProfileChanged()
@@ -276,7 +281,11 @@ namespace BetterMPHUD.ViewModels
 
         public HudSettings GetSettings() => _settings;
 
-        public void ExecuteClose() => OnCloseConfigMenu?.Invoke();
+        public void ExecuteClose()
+        {
+            OnHideKillfeedPreview?.Invoke(_settings); 
+            OnCloseConfigMenu?.Invoke();
+        }
 
         public void ExecuteDebugAvatarStructure() => OnDebugAvatarStructure?.Invoke();
 

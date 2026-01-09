@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using TaleWorlds.Library;
+using BetterMPHUD.Core;
 
 namespace BetterMPHUD.ViewModels
 {
@@ -8,6 +9,7 @@ namespace BetterMPHUD.ViewModels
     {
         private MBBindingList<KillfeedItemVM> _killList;
         private bool _isVisible;
+        private bool _isPreviewMode;
         
         private const int BASE_FONT = 20;
         private const int BASE_ICON = 24;
@@ -18,6 +20,80 @@ namespace BetterMPHUD.ViewModels
         {
             _killList = new MBBindingList<KillfeedItemVM>();
             _isVisible = false;
+            _isPreviewMode = false;
+        }
+
+        public bool IsPreviewMode => _isPreviewMode;
+
+        public void ShowPreview(HudSettings settings)
+        {
+            if (_isPreviewMode) return;
+            
+            _isPreviewMode = true;
+            Clear();
+            
+            float scale = settings.KillfeedCustom.Scale;
+            GetScaledSizes(scale, out int font, out float icon, out float skull, out float row);
+
+            string[] victims = new[]
+            {
+                "Pacemaker",
+                "AXDER",
+                "Arni",
+                "Hairless",
+                "Beast the Destiny Demon",
+            };
+
+            foreach (string victim in victims)
+            {
+                var item = new KillfeedItemVM(
+                    "[IE] Kamby",
+                    "[DM] " + victim,
+                    Constants.Colors.FriendlyKill,
+                    Constants.Sprites.Sword,
+                    Constants.Sprites.Sword,
+                    Constants.Sprites.Death,
+                    float.MaxValue,
+                    null
+                );
+                
+                item.UpdateSizes(font, icon, skull, row);
+                item.UpdateBackground(
+                    settings.KillfeedBackgroundEnabled,
+                    settings.KillfeedBackgroundColor,
+                    settings.KillfeedBackgroundOpacity
+                );
+                
+                _killList.Add(item);
+            }
+            
+            IsVisible = true;
+        }
+
+        public void HidePreview()
+        {
+            if (!_isPreviewMode) return;
+            
+            _isPreviewMode = false;
+            Clear();
+        }
+
+        public void UpdatePreview(HudSettings settings)
+        {
+            if (!_isPreviewMode) return;
+            
+            float scale = settings.KillfeedCustom.Scale;
+            GetScaledSizes(scale, out int font, out float icon, out float skull, out float row);
+
+            foreach (var item in _killList)
+            {
+                item.UpdateSizes(font, icon, skull, row);
+                item.UpdateBackground(
+                    settings.KillfeedBackgroundEnabled,
+                    settings.KillfeedBackgroundColor,
+                    settings.KillfeedBackgroundOpacity
+                );
+            }
         }
 
         public void UpdateScale(float scale)
@@ -28,7 +104,6 @@ namespace BetterMPHUD.ViewModels
             float newIcon = Math.Max(1, BASE_ICON * scale);
             float newSkull = Math.Max(1, BASE_SKULL * scale);
             float newRow = Math.Max(1, BASE_ROW * scale);
-
 
             foreach (var item in _killList.ToList())
             {
@@ -48,6 +123,8 @@ namespace BetterMPHUD.ViewModels
 
         public void AddKill(KillfeedItemVM item, int maxEntries)
         {
+            if (_isPreviewMode) return;
+            
             if (_killList.Count >= maxEntries)
             {
                 _killList.RemoveAt(0);
