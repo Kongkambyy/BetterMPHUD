@@ -445,55 +445,24 @@ namespace BetterMPHUD.Handlers
                 _customizer.ApplyCustomization(tracked.Widget, tracked.Original, custom, true);
         }
 
-        private HashSet<string> GetConnectedPlayerNames()
+        private Dictionary<string, Team> BuildPlayerTeamMap()
         {
-            var names = new HashSet<string>();
-
-            if (Mission.Current == null) return names;
+            var map = new Dictionary<string, Team>();
+            if (Mission.Current == null) return map;
 
             try
             {
-                foreach (NetworkCommunicator networkPeer in GameNetwork.NetworkPeers)
+                foreach (NetworkCommunicator peer in GameNetwork.NetworkPeers)
                 {
-                    if (networkPeer == null) continue;
-            
-                    MissionPeer missionPeer = networkPeer.GetComponent<MissionPeer>();
-                    if (missionPeer != null && !string.IsNullOrEmpty(missionPeer.DisplayedName))
-                    {
-                        names.Add(missionPeer.DisplayedName);
-                    }
+                    if (peer == null) continue;
+                    MissionPeer mp = peer.GetComponent<MissionPeer>();
+                    if (mp == null || string.IsNullOrEmpty(mp.DisplayedName)) continue;
+                    map[mp.DisplayedName] = mp.Team;
                 }
             }
             catch { }
 
-            if (names.Count == 0)
-            {
-                if (Mission.Current.PlayerTeam != null)
-                {
-                    foreach (Agent agent in Mission.Current.PlayerTeam.ActiveAgents)
-                    {
-                        if (agent != null && agent.IsHuman && agent.MissionPeer != null)
-                        {
-                            if (!string.IsNullOrEmpty(agent.MissionPeer.DisplayedName))
-                                names.Add(agent.MissionPeer.DisplayedName);
-                        }
-                    }
-                }
-
-                if (Mission.Current.PlayerEnemyTeam != null)
-                {
-                    foreach (Agent agent in Mission.Current.PlayerEnemyTeam.ActiveAgents)
-                    {
-                        if (agent != null && agent.IsHuman && agent.MissionPeer != null)
-                        {
-                            if (!string.IsNullOrEmpty(agent.MissionPeer.DisplayedName))
-                                names.Add(agent.MissionPeer.DisplayedName);
-                        }
-                    }
-                }
-            }
-
-            return names;
+            return map;
         }
         
         public void RestoreAllAvatars()
@@ -512,25 +481,83 @@ namespace BetterMPHUD.Handlers
             }
         }
 
-        public void CleanupDisconnectedAvatars()
+        public void SyncAvatarsToTeams()
         {
-            var connectedNames = GetConnectedPlayerNames();
-            RemoveDisconnectedFromSide(_allyAvatarsSide, connectedNames);
-            RemoveDisconnectedFromSide(_enemyAvatarsSide, connectedNames);
+            if (_allyAvatarsSide == null || _enemyAvatarsSide == null || Mission.Current == null)
+                return;
+
+            Team allyTeam = Mission.Current.PlayerTeam;
+            Team enemyTeam = Mission.Current.PlayerEnemyTeam;
+            var playerTeams = BuildPlayerTeamMap();
+
+            // Snapshot both lists before any moves to avoid modifying while iterating
+            var allyWidgets = SnapshotChildren(_allyAvatarsSide);
+            var enemyWidgets = SnapshotChildren(_enemyAvatarsSide);
+
+            foreach (Widget avatar in allyWidgets)
+                ProcessAvatar(avatar, _allyAvatarsSide, _enemyAvatarsSide, allyTeam,
+                    playerTeams, _allyAvatarChildOriginals, _enemyAvatarChildOriginals);
+
+            foreach (Widget avatar in enemyWidgets)
+                ProcessAvatar(avatar, _enemyAvatarsSide, _allyAvatarsSide, enemyTeam,
+                    playerTeams, _enemyAvatarChildOriginals, _allyAvatarChildOriginals);
         }
 
-        private void RemoveDisconnectedFromSide(Widget avatarSide, HashSet<string> connectedNames)
+        private static List<Widget> SnapshotChildren(Widget parent)
         {
-            if (avatarSide == null) return;
-    
-            for (int i = 0; i < avatarSide.ChildCount; i++)
+            var list = new List<Widget>(parent.ChildCount);
+            for (int i = 0; i < parent.ChildCount; i++)
+                list.Add(parent.GetChild(i));
+            return list;
+        }
+
+        private void ProcessAvatar(Widget avatar, Widget ownSide, Widget otherSide,
+            Team expectedTeam, Dictionary<string, Team> playerTeams,
+            Dictionary<Widget, WidgetOriginalValues> ownOriginals,
+            Dictionary<Widget, WidgetOriginalValues> otherOriginals)
+        {
+            string name = FindPlayerNameInWidget(avatar);
+            if (string.IsNullOrEmpty(name)) return;
+
+            if (!playerTeams.TryGetValue(name, out Team currentTeam))
             {
-                Widget avatarWidget = avatarSide.GetChild(i);
-                string playerName = FindPlayerNameInWidget(avatarWidget);
-        
-                if (!string.IsNullOrEmpty(playerName) && !connectedNames.Contains(playerName))
-                    avatarWidget.IsVisible = false;
+                // Player not found in network peers — disconnected
+                avatar.IsVisible = false;
+                return;
             }
+
+            if (currentTeam == null)
+            {
+                // Spectator — hide
+                avatar.IsVisible = false;
+                return;
+            }
+
+            if (expectedTeam != null && currentTeam != expectedTeam)
+            {
+                // Player is on a different team than this side — move them
+                ownSide.RemoveChild(avatar);
+                otherSide.AddChild(avatar);
+                avatar.IsVisible = true;
+                TransferOriginals(avatar, ownOriginals, otherOriginals);
+            }
+            else
+            {
+                avatar.IsVisible = true;
+            }
+        }
+
+        private static void TransferOriginals(Widget root,
+            Dictionary<Widget, WidgetOriginalValues> from,
+            Dictionary<Widget, WidgetOriginalValues> to)
+        {
+            if (from.TryGetValue(root, out WidgetOriginalValues orig))
+            {
+                from.Remove(root);
+                to[root] = orig;
+            }
+            for (int i = 0; i < root.ChildCount; i++)
+                TransferOriginals(root.GetChild(i), from, to);
         }
 
         private string FindPlayerNameInWidget(Widget widget)
