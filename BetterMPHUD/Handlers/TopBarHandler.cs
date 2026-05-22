@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using TaleWorlds.GauntletUI;
 using TaleWorlds.GauntletUI.BaseTypes;
 using TaleWorlds.MountAndBlade;
@@ -85,40 +84,43 @@ namespace BetterMPHUD.Handlers
         
         private HudSettings.AvatarClassType GetAvatarClassType(Widget avatarWidget)
         {
-            string iconType = FindTroopIconType(avatarWidget);
-            if (string.IsNullOrEmpty(iconType))
+            string spriteName = FindClassSpriteNameRecursive(avatarWidget);
+    
+            if (string.IsNullOrEmpty(spriteName))
                 return HudSettings.AvatarClassType.Unknown;
 
-            string lower = iconType.ToLower();
+            string lower = spriteName.ToLower();
 
             if (lower.Contains("cavalry") || lower.Contains("horsearcher"))
                 return HudSettings.AvatarClassType.Cavalry;
-
+    
             if (lower.Contains("archer") || lower.Contains("crossbow"))
                 return HudSettings.AvatarClassType.Archer;
-
+    
             if (lower.Contains("infantry"))
                 return HudSettings.AvatarClassType.Infantry;
 
             return HudSettings.AvatarClassType.Unknown;
         }
-
-        private static string FindTroopIconType(Widget widget)
+        
+        private string FindClassSpriteNameRecursive(Widget widget)
         {
-            if (widget.GetType().Name.Contains("MultiplayerTroopTypeIconWidget"))
+            if (widget.Sprite != null && widget.Sprite.Name != null)
             {
-                PropertyInfo prop = widget.GetType().GetProperty("IconSpriteType");
-                if (prop != null)
-                {
-                    string iconType = prop.GetValue(widget) as string;
-                    if (!string.IsNullOrEmpty(iconType))
-                        return iconType;
-                }
+                if (widget.Sprite.Name.Contains("TroopIcons"))
+                    return widget.Sprite.Name;
+            }
+
+            string typeName = widget.GetType().Name;
+            if (typeName.Contains("TroopType") || typeName.Contains("TroopIcon"))
+            {
+                if (widget.Sprite != null && widget.Sprite.Name != null)
+                    return widget.Sprite.Name;
             }
 
             for (int i = 0; i < widget.ChildCount; i++)
             {
-                string result = FindTroopIconType(widget.GetChild(i));
+                string result = FindClassSpriteNameRecursive(widget.GetChild(i));
                 if (!string.IsNullOrEmpty(result))
                     return result;
             }
@@ -443,24 +445,55 @@ namespace BetterMPHUD.Handlers
                 _customizer.ApplyCustomization(tracked.Widget, tracked.Original, custom, true);
         }
 
-        private Dictionary<string, Team> BuildPlayerTeamMap()
+        private HashSet<string> GetConnectedPlayerNames()
         {
-            var map = new Dictionary<string, Team>();
-            if (Mission.Current == null) return map;
+            var names = new HashSet<string>();
+
+            if (Mission.Current == null) return names;
 
             try
             {
-                foreach (NetworkCommunicator peer in GameNetwork.NetworkPeers)
+                foreach (NetworkCommunicator networkPeer in GameNetwork.NetworkPeers)
                 {
-                    if (peer == null) continue;
-                    MissionPeer mp = peer.GetComponent<MissionPeer>();
-                    if (mp == null || string.IsNullOrEmpty(mp.DisplayedName)) continue;
-                    map[mp.DisplayedName] = mp.Team;
+                    if (networkPeer == null) continue;
+            
+                    MissionPeer missionPeer = networkPeer.GetComponent<MissionPeer>();
+                    if (missionPeer != null && !string.IsNullOrEmpty(missionPeer.DisplayedName))
+                    {
+                        names.Add(missionPeer.DisplayedName);
+                    }
                 }
             }
             catch { }
 
-            return map;
+            if (names.Count == 0)
+            {
+                if (Mission.Current.PlayerTeam != null)
+                {
+                    foreach (Agent agent in Mission.Current.PlayerTeam.ActiveAgents)
+                    {
+                        if (agent != null && agent.IsHuman && agent.MissionPeer != null)
+                        {
+                            if (!string.IsNullOrEmpty(agent.MissionPeer.DisplayedName))
+                                names.Add(agent.MissionPeer.DisplayedName);
+                        }
+                    }
+                }
+
+                if (Mission.Current.PlayerEnemyTeam != null)
+                {
+                    foreach (Agent agent in Mission.Current.PlayerEnemyTeam.ActiveAgents)
+                    {
+                        if (agent != null && agent.IsHuman && agent.MissionPeer != null)
+                        {
+                            if (!string.IsNullOrEmpty(agent.MissionPeer.DisplayedName))
+                                names.Add(agent.MissionPeer.DisplayedName);
+                        }
+                    }
+                }
+            }
+
+            return names;
         }
         
         public void RestoreAllAvatars()
@@ -479,83 +512,25 @@ namespace BetterMPHUD.Handlers
             }
         }
 
-        public void SyncAvatarsToTeams()
+        public void CleanupDisconnectedAvatars()
         {
-            if (_allyAvatarsSide == null || _enemyAvatarsSide == null || Mission.Current == null)
-                return;
-
-            Team allyTeam = Mission.Current.PlayerTeam;
-            Team enemyTeam = Mission.Current.PlayerEnemyTeam;
-            var playerTeams = BuildPlayerTeamMap();
-
-            // Snapshot both lists before any moves to avoid modifying while iterating
-            var allyWidgets = SnapshotChildren(_allyAvatarsSide);
-            var enemyWidgets = SnapshotChildren(_enemyAvatarsSide);
-
-            foreach (Widget avatar in allyWidgets)
-                ProcessAvatar(avatar, _allyAvatarsSide, _enemyAvatarsSide, allyTeam,
-                    playerTeams, _allyAvatarChildOriginals, _enemyAvatarChildOriginals);
-
-            foreach (Widget avatar in enemyWidgets)
-                ProcessAvatar(avatar, _enemyAvatarsSide, _allyAvatarsSide, enemyTeam,
-                    playerTeams, _enemyAvatarChildOriginals, _allyAvatarChildOriginals);
+            var connectedNames = GetConnectedPlayerNames();
+            RemoveDisconnectedFromSide(_allyAvatarsSide, connectedNames);
+            RemoveDisconnectedFromSide(_enemyAvatarsSide, connectedNames);
         }
 
-        private static List<Widget> SnapshotChildren(Widget parent)
+        private void RemoveDisconnectedFromSide(Widget avatarSide, HashSet<string> connectedNames)
         {
-            var list = new List<Widget>(parent.ChildCount);
-            for (int i = 0; i < parent.ChildCount; i++)
-                list.Add(parent.GetChild(i));
-            return list;
-        }
-
-        private void ProcessAvatar(Widget avatar, Widget ownSide, Widget otherSide,
-            Team expectedTeam, Dictionary<string, Team> playerTeams,
-            Dictionary<Widget, WidgetOriginalValues> ownOriginals,
-            Dictionary<Widget, WidgetOriginalValues> otherOriginals)
-        {
-            string name = FindPlayerNameInWidget(avatar);
-            if (string.IsNullOrEmpty(name)) return;
-
-            if (!playerTeams.TryGetValue(name, out Team currentTeam))
+            if (avatarSide == null) return;
+    
+            for (int i = 0; i < avatarSide.ChildCount; i++)
             {
-                // Player not found in network peers — disconnected
-                avatar.IsVisible = false;
-                return;
+                Widget avatarWidget = avatarSide.GetChild(i);
+                string playerName = FindPlayerNameInWidget(avatarWidget);
+        
+                if (!string.IsNullOrEmpty(playerName) && !connectedNames.Contains(playerName))
+                    avatarWidget.IsVisible = false;
             }
-
-            if (currentTeam == null)
-            {
-                // Spectator — hide
-                avatar.IsVisible = false;
-                return;
-            }
-
-            if (expectedTeam != null && currentTeam != expectedTeam)
-            {
-                // Player is on a different team than this side — move them
-                ownSide.RemoveChild(avatar);
-                otherSide.AddChild(avatar);
-                avatar.IsVisible = true;
-                TransferOriginals(avatar, ownOriginals, otherOriginals);
-            }
-            else
-            {
-                avatar.IsVisible = true;
-            }
-        }
-
-        private static void TransferOriginals(Widget root,
-            Dictionary<Widget, WidgetOriginalValues> from,
-            Dictionary<Widget, WidgetOriginalValues> to)
-        {
-            if (from.TryGetValue(root, out WidgetOriginalValues orig))
-            {
-                from.Remove(root);
-                to[root] = orig;
-            }
-            for (int i = 0; i < root.ChildCount; i++)
-                TransferOriginals(root.GetChild(i), from, to);
         }
 
         private string FindPlayerNameInWidget(Widget widget)
@@ -713,10 +688,10 @@ namespace BetterMPHUD.Handlers
         private void FindAvatarComponentsRecursive(Widget widget, ref Widget steamAvatar, ref Widget circleBackground, ref Widget troopIcon, ref Widget iconForeground, ref Widget compassElement, ref Widget smallAvatarImage)
         {
             string typeName = widget.GetType().Name;
-
+    
             if (typeName.Contains("CompassElement") || typeName.Contains("DependentPrefab"))
                 compassElement = widget;
-
+    
             if (typeName == "ImageIdentifierWidget")
             {
                 if (widget.Id == "AvatarImage")
@@ -730,26 +705,19 @@ namespace BetterMPHUD.Handlers
                         steamAvatar = widget;
                 }
             }
-
+    
             if (widget.Sprite != null && widget.Sprite.Name != null)
             {
                 if (widget.Sprite.Name.Contains("BlankWhiteCircle"))
                     circleBackground = widget;
             }
-
+    
             if (typeName.Contains("MultiplayerTroopTypeIconWidget"))
-            {
                 troopIcon = widget;
-                // Get ForegroundWidget directly from the widget property instead of
-                // searching the tree by Id, which is fragile and can miss it entirely.
-                if (iconForeground == null)
-                {
-                    PropertyInfo fgProp = widget.GetType().GetProperty("ForegroundWidget");
-                    if (fgProp != null)
-                        iconForeground = fgProp.GetValue(widget) as Widget;
-                }
-            }
-
+    
+            if (widget.Id == "IconForeground")
+                iconForeground = widget;
+    
             for (int i = 0; i < widget.ChildCount; i++)
                 FindAvatarComponentsRecursive(widget.GetChild(i), ref steamAvatar, ref circleBackground, ref troopIcon, ref iconForeground, ref compassElement, ref smallAvatarImage);
         }

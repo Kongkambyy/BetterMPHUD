@@ -188,7 +188,7 @@ namespace BetterMPHUD.Behaviors
 
         private void OnCleanupAvatars()
         {
-            _topBar.SyncAvatarsToTeams();
+            _topBar.CleanupDisconnectedAvatars();
         }
 
         private void ApplyAllSettings()
