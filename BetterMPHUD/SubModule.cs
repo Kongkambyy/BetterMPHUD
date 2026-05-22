@@ -1,5 +1,6 @@
 ﻿using BetterMPHUD.Behaviors;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -13,6 +14,70 @@ namespace BetterMPHUD
 {
     public class SubModule : MBSubModuleBase
     {
+        static SubModule()
+        {
+            TryClearModuleShaderCache();
+        }
+
+        private static void TryClearModuleShaderCache()
+        {
+            try
+            {
+                string assemblyDir = Path.GetDirectoryName(typeof(SubModule).Assembly.Location);
+                if (string.IsNullOrEmpty(assemblyDir)) return;
+
+                // DLL is at [GameRoot]/Modules/BetterMPHUD/bin/Win64_Shipping_Client/ — 4 levels up = game root
+                string gameRoot = assemblyDir;
+                for (int i = 0; i < 4; i++)
+                {
+                    string parent = Path.GetDirectoryName(gameRoot);
+                    if (string.IsNullOrEmpty(parent)) break;
+                    gameRoot = parent;
+                }
+
+                string[] patterns = { "*ui_hudmenu*", "*ui_warbandkillfeed*", "*BetterMPHUD*" };
+                string[] cacheDirs = {
+                    Path.Combine(gameRoot, "Cache"),
+                    Path.Combine(gameRoot, "cache"),
+                    Path.Combine(gameRoot, "Shaders", "native_cache"),
+                    Path.Combine(gameRoot, "shaders", "native_cache"),
+                    Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonApplicationData),
+                        "Mount and Blade II Bannerlord"),
+                };
+
+                foreach (string dir in cacheDirs)
+                {
+                    if (!Directory.Exists(dir)) continue;
+                    foreach (string pattern in patterns)
+                        DeleteMatchingFiles(dir, pattern);
+                }
+            }
+            catch { }
+        }
+
+        private static void DeleteMatchingFiles(string directory, string pattern)
+        {
+            try
+            {
+                foreach (string file in Directory.GetFiles(directory, pattern))
+                {
+                    try { File.Delete(file); } catch { }
+                }
+                foreach (string subDir in Directory.GetDirectories(directory, pattern))
+                {
+                    try { Directory.Delete(subDir, true); } catch { }
+                }
+                foreach (string subDir in Directory.GetDirectories(directory))
+                {
+                    foreach (string file in Directory.GetFiles(subDir, pattern))
+                    {
+                        try { File.Delete(file); } catch { }
+                    }
+                }
+            }
+            catch { }
+        }
+
         protected override void OnSubModuleLoad()
         {
             base.OnSubModuleLoad();

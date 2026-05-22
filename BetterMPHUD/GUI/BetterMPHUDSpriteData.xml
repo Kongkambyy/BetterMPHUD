@@ -3,13 +3,11 @@
   <SpriteCategories>
     <SpriteCategory>
       <Name>ui_hudmenu</Name>
-      <AlwaysLoad />
       <SpriteSheetCount>1</SpriteSheetCount>
       <SpriteSheetSize ID="1" Width="4096" Height="1024" />
     </SpriteCategory>
     <SpriteCategory>
       <Name>ui_warbandkillfeed</Name>
-      <AlwaysLoad />
       <SpriteSheetCount>1</SpriteSheetCount>
       <SpriteSheetSize ID="1" Width="256" Height="64" />
     </SpriteCategory>
