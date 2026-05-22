@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using TaleWorlds.GauntletUI;
 using TaleWorlds.GauntletUI.BaseTypes;
 using TaleWorlds.MountAndBlade;
@@ -84,43 +85,40 @@ namespace BetterMPHUD.Handlers
         
         private HudSettings.AvatarClassType GetAvatarClassType(Widget avatarWidget)
         {
-            string spriteName = FindClassSpriteNameRecursive(avatarWidget);
-    
-            if (string.IsNullOrEmpty(spriteName))
+            string iconType = FindTroopIconType(avatarWidget);
+            if (string.IsNullOrEmpty(iconType))
                 return HudSettings.AvatarClassType.Unknown;
 
-            string lower = spriteName.ToLower();
+            string lower = iconType.ToLower();
 
             if (lower.Contains("cavalry") || lower.Contains("horsearcher"))
                 return HudSettings.AvatarClassType.Cavalry;
-    
+
             if (lower.Contains("archer") || lower.Contains("crossbow"))
                 return HudSettings.AvatarClassType.Archer;
-    
+
             if (lower.Contains("infantry"))
                 return HudSettings.AvatarClassType.Infantry;
 
             return HudSettings.AvatarClassType.Unknown;
         }
-        
-        private string FindClassSpriteNameRecursive(Widget widget)
-        {
-            if (widget.Sprite != null && widget.Sprite.Name != null)
-            {
-                if (widget.Sprite.Name.Contains("TroopIcons"))
-                    return widget.Sprite.Name;
-            }
 
-            string typeName = widget.GetType().Name;
-            if (typeName.Contains("TroopType") || typeName.Contains("TroopIcon"))
+        private static string FindTroopIconType(Widget widget)
+        {
+            if (widget.GetType().Name.Contains("MultiplayerTroopTypeIconWidget"))
             {
-                if (widget.Sprite != null && widget.Sprite.Name != null)
-                    return widget.Sprite.Name;
+                PropertyInfo prop = widget.GetType().GetProperty("IconSpriteType");
+                if (prop != null)
+                {
+                    string iconType = prop.GetValue(widget) as string;
+                    if (!string.IsNullOrEmpty(iconType))
+                        return iconType;
+                }
             }
 
             for (int i = 0; i < widget.ChildCount; i++)
             {
-                string result = FindClassSpriteNameRecursive(widget.GetChild(i));
+                string result = FindTroopIconType(widget.GetChild(i));
                 if (!string.IsNullOrEmpty(result))
                     return result;
             }
@@ -715,10 +713,10 @@ namespace BetterMPHUD.Handlers
         private void FindAvatarComponentsRecursive(Widget widget, ref Widget steamAvatar, ref Widget circleBackground, ref Widget troopIcon, ref Widget iconForeground, ref Widget compassElement, ref Widget smallAvatarImage)
         {
             string typeName = widget.GetType().Name;
-    
+
             if (typeName.Contains("CompassElement") || typeName.Contains("DependentPrefab"))
                 compassElement = widget;
-    
+
             if (typeName == "ImageIdentifierWidget")
             {
                 if (widget.Id == "AvatarImage")
@@ -732,19 +730,26 @@ namespace BetterMPHUD.Handlers
                         steamAvatar = widget;
                 }
             }
-    
+
             if (widget.Sprite != null && widget.Sprite.Name != null)
             {
                 if (widget.Sprite.Name.Contains("BlankWhiteCircle"))
                     circleBackground = widget;
             }
-    
+
             if (typeName.Contains("MultiplayerTroopTypeIconWidget"))
+            {
                 troopIcon = widget;
-    
-            if (widget.Id == "IconForeground")
-                iconForeground = widget;
-    
+                // Get ForegroundWidget directly from the widget property instead of
+                // searching the tree by Id, which is fragile and can miss it entirely.
+                if (iconForeground == null)
+                {
+                    PropertyInfo fgProp = widget.GetType().GetProperty("ForegroundWidget");
+                    if (fgProp != null)
+                        iconForeground = fgProp.GetValue(widget) as Widget;
+                }
+            }
+
             for (int i = 0; i < widget.ChildCount; i++)
                 FindAvatarComponentsRecursive(widget.GetChild(i), ref steamAvatar, ref circleBackground, ref troopIcon, ref iconForeground, ref compassElement, ref smallAvatarImage);
         }
