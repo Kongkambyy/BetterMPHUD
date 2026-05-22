@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using TaleWorlds.Library;
 using BetterMPHUD.Core;
 
@@ -174,7 +174,7 @@ namespace BetterMPHUD.ViewModels.Settings
         public void ExecuteCleanupAvatars()
         {
             OnCleanupAvatarsRequested?.Invoke();
-            InformationManager.DisplayMessage(new InformationMessage("[BetterMPHUD] Cleaned up disconnected avatars.", Colors.Green));
+            InformationManager.DisplayMessage(new InformationMessage("[BetterMPHUD] Synced avatars to current teams.", Colors.Green));
         }
         
         public void ExecuteRestoreAvatars()

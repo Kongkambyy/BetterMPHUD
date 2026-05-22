@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using TaleWorlds.Core;
 using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
@@ -188,7 +188,7 @@ namespace BetterMPHUD.Behaviors
 
         private void OnCleanupAvatars()
         {
-            _topBar.CleanupDisconnectedAvatars();
+            _topBar.SyncAvatarsToTeams();
         }
 
         private void ApplyAllSettings()
