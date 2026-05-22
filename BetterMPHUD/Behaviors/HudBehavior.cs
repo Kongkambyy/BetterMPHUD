@@ -19,6 +19,7 @@ namespace BetterMPHUD.Behaviors
         private bool _initialized;
         private bool _isCleaningUp;
         private float _settingsTimer;
+        private float _originalReportCasualtiesType;
 
         private TopBarHandler _topBar;
         private AgentStatusHandler _agentStatus;
@@ -31,6 +32,7 @@ namespace BetterMPHUD.Behaviors
 
         public HudBehavior()
         {
+            _originalReportCasualtiesType = ManagedOptions.GetConfig(ManagedOptions.ManagedOptionsType.ReportCasualtiesType);
             _topBar = new TopBarHandler();
             _agentStatus = new AgentStatusHandler();
             _killfeed = new KillfeedHandler();
@@ -246,7 +248,7 @@ namespace BetterMPHUD.Behaviors
     
             try
             {
-                ManagedOptions.SetConfig(ManagedOptions.ManagedOptionsType.ReportCasualtiesType, 0f);
+                ManagedOptions.SetConfig(ManagedOptions.ManagedOptionsType.ReportCasualtiesType, _originalReportCasualtiesType);
 
                 MissionScreen screen = ScreenManager.TopScreen as MissionScreen;
                 
