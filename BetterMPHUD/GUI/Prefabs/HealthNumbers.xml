@@ -2,7 +2,6 @@
     <Window>
         <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
             <Children>
-                <!-- Player Health Number -->
                 <TextWidget WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
                             HorizontalAlignment="Right" VerticalAlignment="Bottom"
                             PositionYOffset="@PlayerHealthOffsetY" PositionXOffset="@PlayerHealthOffsetX"
@@ -15,7 +14,6 @@
                             Brush.TextShadowOffset="2"
                             Brush.TextShadowColor="#000000FF"/>
 
-                <!-- Shield Health Number -->
                 <TextWidget WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
                             HorizontalAlignment="Right" VerticalAlignment="Bottom"
                             PositionYOffset="@ShieldHealthOffsetY" PositionXOffset="@ShieldHealthOffsetX"
@@ -28,7 +26,6 @@
                             Brush.TextShadowOffset="2"
                             Brush.TextShadowColor="#000000FF"/>
 
-                <!-- Mount Health Number -->
                 <TextWidget WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
                             HorizontalAlignment="Right" VerticalAlignment="Bottom"
                             PositionYOffset="@MountHealthOffsetY" PositionXOffset="@MountHealthOffsetX"

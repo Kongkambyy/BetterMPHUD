@@ -29,14 +29,26 @@ namespace BetterMPHUD
         public override async void OnInitialState()
         {
             base.OnInitialState();
-            var field = NetworkMain.GameClient.GetType().GetField("_loadedUnofficialModules", BindingFlags.Instance | BindingFlags.NonPublic);
+            try
+            {
+                for (int i = 0; i < 600; i++) // ~6s ceiling, not infinite
+                {
+                    var client = NetworkMain.GameClient;
+                    if (client == null) { await Task.Delay(10); continue; }
 
-            List<ModuleInfoModel> moduleList;
-            while ((moduleList = field.GetValue(NetworkMain.GameClient) as List<ModuleInfoModel>) == null)
-                await Task.Delay(1);
+                    var field = client.GetType().GetField("_loadedUnofficialModules",
+                        BindingFlags.Instance | BindingFlags.NonPublic);
+                    if (field == null) return;
 
-            field.SetValue(NetworkMain.GameClient, moduleList.Where(m => m.Id != "BetterMPHUD").ToList());
-            
+                    if (field.GetValue(client) is List<ModuleInfoModel> moduleList)
+                    {
+                        field.SetValue(client, moduleList.Where(m => m.Id != "BetterMPHUD").ToList());
+                        return;
+                    }
+                    await Task.Delay(10);
+                }
+            }
+            catch { /* never let an async void escape */ }
         }
     }
 }

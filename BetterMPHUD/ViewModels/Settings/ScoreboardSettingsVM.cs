@@ -142,11 +142,6 @@ namespace BetterMPHUD.ViewModels.Settings
             NotifyChanged();
         }
 
-        public void ExecuteDebugStructure()
-        {
-            OnDebugScoreboardStructure?.Invoke();
-        }
-
         public void ExecuteReset()
         {
             Settings.ScoreboardBackgroundEnabled = true;

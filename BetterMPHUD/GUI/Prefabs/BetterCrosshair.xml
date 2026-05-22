@@ -21,7 +21,6 @@
                                  RightArrow="..\RightArrow" HitMarker="..\HitMarker" HeadshotMarker="..\HeadshotMarker"
                                  IsHumanoidHeadshot="@IsHumanoidHeadshot">
                     <Children>
-                        <!--Four Part Custom Crosshair-->
                         <ValueBasedVisibilityWidget WidthSizePolicy="StretchToParent"
                                                     HeightSizePolicy="StretchToParent" WatchType="Equal"
                                                     IndexToBeVisible="0" IndexToWatch="@CrosshairType">
@@ -53,7 +52,6 @@
                             </Children>
                         </ValueBasedVisibilityWidget>
 
-                        <!--Three Part Custom Crosshair-->
                         <ValueBasedVisibilityWidget WidthSizePolicy="StretchToParent"
                                                     HeightSizePolicy="StretchToParent" WatchType="Equal"
                                                     IndexToBeVisible="1" IndexToWatch="@CrosshairType">
@@ -78,7 +76,6 @@
                     </Children>
                 </CrosshairWidget>
 
-                <!-- CENTER DOT - Circular -->
                 <BrushWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
                              SuggestedWidth="@DotSizeWidthFloat" SuggestedHeight="@DotSizeHeightFloat"
                              HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -87,7 +84,6 @@
                              Brush.Color="@DotColor"
                              IsVisible="@DotIsCircularVisible" />
 
-                <!-- CENTER DOT - Square -->
                 <BrushWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
                              SuggestedWidth="@DotSizeWidthFloat" SuggestedHeight="@DotSizeHeightFloat"
                              HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -96,13 +92,12 @@
                              Brush.Color="@DotColor"
                              IsVisible="@DotIsSquareVisible" />
 
-                <!--Reload Progress Vertical Bars-->
                 <Widget WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
                         HorizontalAlignment="Center" VerticalAlignment="Center" PositionXOffset="80"
                         IsVisible="@IsReloadPhasesVisible">
                     <Children>
                         <ListPanel DataSource="{ReloadPhases}" WidthSizePolicy="CoverChildren"
-                                   HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                                   HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalBottomToTop">
                             <ItemTemplate>
                                 <ReloadBarHeightAdjustmentWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
                                                                  SuggestedWidth="10" HorizontalAlignment="Center"
@@ -120,7 +115,6 @@
                                                                    IsDirectionUpward="true" MaxAmountAsFloat="1"
                                                                    ValueFactor="0" SaturationFactor="-100">
                                             <Children>
-                                                <!--Frame-->
                                                 <Widget WidthSizePolicy="StretchToParent"
                                                         HeightSizePolicy="StretchToParent" MarginLeft="1"
                                                         MarginRight="1" MarginBottom="2" MarginTop="2"
@@ -145,7 +139,6 @@
                     </Children>
                 </Widget>
 
-                <!-- Direction Arrows -->
                 <BrushWidget Id="TopArrow" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
                              SuggestedWidth="!Crosshair.Arrow.Height" SuggestedHeight="!Crosshair.Arrow.Width"
                              HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -165,7 +158,6 @@
                              PositionXOffset="!Crosshair.Arrow.Offset" Sprite="crosshair_arrow"
                              Brush.HorizontalFlip="true"/>
 
-                <!-- Hit Markers -->
                 <BrushWidget Id="HitMarker" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
                              SuggestedWidth="46" SuggestedHeight="46"
                              HorizontalAlignment="Center" VerticalAlignment="Center"

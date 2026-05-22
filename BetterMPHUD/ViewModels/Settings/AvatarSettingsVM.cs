@@ -6,10 +6,12 @@ namespace BetterMPHUD.ViewModels.Settings
 {
     public class AvatarSettingsVM : BaseSettingsVM
     {
-        private int _selectedSide; // 0 = Ally, 1 = Enemy
+        private int _selectedSide;
 
         public Action<bool> OnBetterAvatarsToggled;
         public Action OnCleanupAvatarsRequested;
+        public Action OnRestoreAvatarsRequested;
+
 
         public AvatarSettingsVM(HudSettings settings, Action onSettingsChanged) 
             : base(settings, onSettingsChanged)
@@ -173,6 +175,12 @@ namespace BetterMPHUD.ViewModels.Settings
         {
             OnCleanupAvatarsRequested?.Invoke();
             InformationManager.DisplayMessage(new InformationMessage("[BetterMPHUD] Cleaned up disconnected avatars.", Colors.Green));
+        }
+        
+        public void ExecuteRestoreAvatars()
+        {
+            OnRestoreAvatarsRequested?.Invoke();
+            InformationManager.DisplayMessage(new InformationMessage("[BetterMPHUD] Restored all avatars.", Colors.Green));
         }
 
         public void ExecuteResetCurrent()

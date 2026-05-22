@@ -9,7 +9,6 @@ namespace BetterMPHUD.ViewModels
         private HudSettings _settings;
         private bool _isConfigMenuOpen;
 
-        // Sub ViewModels
         private NavigationVM _navigation;
         private ProfileManagerVM _profileManager;
         private KillfeedSettingsVM _killfeed;
@@ -23,7 +22,6 @@ namespace BetterMPHUD.ViewModels
         private MiscSettingsVM _misc;
         private VisibilitySettingsVM _visibility;
 
-        // External callbacks
         public Action OnCloseConfigMenu;
         public Action<bool> OnWarbandKillfeedToggled;
         public Action OnHudSettingsChanged;
@@ -35,6 +33,7 @@ namespace BetterMPHUD.ViewModels
         public Action<bool> OnBetterAvatarsToggled;
         public Action<HudSettings> OnHideKillfeedPreview;
         public Action<HudSettings> OnUpdateKillfeedPreview; 
+        public Action OnRestoreAvatarsRequested;
 
         public HudMenuVM()
         {
@@ -71,6 +70,7 @@ namespace BetterMPHUD.ViewModels
             _scoreboard.OnDebugScoreboardStructure = () => OnDebugScoreboardStructure?.Invoke();
             _chat.OnChatToggled = (enabled) => OnChatToggled?.Invoke(enabled);
             _chat.OnDebugChatStructure = () => OnDebugChatStructure?.Invoke();
+            _avatar.OnRestoreAvatarsRequested = () => OnRestoreAvatarsRequested?.Invoke();
 
             _killfeed.SetOnPropertyRefresh(RefreshKillfeedProperties);
             _crosshair.SetOnPropertyRefresh(RefreshCrosshairProperties);
@@ -598,6 +598,8 @@ namespace BetterMPHUD.ViewModels
         public void ExecuteResetAvatarSide() => _avatar.ExecuteResetCurrent();
         public void ExecuteResetAllAvatarSides() => _avatar.ExecuteResetAll();
         public void ExecuteCleanupAvatars() => _avatar.ExecuteCleanupAvatars();
+        public void ExecuteRestoreAvatars() => _avatar.ExecuteRestoreAvatars();
+
 
         [DataSourceProperty] public string SelectedAvatarSideName => _avatar.SelectedName;
         [DataSourceProperty] public string CurrentAvatarOffsetXText => _avatar.OffsetXText;
@@ -632,7 +634,6 @@ namespace BetterMPHUD.ViewModels
         public void ExecuteSetDeadPlayerColorWhite() => _scoreboard.ExecuteSetDeadPlayerColorWhite();
         public void ExecuteSetDeadPlayerColorOrange() => _scoreboard.ExecuteSetDeadPlayerColorOrange();
         public void ExecuteSetDeadPlayerColorPurple() => _scoreboard.ExecuteSetDeadPlayerColorPurple();
-        public void ExecuteDebugScoreboard() => _scoreboard.ExecuteDebugStructure();
         public void ExecuteResetScoreboard() => _scoreboard.ExecuteReset();
 
         [DataSourceProperty] public bool ScoreboardBackgroundEnabled { get => _scoreboard.BackgroundEnabled; set => _scoreboard.BackgroundEnabled = value; }

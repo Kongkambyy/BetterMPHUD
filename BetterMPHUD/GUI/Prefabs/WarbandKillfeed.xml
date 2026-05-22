@@ -8,7 +8,7 @@
             <Children>
                 <ListPanel DataSource="{KillList}" WidthSizePolicy="StretchToParent"
                            HeightSizePolicy="CoverChildren"
-                           StackLayout.LayoutMethod="VerticalBottomToTop">
+                           StackLayout.LayoutMethod="VerticalTopToBottom">
                     <ItemTemplate>
                         <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
                                 SuggestedHeight="@RowHeight"

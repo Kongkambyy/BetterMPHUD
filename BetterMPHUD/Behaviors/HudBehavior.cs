@@ -4,7 +4,6 @@ using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
-using TaleWorlds.MountAndBlade.View.MissionViews;
 using TaleWorlds.MountAndBlade.View.Screens;
 using TaleWorlds.ScreenSystem;
 using BetterMPHUD.Core;
@@ -158,14 +157,12 @@ namespace BetterMPHUD.Behaviors
             _menuVM.OnWarbandKillfeedToggled = OnKillfeedToggled;
             _menuVM.OnHudSettingsChanged = ApplyAllSettings;
             _menuVM.OnCleanupAvatarsRequested = OnCleanupAvatars;
-            _menuVM.OnDebugAvatarStructure = () => _topBar.DebugAvatarStructure();
             _menuVM.OnBetterAvatarsToggled = OnBetterAvatarsToggled;
-            _menuVM.OnDebugScoreboardStructure = () => _scoreboard.DebugPrintStructure();
-            _menuVM.OnDebugChatStructure = () => _chat.DebugPrintStructure(); 
             _menuVM.OnChatToggled = OnChatToggled; 
             
             _menuVM.OnHideKillfeedPreview = (settings) => _killfeed.HidePreview(settings);
             _menuVM.OnUpdateKillfeedPreview = (settings) => _killfeed.UpdatePreview(settings);
+            _menuVM.OnRestoreAvatarsRequested = () => _topBar.RestoreAllAvatars();
 
             _configLayer = new GauntletLayer("GauntletLayer", 50, false);
             _configLayer.LoadMovie("HudConfig", _menuVM);

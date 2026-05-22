@@ -448,34 +448,68 @@ namespace BetterMPHUD.Handlers
         private HashSet<string> GetConnectedPlayerNames()
         {
             var names = new HashSet<string>();
-    
+
             if (Mission.Current == null) return names;
 
-            if (Mission.Current.PlayerTeam != null)
+            try
             {
-                foreach (Agent agent in Mission.Current.PlayerTeam.ActiveAgents)
+                foreach (NetworkCommunicator networkPeer in GameNetwork.NetworkPeers)
                 {
-                    if (agent != null && agent.IsHuman && agent.MissionPeer != null)
+                    if (networkPeer == null) continue;
+            
+                    MissionPeer missionPeer = networkPeer.GetComponent<MissionPeer>();
+                    if (missionPeer != null && !string.IsNullOrEmpty(missionPeer.DisplayedName))
                     {
-                        if (!string.IsNullOrEmpty(agent.MissionPeer.DisplayedName))
-                            names.Add(agent.MissionPeer.DisplayedName);
+                        names.Add(missionPeer.DisplayedName);
                     }
                 }
             }
+            catch { }
 
-            if (Mission.Current.PlayerEnemyTeam != null)
+            if (names.Count == 0)
             {
-                foreach (Agent agent in Mission.Current.PlayerEnemyTeam.ActiveAgents)
+                if (Mission.Current.PlayerTeam != null)
                 {
-                    if (agent != null && agent.IsHuman && agent.MissionPeer != null)
+                    foreach (Agent agent in Mission.Current.PlayerTeam.ActiveAgents)
                     {
-                        if (!string.IsNullOrEmpty(agent.MissionPeer.DisplayedName))
-                            names.Add(agent.MissionPeer.DisplayedName);
+                        if (agent != null && agent.IsHuman && agent.MissionPeer != null)
+                        {
+                            if (!string.IsNullOrEmpty(agent.MissionPeer.DisplayedName))
+                                names.Add(agent.MissionPeer.DisplayedName);
+                        }
+                    }
+                }
+
+                if (Mission.Current.PlayerEnemyTeam != null)
+                {
+                    foreach (Agent agent in Mission.Current.PlayerEnemyTeam.ActiveAgents)
+                    {
+                        if (agent != null && agent.IsHuman && agent.MissionPeer != null)
+                        {
+                            if (!string.IsNullOrEmpty(agent.MissionPeer.DisplayedName))
+                                names.Add(agent.MissionPeer.DisplayedName);
+                        }
                     }
                 }
             }
 
             return names;
+        }
+        
+        public void RestoreAllAvatars()
+        {
+            RestoreAvatarSide(_allyAvatarsSide);
+            RestoreAvatarSide(_enemyAvatarsSide);
+        }
+
+        private void RestoreAvatarSide(Widget avatarSide)
+        {
+            if (avatarSide == null) return;
+
+            for (int i = 0; i < avatarSide.ChildCount; i++)
+            {
+                avatarSide.GetChild(i).IsVisible = true;
+            }
         }
 
         public void CleanupDisconnectedAvatars()
@@ -517,50 +551,6 @@ namespace BetterMPHUD.Handlers
             }
     
             return null;
-        }
-        
-        public void DebugAvatarStructure()
-        {
-            if (_allyAvatarsSide == null || _allyAvatarsSide.ChildCount == 0)
-            {
-                InformationManager.DisplayMessage(new InformationMessage("[Debug] No ally avatars found", Colors.Red));
-                return;
-            }
-    
-            Widget firstAvatar = _allyAvatarsSide.GetChild(0);
-            DebugWidgetTree(firstAvatar, 0);
-        }
-
-        private void DebugWidgetTree(Widget widget, int depth)
-        {
-            if (depth > 8) return;
-    
-            string indent = new string(' ', depth * 2);
-            string typeName = widget.GetType().Name;
-            string extra = "";
-    
-            if (widget.Sprite != null && widget.Sprite.Name != null)
-                extra += " Sprite:" + widget.Sprite.Name;
-    
-            if (widget.WidthSizePolicy == SizePolicy.Fixed)
-                extra += " [" + widget.SuggestedWidth + "x" + widget.SuggestedHeight + "]";
-    
-            if (widget.Id != null)
-                extra += " Id:" + widget.Id;
-    
-            RichTextWidget richText = widget as RichTextWidget;
-            if (richText != null && !string.IsNullOrEmpty(richText.Text))
-                extra += " Text:\"" + richText.Text + "\"";
-    
-            TextWidget textWidget = widget as TextWidget;
-            if (textWidget != null && !string.IsNullOrEmpty(textWidget.Text))
-                extra += " Text:\"" + textWidget.Text + "\"";
-    
-            InformationManager.DisplayMessage(new InformationMessage(
-                indent + typeName + extra, Colors.White));
-    
-            for (int i = 0; i < widget.ChildCount; i++)
-                DebugWidgetTree(widget.GetChild(i), depth + 1);
         }
         
         public void ApplyBetterAvatars(bool enabled)
