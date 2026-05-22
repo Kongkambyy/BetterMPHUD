@@ -397,6 +397,8 @@ namespace BetterMPHUD.Handlers
             _childOriginals.Clear();
             _lastMinimalMode = false;
             _verticalScrollbar = null;
+            _originalValues = default;
+            _originalsCaptured = false;
         }
     }
 }
