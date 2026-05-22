@@ -445,11 +445,25 @@ namespace BetterMPHUD.Handlers
                 _customizer.ApplyCustomization(tracked.Widget, tracked.Original, custom, true);
         }
 
-        private HashSet<string> GetConnectedPlayerNames()
+        private sealed class TeamPlayerNames
         {
-            var names = new HashSet<string>();
+            public readonly HashSet<string> Allies = new HashSet<string>();
+            public readonly HashSet<string> Enemies = new HashSet<string>();
+
+            public bool HasAny
+            {
+                get { return Allies.Count > 0 || Enemies.Count > 0; }
+            }
+        }
+
+        private TeamPlayerNames GetCurrentTeamPlayerNames()
+        {
+            TeamPlayerNames names = new TeamPlayerNames();
 
             if (Mission.Current == null) return names;
+
+            Team allyTeam = Mission.Current.PlayerAllyTeam;
+            Team enemyTeam = Mission.Current.PlayerEnemyTeam;
 
             try
             {
@@ -458,42 +472,37 @@ namespace BetterMPHUD.Handlers
                     if (networkPeer == null) continue;
             
                     MissionPeer missionPeer = networkPeer.GetComponent<MissionPeer>();
-                    if (missionPeer != null && !string.IsNullOrEmpty(missionPeer.DisplayedName))
-                    {
-                        names.Add(missionPeer.DisplayedName);
-                    }
+                    if (missionPeer == null || string.IsNullOrEmpty(missionPeer.DisplayedName)) continue;
+
+                    if (missionPeer.Team == allyTeam)
+                        names.Allies.Add(missionPeer.DisplayedName);
+                    else if (missionPeer.Team == enemyTeam)
+                        names.Enemies.Add(missionPeer.DisplayedName);
                 }
             }
             catch { }
 
-            if (names.Count == 0)
-            {
-                if (Mission.Current.PlayerTeam != null)
-                {
-                    foreach (Agent agent in Mission.Current.PlayerTeam.ActiveAgents)
-                    {
-                        if (agent != null && agent.IsHuman && agent.MissionPeer != null)
-                        {
-                            if (!string.IsNullOrEmpty(agent.MissionPeer.DisplayedName))
-                                names.Add(agent.MissionPeer.DisplayedName);
-                        }
-                    }
-                }
+            if (names.Allies.Count == 0)
+                AddActiveAgentNames(allyTeam, names.Allies);
 
-                if (Mission.Current.PlayerEnemyTeam != null)
-                {
-                    foreach (Agent agent in Mission.Current.PlayerEnemyTeam.ActiveAgents)
-                    {
-                        if (agent != null && agent.IsHuman && agent.MissionPeer != null)
-                        {
-                            if (!string.IsNullOrEmpty(agent.MissionPeer.DisplayedName))
-                                names.Add(agent.MissionPeer.DisplayedName);
-                        }
-                    }
-                }
-            }
+            if (names.Enemies.Count == 0)
+                AddActiveAgentNames(enemyTeam, names.Enemies);
 
             return names;
+        }
+
+        private void AddActiveAgentNames(Team team, HashSet<string> names)
+        {
+            if (team == null) return;
+
+            foreach (Agent agent in team.ActiveAgents)
+            {
+                if (agent != null && agent.IsHuman && agent.MissionPeer != null &&
+                    !string.IsNullOrEmpty(agent.MissionPeer.DisplayedName))
+                {
+                    names.Add(agent.MissionPeer.DisplayedName);
+                }
+            }
         }
         
         public void RestoreAllAvatars()
@@ -514,12 +523,14 @@ namespace BetterMPHUD.Handlers
 
         public void CleanupDisconnectedAvatars()
         {
-            var connectedNames = GetConnectedPlayerNames();
-            RemoveDisconnectedFromSide(_allyAvatarsSide, connectedNames);
-            RemoveDisconnectedFromSide(_enemyAvatarsSide, connectedNames);
+            TeamPlayerNames teamNames = GetCurrentTeamPlayerNames();
+            if (!teamNames.HasAny) return;
+
+            SyncAvatarSide(_allyAvatarsSide, teamNames.Allies);
+            SyncAvatarSide(_enemyAvatarsSide, teamNames.Enemies);
         }
 
-        private void RemoveDisconnectedFromSide(Widget avatarSide, HashSet<string> connectedNames)
+        private void SyncAvatarSide(Widget avatarSide, HashSet<string> teamNames)
         {
             if (avatarSide == null) return;
     
@@ -528,8 +539,8 @@ namespace BetterMPHUD.Handlers
                 Widget avatarWidget = avatarSide.GetChild(i);
                 string playerName = FindPlayerNameInWidget(avatarWidget);
         
-                if (!string.IsNullOrEmpty(playerName) && !connectedNames.Contains(playerName))
-                    avatarWidget.IsVisible = false;
+                if (!string.IsNullOrEmpty(playerName))
+                    avatarWidget.IsVisible = teamNames.Contains(playerName);
             }
         }
 
