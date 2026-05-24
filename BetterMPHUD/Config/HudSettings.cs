@@ -5,13 +5,29 @@ using TaleWorlds.Library;
 
 namespace BetterMPHUD
 {
+    public enum KillfeedMode
+    {
+        Native = 0,
+        Warband = 1,
+        NativePlus = 2
+    }
+
+    public enum ScoreboardMode
+    {
+        Native = 0,
+        Custom = 1
+    }
+
     [Serializable]
     public class HudSettings
     {
         public bool NativeKillfeedEnabled { get; set; } = false;
         public bool WarbandKillfeedEnabled { get; set; } = true;
+        public KillfeedMode KillfeedMode { get; set; } = KillfeedMode.Warband;
         public float KillfeedFadeoutTime { get; set; } = 8f;
         public int KillfeedMaxEntries { get; set; } = 15;
+        public bool KillfeedOnlyShowMyKillsDeaths { get; set; } = false;
+        public bool KillfeedHideTeamkills { get; set; } = false;
         public bool ShowChat { get; set; } = true;
 
         public bool KillfeedBackgroundEnabled { get; set; } = true;
@@ -59,6 +75,14 @@ namespace BetterMPHUD
         public string ScoreboardDeadPlayerColor { get; set; } = ""; 
         public bool ScoreboardDeadPlayerTintEnabled { get; set; } = false;
         public bool HideUIWhenScoreboardOpen { get; set; } = false;
+        public bool ScoreboardSummaryEnabled { get; set; } = true;
+        public ScoreboardMode ScoreboardMode { get; set; } = ScoreboardMode.Custom;
+        public bool ScoreboardShowPing { get; set; } = true;
+        public bool ScoreboardShowState { get; set; } = true;
+        public bool ScoreboardShowWarlordsBanners { get; set; } = true;
+        public float ScoreboardRowScale { get; set; } = 1f;
+        public string ScoreboardDefaultSortColumn { get; set; } = "Score";
+        public bool ScoreboardDefaultSortAscending { get; set; } = false;
 
         public ElementCustomization TimeAndScoresCustom { get; set; }
         public ElementCustomization TeamAvatarsCustom { get; set; }

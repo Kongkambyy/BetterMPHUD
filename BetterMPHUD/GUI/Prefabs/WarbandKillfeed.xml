@@ -18,11 +18,11 @@
                                         Sprite="background_shadow"
                                         Color="@BackgroundColor"
                                         AlphaFactor="@BackgroundOpacity"
-                                        IsVisible="@ShowBackground"
+                                        IsVisible="@ShowWarbandBackground"
                                         MarginLeft="2" MarginRight="2"/>
 
                                 <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
-                                        IsVisible="@ShowBackground">
+                                        IsVisible="@ShowWarbandBackground">
                                     <Children>
                                         <ListPanel WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
                                                    StackLayout.LayoutMethod="HorizontalRightToLeft"
@@ -63,7 +63,7 @@
                                 </Widget>
 
                                 <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
-                                        IsVisible="@HideBackground">
+                                        IsVisible="@HideWarbandBackground">
                                     <Children>
                                         <ListPanel WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
                                                    StackLayout.LayoutMethod="HorizontalRightToLeft"
@@ -100,6 +100,86 @@
                                                              MarginLeft="2" MarginRight="6"/>
                                             </Children>
                                         </ListPanel>
+                                    </Children>
+                                </Widget>
+
+                                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                        IsVisible="@IsNativePlusStyle">
+                                    <Children>
+                                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent"
+                                                SuggestedWidth="500"
+                                                HorizontalAlignment="Right">
+                                            <Children>
+                                                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                        Sprite="BlankWhiteSquare_9"
+                                                        Color="#141414FF"
+                                                        AlphaFactor="@BackgroundOpacity"
+                                                        IsVisible="@ShowNativePlusBackground"/>
+                                                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
+                                                        SuggestedHeight="1"
+                                                        VerticalAlignment="Top"
+                                                        Sprite="BlankWhiteSquare_9"
+                                                        Color="#8A7B5BFF"
+                                                        AlphaFactor="@BackgroundOpacity"
+                                                        IsVisible="@ShowNativePlusBackground"/>
+                                                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
+                                                        SuggestedHeight="1"
+                                                        VerticalAlignment="Bottom"
+                                                        Sprite="BlankWhiteSquare_9"
+                                                        Color="#000000FF"
+                                                        AlphaFactor="@BackgroundOpacity"
+                                                        IsVisible="@ShowNativePlusBackground"/>
+                                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent"
+                                                        SuggestedWidth="5"
+                                                        HorizontalAlignment="Right"
+                                                        Sprite="BlankWhiteSquare_9"
+                                                        Color="@RowColor"
+                                                        IsVisible="@IsNativePlusStyle"/>
+                                                <ListPanel WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                           StackLayout.LayoutMethod="HorizontalRightToLeft"
+                                                           HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                           MarginRight="16">
+                                                    <Children>
+                                                        <TextWidget Text="@VictimName"
+                                                                    WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren"
+                                                                    SuggestedWidth="185"
+                                                                    VerticalAlignment="Center"
+                                                                    Brush.FontSize="@FontSize" Brush.FontColor="#F4EFE2FF"
+                                                                    Brush.TextHorizontalAlignment="Left"
+                                                                    Brush.TextVerticalAlignment="Center"
+                                                                    Brush.TextShadowOffset="2" Brush.TextShadowColor="#000000DD"
+                                                                    MarginLeft="4"/>
+                                                        <ImageWidget Sprite="@VictimClassSprite"
+                                                                     WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                     SuggestedWidth="@IconSize" SuggestedHeight="@IconSize"
+                                                                     VerticalAlignment="Center"
+                                                                     Color="#CFC7B6FF"
+                                                                     MarginLeft="5" MarginRight="5"/>
+                                                        <ImageWidget Sprite="@KillIconSprite"
+                                                                     WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                     SuggestedWidth="@SkullSize" SuggestedHeight="@SkullSize"
+                                                                     VerticalAlignment="Center"
+                                                                     Color="@RowColor"
+                                                                     MarginLeft="10" MarginRight="10"/>
+                                                        <ImageWidget Sprite="@KillerClassSprite"
+                                                                     WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                     SuggestedWidth="@IconSize" SuggestedHeight="@IconSize"
+                                                                     VerticalAlignment="Center"
+                                                                     Color="#CFC7B6FF"
+                                                                     MarginLeft="5" MarginRight="5"/>
+                                                        <TextWidget Text="@KillerName"
+                                                                    WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren"
+                                                                    SuggestedWidth="185"
+                                                                    VerticalAlignment="Center"
+                                                                    Brush.FontSize="@FontSize" Brush.FontColor="#F4EFE2FF"
+                                                                    Brush.TextHorizontalAlignment="Right"
+                                                                    Brush.TextVerticalAlignment="Center"
+                                                                    Brush.TextShadowOffset="2" Brush.TextShadowColor="#000000DD"
+                                                                    MarginRight="4"/>
+                                                    </Children>
+                                                </ListPanel>
+                                            </Children>
+                                        </Widget>
                                     </Children>
                                 </Widget>
                             </Children>

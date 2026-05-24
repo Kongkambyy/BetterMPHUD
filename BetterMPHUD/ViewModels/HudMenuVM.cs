@@ -95,7 +95,13 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(KillfeedBackgroundColorText, "KillfeedBackgroundColorText");
             OnPropertyChangedWithValue(NativeKillfeedEnabled, "NativeKillfeedEnabled");
             OnPropertyChangedWithValue(WarbandKillfeedEnabled, "WarbandKillfeedEnabled");
+            OnPropertyChangedWithValue(IsNativeKillfeedModeSelected, "IsNativeKillfeedModeSelected");
+            OnPropertyChangedWithValue(IsWarbandKillfeedModeSelected, "IsWarbandKillfeedModeSelected");
+            OnPropertyChangedWithValue(IsNativePlusKillfeedModeSelected, "IsNativePlusKillfeedModeSelected");
             OnPropertyChangedWithValue(KillfeedBackgroundEnabled, "KillfeedBackgroundEnabled");
+            OnPropertyChangedWithValue(OnlyShowMyKillsDeaths, "OnlyShowMyKillsDeaths");
+            OnPropertyChangedWithValue(HideTeamkills, "HideTeamkills");
+            RefreshEditOverlayProperties();
         }
 
         private void RefreshCrosshairProperties()
@@ -131,6 +137,7 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(CurrentOffsetXText, "CurrentOffsetXText");
             OnPropertyChangedWithValue(CurrentOffsetYText, "CurrentOffsetYText");
             OnPropertyChangedWithValue(CurrentScaleText, "CurrentScaleText");
+            RefreshEditOverlayProperties();
         }
 
         private void RefreshAvatarProperties()
@@ -154,6 +161,7 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(CurrentHPOffsetXText, "CurrentHPOffsetXText");
             OnPropertyChangedWithValue(CurrentHPOffsetYText, "CurrentHPOffsetYText");
             OnPropertyChangedWithValue(CurrentHPScaleText, "CurrentHPScaleText");
+            RefreshEditOverlayProperties();
         }
 
         private void RefreshScoreboardProperties()
@@ -162,9 +170,19 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(ScoreboardStripingEnabled, "ScoreboardStripingEnabled");
             OnPropertyChangedWithValue(ScoreboardDeadPlayerTintEnabled, "ScoreboardDeadPlayerTintEnabled");
             OnPropertyChangedWithValue(HideUIWhenScoreboardOpen, "HideUIWhenScoreboardOpen");
+            OnPropertyChangedWithValue(ScoreboardSummaryEnabled, "ScoreboardSummaryEnabled");
+            OnPropertyChangedWithValue(ScoreboardShowPing, "ScoreboardShowPing");
+            OnPropertyChangedWithValue(ScoreboardShowState, "ScoreboardShowState");
+            OnPropertyChangedWithValue(ScoreboardShowWarlordsBanners, "ScoreboardShowWarlordsBanners");
+            OnPropertyChangedWithValue(IsWarlordsActive, "IsWarlordsActive");
+            OnPropertyChangedWithValue(IsNativeScoreboardModeSelected, "IsNativeScoreboardModeSelected");
+            OnPropertyChangedWithValue(IsCustomScoreboardModeSelected, "IsCustomScoreboardModeSelected");
             OnPropertyChangedWithValue(ScoreboardBackgroundOpacityText, "ScoreboardBackgroundOpacityText");
             OnPropertyChangedWithValue(ScoreboardStripingOpacityText, "ScoreboardStripingOpacityText");
             OnPropertyChangedWithValue(ScoreboardDeadPlayerOpacityText, "ScoreboardDeadPlayerOpacityText");
+            OnPropertyChangedWithValue(ScoreboardRowScaleText, "ScoreboardRowScaleText");
+            OnPropertyChangedWithValue(ScoreboardDefaultSortColumnText, "ScoreboardDefaultSortColumnText");
+            OnPropertyChangedWithValue(ScoreboardDefaultSortDirectionText, "ScoreboardDefaultSortDirectionText");
         }
 
         private void RefreshChatProperties()
@@ -174,6 +192,31 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(ChatOffsetXText, "ChatOffsetXText");
             OnPropertyChangedWithValue(ChatOffsetYText, "ChatOffsetYText");
             OnPropertyChangedWithValue(ChatScaleText, "ChatScaleText");
+            RefreshEditOverlayProperties();
+        }
+
+        private void RefreshEditOverlayProperties()
+        {
+            OnPropertyChangedWithValue(KillfeedOverlayWidth, "KillfeedOverlayWidth");
+            OnPropertyChangedWithValue(KillfeedOverlayHeight, "KillfeedOverlayHeight");
+            OnPropertyChangedWithValue(KillfeedOverlayX, "KillfeedOverlayX");
+            OnPropertyChangedWithValue(KillfeedOverlayY, "KillfeedOverlayY");
+            OnPropertyChangedWithValue(TopBarOverlayWidth, "TopBarOverlayWidth");
+            OnPropertyChangedWithValue(TopBarOverlayHeight, "TopBarOverlayHeight");
+            OnPropertyChangedWithValue(TopBarOverlayX, "TopBarOverlayX");
+            OnPropertyChangedWithValue(TopBarOverlayY, "TopBarOverlayY");
+            OnPropertyChangedWithValue(AvatarOverlayWidth, "AvatarOverlayWidth");
+            OnPropertyChangedWithValue(AvatarOverlayHeight, "AvatarOverlayHeight");
+            OnPropertyChangedWithValue(AvatarOverlayX, "AvatarOverlayX");
+            OnPropertyChangedWithValue(AvatarOverlayY, "AvatarOverlayY");
+            OnPropertyChangedWithValue(PlayerHudOverlayWidth, "PlayerHudOverlayWidth");
+            OnPropertyChangedWithValue(PlayerHudOverlayHeight, "PlayerHudOverlayHeight");
+            OnPropertyChangedWithValue(PlayerHudOverlayX, "PlayerHudOverlayX");
+            OnPropertyChangedWithValue(PlayerHudOverlayY, "PlayerHudOverlayY");
+            OnPropertyChangedWithValue(ChatOverlayWidth, "ChatOverlayWidth");
+            OnPropertyChangedWithValue(ChatOverlayHeight, "ChatOverlayHeight");
+            OnPropertyChangedWithValue(ChatOverlayX, "ChatOverlayX");
+            OnPropertyChangedWithValue(ChatOverlayY, "ChatOverlayY");
         }
 
         private void RefreshMiscProperties()
@@ -299,9 +342,35 @@ namespace BetterMPHUD.ViewModels
                 {
                     _isConfigMenuOpen = value;
                     OnPropertyChangedWithValue(value, "IsConfigMenuOpen");
+                    RefreshEditOverlayProperties();
                 }
             }
         }
+
+        [DataSourceProperty] public float KillfeedOverlayWidth => 600f * _settings.KillfeedCustom.Scale;
+        [DataSourceProperty] public float KillfeedOverlayHeight => 190f * _settings.KillfeedCustom.Scale;
+        [DataSourceProperty] public float KillfeedOverlayX => _settings.KillfeedCustom.OffsetX;
+        [DataSourceProperty] public float KillfeedOverlayY => 50f + _settings.KillfeedCustom.OffsetY;
+
+        [DataSourceProperty] public float TopBarOverlayWidth => 360f * _settings.TimeAndScoresCustom.Scale;
+        [DataSourceProperty] public float TopBarOverlayHeight => 48f * _settings.TimeAndScoresCustom.Scale;
+        [DataSourceProperty] public float TopBarOverlayX => _settings.TimeAndScoresCustom.OffsetX;
+        [DataSourceProperty] public float TopBarOverlayY => 6f + _settings.TimeAndScoresCustom.OffsetY;
+
+        [DataSourceProperty] public float AvatarOverlayWidth => 520f * _settings.TeamAvatarsCustom.Scale;
+        [DataSourceProperty] public float AvatarOverlayHeight => 76f * _settings.TeamAvatarsCustom.Scale;
+        [DataSourceProperty] public float AvatarOverlayX => _settings.TeamAvatarsCustom.OffsetX;
+        [DataSourceProperty] public float AvatarOverlayY => 54f + _settings.TeamAvatarsCustom.OffsetY;
+
+        [DataSourceProperty] public float PlayerHudOverlayWidth => 360f * _settings.AgentHealthCustom.Scale;
+        [DataSourceProperty] public float PlayerHudOverlayHeight => 150f * _settings.AgentHealthCustom.Scale;
+        [DataSourceProperty] public float PlayerHudOverlayX => 30f + _settings.AgentHealthCustom.OffsetX;
+        [DataSourceProperty] public float PlayerHudOverlayY => -40f + _settings.AgentHealthCustom.OffsetY;
+
+        [DataSourceProperty] public float ChatOverlayWidth => 520f * _settings.ChatCustom.Scale;
+        [DataSourceProperty] public float ChatOverlayHeight => 190f * _settings.ChatCustom.Scale;
+        [DataSourceProperty] public float ChatOverlayX => 28f + _settings.ChatCustom.OffsetX;
+        [DataSourceProperty] public float ChatOverlayY => -210f + _settings.ChatCustom.OffsetY;
 
 
         #region Sub ViewModel Properties
@@ -392,10 +461,18 @@ namespace BetterMPHUD.ViewModels
         public void ExecuteIncreaseKillfeedMaxEntriesLarge() => _killfeed.ExecuteIncreaseMaxEntriesLarge();
         public void ExecuteDecreaseKillfeedMaxEntriesLarge() => _killfeed.ExecuteDecreaseMaxEntriesLarge();
         public void ExecuteResetKillfeed() => _killfeed.ExecuteReset();
+        public void ExecuteSelectNativeKillfeedMode() => _killfeed.ExecuteSelectNativeMode();
+        public void ExecuteSelectWarbandKillfeedMode() => _killfeed.ExecuteSelectWarbandMode();
+        public void ExecuteSelectNativePlusKillfeedMode() => _killfeed.ExecuteSelectNativePlusMode();
 
         [DataSourceProperty] public bool NativeKillfeedEnabled { get => _killfeed.NativeKillfeedEnabled; set => _killfeed.NativeKillfeedEnabled = value; }
         [DataSourceProperty] public bool WarbandKillfeedEnabled { get => _killfeed.WarbandKillfeedEnabled; set => _killfeed.WarbandKillfeedEnabled = value; }
+        [DataSourceProperty] public bool IsNativeKillfeedModeSelected { get => _killfeed.IsNativeKillfeedModeSelected; set => _killfeed.IsNativeKillfeedModeSelected = value; }
+        [DataSourceProperty] public bool IsWarbandKillfeedModeSelected { get => _killfeed.IsWarbandKillfeedModeSelected; set => _killfeed.IsWarbandKillfeedModeSelected = value; }
+        [DataSourceProperty] public bool IsNativePlusKillfeedModeSelected { get => _killfeed.IsNativePlusKillfeedModeSelected; set => _killfeed.IsNativePlusKillfeedModeSelected = value; }
         [DataSourceProperty] public bool KillfeedBackgroundEnabled { get => _killfeed.KillfeedBackgroundEnabled; set => _killfeed.KillfeedBackgroundEnabled = value; }
+        [DataSourceProperty] public bool OnlyShowMyKillsDeaths { get => _killfeed.OnlyShowMyKillsDeaths; set => _killfeed.OnlyShowMyKillsDeaths = value; }
+        [DataSourceProperty] public bool HideTeamkills { get => _killfeed.HideTeamkills; set => _killfeed.HideTeamkills = value; }
         [DataSourceProperty] public string KillfeedOffsetXText => _killfeed.OffsetXText;
         [DataSourceProperty] public string KillfeedOffsetYText => _killfeed.OffsetYText;
         [DataSourceProperty] public string KillfeedScaleText => _killfeed.ScaleText;
@@ -634,17 +711,49 @@ namespace BetterMPHUD.ViewModels
         public void ExecuteSetDeadPlayerColorWhite() => _scoreboard.ExecuteSetDeadPlayerColorWhite();
         public void ExecuteSetDeadPlayerColorOrange() => _scoreboard.ExecuteSetDeadPlayerColorOrange();
         public void ExecuteSetDeadPlayerColorPurple() => _scoreboard.ExecuteSetDeadPlayerColorPurple();
+        public void ExecuteNextScoreboardDefaultSortColumn() => _scoreboard.ExecuteNextScoreboardDefaultSortColumn();
+        public void ExecutePreviousScoreboardDefaultSortColumn() => _scoreboard.ExecutePreviousScoreboardDefaultSortColumn();
+        public void ExecuteNextScoreboardDefaultSortDirection() => _scoreboard.ExecuteNextScoreboardDefaultSortDirection();
+        public void ExecutePreviousScoreboardDefaultSortDirection() => _scoreboard.ExecutePreviousScoreboardDefaultSortDirection();
+        public void ExecuteIncreaseScoreboardRowScale() => _scoreboard.ExecuteIncreaseRowScale();
+        public void ExecuteDecreaseScoreboardRowScale() => _scoreboard.ExecuteDecreaseRowScale();
+        public void ExecuteIncreaseScoreboardRowScaleLarge() => _scoreboard.ExecuteIncreaseRowScaleLarge();
+        public void ExecuteDecreaseScoreboardRowScaleLarge() => _scoreboard.ExecuteDecreaseRowScaleLarge();
+        public void ExecuteSelectNativeScoreboardMode() => _scoreboard.ExecuteSelectNativeScoreboardMode();
+        public void ExecuteSelectCustomScoreboardMode() => _scoreboard.ExecuteSelectCustomScoreboardMode();
         public void ExecuteResetScoreboard() => _scoreboard.ExecuteReset();
 
         [DataSourceProperty] public bool ScoreboardBackgroundEnabled { get => _scoreboard.BackgroundEnabled; set => _scoreboard.BackgroundEnabled = value; }
         [DataSourceProperty] public bool ScoreboardStripingEnabled { get => _scoreboard.StripingEnabled; set => _scoreboard.StripingEnabled = value; }
         [DataSourceProperty] public bool ScoreboardDeadPlayerTintEnabled { get => _scoreboard.DeadPlayerTintEnabled; set => _scoreboard.DeadPlayerTintEnabled = value; }
         [DataSourceProperty] public bool HideUIWhenScoreboardOpen { get => _scoreboard.HideUIWhenOpen; set => _scoreboard.HideUIWhenOpen = value; }
+        [DataSourceProperty] public bool ScoreboardSummaryEnabled { get => _scoreboard.SummaryEnabled; set => _scoreboard.SummaryEnabled = value; }
+        [DataSourceProperty] public bool ScoreboardShowPing { get => _scoreboard.ShowPing; set => _scoreboard.ShowPing = value; }
+        [DataSourceProperty] public bool ScoreboardShowState { get => _scoreboard.ShowState; set => _scoreboard.ShowState = value; }
+        [DataSourceProperty] public bool ScoreboardShowWarlordsBanners { get => _scoreboard.ShowWarlordsBanners; set => _scoreboard.ShowWarlordsBanners = value; }
+        [DataSourceProperty] public bool IsWarlordsActive => Type.GetType("MBWarlords.LastConcord.WarlordsPeerComponent, MBWarlords.LastConcord") != null || FindType("MBWarlords.LastConcord.WarlordsPeerComponent") != null;
+        [DataSourceProperty] public bool IsNativeScoreboardModeSelected => _scoreboard.IsNativeScoreboardModeSelected;
+        [DataSourceProperty] public bool IsCustomScoreboardModeSelected => _scoreboard.IsCustomScoreboardModeSelected;
         [DataSourceProperty] public string ScoreboardBackgroundOpacityText => _scoreboard.BackgroundOpacityText;
         [DataSourceProperty] public string ScoreboardStripingOpacityText => _scoreboard.StripingOpacityText;
         [DataSourceProperty] public string ScoreboardDeadPlayerOpacityText => _scoreboard.DeadPlayerOpacityText;
+        [DataSourceProperty] public string ScoreboardRowScaleText => _scoreboard.RowScaleText;
+        [DataSourceProperty] public string ScoreboardDefaultSortColumnText => _scoreboard.DefaultSortColumnText;
+        [DataSourceProperty] public string ScoreboardDefaultSortDirectionText => _scoreboard.DefaultSortDirectionText;
 
         #endregion
+
+        private static Type FindType(string typeName)
+        {
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                Type type = assembly.GetType(typeName, false);
+                if (type != null)
+                    return type;
+            }
+
+            return null;
+        }
 
         #region Chat Delegation
 

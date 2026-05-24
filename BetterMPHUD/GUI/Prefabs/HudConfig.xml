@@ -4,6 +4,86 @@
 				Sprite="BlankWhiteSquare_9" Color="#00000000" IsVisible="@IsConfigMenuOpen">
 			<Children>
 				<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+						SuggestedWidth="@TopBarOverlayWidth" SuggestedHeight="@TopBarOverlayHeight"
+						HorizontalAlignment="Center" VerticalAlignment="Top"
+						PositionXOffset="@TopBarOverlayX" PositionYOffset="@TopBarOverlayY"
+						DoNotAcceptEvents="true">
+					<Children>
+						<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2" VerticalAlignment="Top" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2" VerticalAlignment="Bottom" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="2" HorizontalAlignment="Left" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="2" HorizontalAlignment="Right" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="110" SuggestedHeight="24" HorizontalAlignment="Left" VerticalAlignment="Top" MarginTop="-24" Sprite="BlankWhiteSquare_9" Color="#11100EDD">
+							<Children><TextWidget Text="Time &amp; Scores" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="13" Brush.FontColor="#FFD97AFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
+						</Widget>
+					</Children>
+				</Widget>
+
+				<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+						SuggestedWidth="@AvatarOverlayWidth" SuggestedHeight="@AvatarOverlayHeight"
+						HorizontalAlignment="Center" VerticalAlignment="Top"
+						PositionXOffset="@AvatarOverlayX" PositionYOffset="@AvatarOverlayY"
+						DoNotAcceptEvents="true">
+					<Children>
+						<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2" VerticalAlignment="Top" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2" VerticalAlignment="Bottom" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="2" HorizontalAlignment="Left" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="2" HorizontalAlignment="Right" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="100" SuggestedHeight="24" HorizontalAlignment="Left" VerticalAlignment="Bottom" MarginBottom="-24" Sprite="BlankWhiteSquare_9" Color="#11100EDD">
+							<Children><TextWidget Text="Team Avatars" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="13" Brush.FontColor="#FFD97AFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
+						</Widget>
+					</Children>
+				</Widget>
+
+				<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+						SuggestedWidth="@KillfeedOverlayWidth" SuggestedHeight="@KillfeedOverlayHeight"
+						HorizontalAlignment="Right" VerticalAlignment="Top"
+						PositionXOffset="@KillfeedOverlayX" PositionYOffset="@KillfeedOverlayY"
+						MarginRight="20" DoNotAcceptEvents="true">
+					<Children>
+						<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2" VerticalAlignment="Top" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2" VerticalAlignment="Bottom" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="2" HorizontalAlignment="Left" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="2" HorizontalAlignment="Right" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="24" HorizontalAlignment="Right" VerticalAlignment="Top" MarginTop="-24" Sprite="BlankWhiteSquare_9" Color="#11100EDD">
+							<Children><TextWidget Text="Killfeed" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="13" Brush.FontColor="#FFD97AFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
+						</Widget>
+					</Children>
+				</Widget>
+
+				<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+						SuggestedWidth="@PlayerHudOverlayWidth" SuggestedHeight="@PlayerHudOverlayHeight"
+						HorizontalAlignment="Left" VerticalAlignment="Bottom"
+						PositionXOffset="@PlayerHudOverlayX" PositionYOffset="@PlayerHudOverlayY"
+						DoNotAcceptEvents="true">
+					<Children>
+						<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2" VerticalAlignment="Top" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2" VerticalAlignment="Bottom" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="2" HorizontalAlignment="Left" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="2" HorizontalAlignment="Right" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="90" SuggestedHeight="24" HorizontalAlignment="Left" VerticalAlignment="Top" MarginTop="-24" Sprite="BlankWhiteSquare_9" Color="#11100EDD">
+							<Children><TextWidget Text="Player HUD" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="13" Brush.FontColor="#FFD97AFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
+						</Widget>
+					</Children>
+				</Widget>
+
+				<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+						SuggestedWidth="@ChatOverlayWidth" SuggestedHeight="@ChatOverlayHeight"
+						HorizontalAlignment="Left" VerticalAlignment="Bottom"
+						PositionXOffset="@ChatOverlayX" PositionYOffset="@ChatOverlayY"
+						DoNotAcceptEvents="true">
+					<Children>
+						<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2" VerticalAlignment="Top" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2" VerticalAlignment="Bottom" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="2" HorizontalAlignment="Left" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="2" HorizontalAlignment="Right" Sprite="BlankWhiteSquare_9" Color="#D7B45DCC"/>
+						<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="55" SuggestedHeight="24" HorizontalAlignment="Left" VerticalAlignment="Top" MarginTop="-24" Sprite="BlankWhiteSquare_9" Color="#11100EDD">
+							<Children><TextWidget Text="Chat" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="13" Brush.FontColor="#FFD97AFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
+						</Widget>
+					</Children>
+				</Widget>
+
+				<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
 						SuggestedWidth="900" SuggestedHeight="750"
 						HorizontalAlignment="Center" VerticalAlignment="Center"
 						PositionXOffset="@MenuHorizontalOffset"
@@ -141,12 +221,98 @@
 
 														<TextWidget Text="Background" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="8" Brush.FontSize="16" Brush.FontColor="#CCCCCCFF"/>
 
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="10">
+															<Children>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="145" SuggestedHeight="42" MarginRight="8" Brush="HUDButton" ButtonType="Toggle" IsSelected="@IsNativeScoreboardModeSelected" ToggleIndicator="NativeScoreboardModeIndicator" UpdateChildrenStates="true" Command.Click="ExecuteSelectNativeScoreboardMode">
+																	<Children>
+																		<Widget Id="NativeScoreboardModeIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#FFD70033"/>
+																		<TextWidget Text="Native" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="16" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+																	</Children>
+																</ButtonWidget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="145" SuggestedHeight="42" Brush="HUDButton" ButtonType="Toggle" IsSelected="@IsCustomScoreboardModeSelected" ToggleIndicator="CustomScoreboardModeIndicator" UpdateChildrenStates="true" Command.Click="ExecuteSelectCustomScoreboardMode">
+																	<Children>
+																		<Widget Id="CustomScoreboardModeIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#FFD70033"/>
+																		<TextWidget Text="Custom" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="16" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+																	</Children>
+																</ButtonWidget>
+															</Children>
+														</ListPanel>
+
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
 															<Children>
 																<TextWidget Text="Show Background" WidthSizePolicy="Fixed" SuggestedWidth="180" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
 																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@ScoreboardBackgroundEnabled" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
 																	<Children><BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/></Children>
 																</ButtonWidget>
+															</Children>
+														</ListPanel>
+
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
+															<Children>
+																<TextWidget Text="Team Summary" WidthSizePolicy="Fixed" SuggestedWidth="180" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@ScoreboardSummaryEnabled" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
+																	<Children><BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/></Children>
+																</ButtonWidget>
+															</Children>
+														</ListPanel>
+
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
+															<Children>
+																<TextWidget Text="Show Ping Column" WidthSizePolicy="Fixed" SuggestedWidth="180" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@ScoreboardShowPing" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
+																	<Children><BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/></Children>
+																</ButtonWidget>
+															</Children>
+														</ListPanel>
+
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
+															<Children>
+																<TextWidget Text="Show State Column" WidthSizePolicy="Fixed" SuggestedWidth="180" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@ScoreboardShowState" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
+																	<Children><BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/></Children>
+																</ButtonWidget>
+															</Children>
+														</ListPanel>
+
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8" IsVisible="@IsWarlordsActive">
+															<Children>
+																<TextWidget Text="Show Banner Column" WidthSizePolicy="Fixed" SuggestedWidth="180" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@ScoreboardShowWarlordsBanners" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
+																	<Children><BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/></Children>
+																</ButtonWidget>
+															</Children>
+														</ListPanel>
+
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
+															<Children>
+																<TextWidget Text="Row Scale" WidthSizePolicy="Fixed" SuggestedWidth="150" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="28" SuggestedHeight="28" Brush="KillfeedOffsetXLMinusButton" Command.Click="ExecuteDecreaseScoreboardRowScaleLarge"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="28" Brush="KillfeedOffsetMinusButton" Command.Click="ExecuteDecreaseScoreboardRowScale"/>
+																<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="55" SuggestedHeight="28"><Children><TextWidget Text="@ScoreboardRowScaleText" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="13" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children></Widget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="28" Brush="KillfeedOffsetPlusButton" Command.Click="ExecuteIncreaseScoreboardRowScale"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="28" SuggestedHeight="28" Brush="KillfeedOffsetXLPlusButton" Command.Click="ExecuteIncreaseScoreboardRowScaleLarge"/>
+															</Children>
+														</ListPanel>
+
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
+															<Children>
+																<TextWidget Text="Default Sort" WidthSizePolicy="Fixed" SuggestedWidth="180" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="28" SuggestedHeight="28" Brush="KillfeedOffsetMinusButton" Command.Click="ExecutePreviousScoreboardDefaultSortColumn"/>
+																<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="90" SuggestedHeight="28">
+																	<Children><TextWidget Text="@ScoreboardDefaultSortColumnText" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
+																</Widget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="28" SuggestedHeight="28" Brush="KillfeedOffsetPlusButton" Command.Click="ExecuteNextScoreboardDefaultSortColumn"/>
+															</Children>
+														</ListPanel>
+
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
+															<Children>
+																<TextWidget Text="Sort Direction" WidthSizePolicy="Fixed" SuggestedWidth="180" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="28" SuggestedHeight="28" Brush="KillfeedOffsetMinusButton" Command.Click="ExecutePreviousScoreboardDefaultSortDirection"/>
+																<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="110" SuggestedHeight="28">
+																	<Children><TextWidget Text="@ScoreboardDefaultSortDirectionText" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
+																</Widget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="28" SuggestedHeight="28" Brush="KillfeedOffsetPlusButton" Command.Click="ExecuteNextScoreboardDefaultSortDirection"/>
 															</Children>
 														</ListPanel>
 
@@ -161,28 +327,6 @@
 															</Children>
 														</ListPanel>
 
-														<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="1" Sprite="BlankWhiteSquare_9" Color="#FFFFFF33" MarginBottom="15"/>
-														<TextWidget Text="Row Striping" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="8" Brush.FontSize="16" Brush.FontColor="#CCCCCCFF"/>
-
-														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
-															<Children>
-																<TextWidget Text="Show Row Striping" WidthSizePolicy="Fixed" SuggestedWidth="180" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@ScoreboardStripingEnabled" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
-																	<Children><BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/></Children>
-																</ButtonWidget>
-															</Children>
-														</ListPanel>
-
-														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="15">
-															<Children>
-																<TextWidget Text="Striping Opacity" WidthSizePolicy="Fixed" SuggestedWidth="150" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="28" SuggestedHeight="28" Brush="KillfeedOffsetXLMinusButton" Command.Click="ExecuteDecreaseStripingOpacityLarge"/>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="28" Brush="KillfeedOffsetMinusButton" Command.Click="ExecuteDecreaseStripingOpacity"/>
-																<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="55" SuggestedHeight="28"><Children><TextWidget Text="@ScoreboardStripingOpacityText" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="13" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children></Widget>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="28" Brush="KillfeedOffsetPlusButton" Command.Click="ExecuteIncreaseStripingOpacity"/>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="28" SuggestedHeight="28" Brush="KillfeedOffsetXLPlusButton" Command.Click="ExecuteIncreaseStripingOpacityLarge"/>
-															</Children>
-														</ListPanel>
 													</Children>
 												</ListPanel>
 											</Children>
@@ -289,16 +433,27 @@
 
 												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom" Margin="10" MarginBottom="15">
 													<Children>
-														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="10">
-															<Children>
-																<TextWidget Text="Native Killfeed" WidthSizePolicy="Fixed" SuggestedWidth="200" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="16" Brush.FontColor="#E0E0E0FF"/>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@NativeKillfeedEnabled" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true"><Children><BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/></Children></ButtonWidget>
-															</Children>
-														</ListPanel>
+														<TextWidget Text="Mode" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="8" Brush.FontSize="16" Brush.FontColor="#CCCCCCFF"/>
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight">
 															<Children>
-																<TextWidget Text="Custom Killfeed" WidthSizePolicy="Fixed" SuggestedWidth="200" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="16" Brush.FontColor="#E0E0E0FF"/>
-																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@WarbandKillfeedEnabled" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true"><Children><BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/></Children></ButtonWidget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="145" SuggestedHeight="42" MarginRight="8" Brush="HUDButton" ButtonType="Toggle" IsSelected="@IsNativeKillfeedModeSelected" ToggleIndicator="NativeModeIndicator" UpdateChildrenStates="true" Command.Click="ExecuteSelectNativeKillfeedMode">
+																	<Children>
+																		<Widget Id="NativeModeIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#FFD70033"/>
+																		<TextWidget Text="Native" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="16" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+																	</Children>
+																</ButtonWidget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="145" SuggestedHeight="42" MarginRight="8" Brush="HUDButton" ButtonType="Toggle" IsSelected="@IsWarbandKillfeedModeSelected" ToggleIndicator="WarbandModeIndicator" UpdateChildrenStates="true" Command.Click="ExecuteSelectWarbandKillfeedMode">
+																	<Children>
+																		<Widget Id="WarbandModeIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#FFD70033"/>
+																		<TextWidget Text="Warband" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="16" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+																	</Children>
+																</ButtonWidget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="145" SuggestedHeight="42" Brush="HUDButton" ButtonType="Toggle" IsSelected="@IsNativePlusKillfeedModeSelected" ToggleIndicator="NativePlusModeIndicator" UpdateChildrenStates="true" Command.Click="ExecuteSelectNativePlusKillfeedMode">
+																	<Children>
+																		<Widget Id="NativePlusModeIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#FFD70033"/>
+																		<TextWidget Text="Native+" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="16" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+																	</Children>
+																</ButtonWidget>
 															</Children>
 														</ListPanel>
 													</Children>
@@ -324,6 +479,24 @@
 																<Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="60" SuggestedHeight="30"><Children><TextWidget Text="@KillfeedMaxEntriesText" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="13" Brush.Color="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children></Widget>
 																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="30" Brush="KillfeedOffsetPlusButton" Command.Click="ExecuteIncreaseKillfeedMaxEntries"/>
 																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="30" SuggestedHeight="30" Brush="KillfeedOffsetXLPlusButton" Command.Click="ExecuteIncreaseKillfeedMaxEntriesLarge"/>
+															</Children>
+														</ListPanel>
+
+														<TextWidget Text="Filters" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="8" Brush.FontSize="16" Brush.FontColor="#FFD700FF"/>
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
+															<Children>
+																<TextWidget Text="Only My Kills/Deaths" WidthSizePolicy="Fixed" SuggestedWidth="200" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@OnlyShowMyKillsDeaths" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
+																	<Children><BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/></Children>
+																</ButtonWidget>
+															</Children>
+														</ListPanel>
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="15">
+															<Children>
+																<TextWidget Text="Hide Teamkills" WidthSizePolicy="Fixed" SuggestedWidth="200" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@HideTeamkills" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
+																	<Children><BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/></Children>
+																</ButtonWidget>
 															</Children>
 														</ListPanel>
 

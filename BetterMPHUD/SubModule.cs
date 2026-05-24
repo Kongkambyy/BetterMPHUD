@@ -1,4 +1,6 @@
 ﻿using BetterMPHUD.Behaviors;
+using BetterMPHUD.Patches;
+using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -13,15 +15,21 @@ namespace BetterMPHUD
 {
     public class SubModule : MBSubModuleBase
     {
+        private static Harmony _harmony;
+
         protected override void OnSubModuleLoad()
         {
             base.OnSubModuleLoad();
+            _harmony = new Harmony("better-mp-hud");
+            _harmony.PatchAll(typeof(NativeScoreboardPatch).Assembly);
+            WarlordsScoreboardPatch.TryPatch(_harmony);
             InformationManager.DisplayMessage(new InformationMessage("BetterMPHUD Loaded", Colors.Cyan));
         }
 
         public override void OnMissionBehaviorInitialize(Mission mission)
         {
             base.OnMissionBehaviorInitialize(mission);
+            WarlordsScoreboardPatch.TryPatch(_harmony);
             mission.AddMissionBehavior(new HudBehavior());
             InformationManager.DisplayMessage(new InformationMessage("BetterMPHUD Behavior Added", Colors.Cyan));
         }

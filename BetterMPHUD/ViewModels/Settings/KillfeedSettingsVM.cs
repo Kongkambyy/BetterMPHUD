@@ -13,13 +13,67 @@ namespace BetterMPHUD.ViewModels.Settings
         public KillfeedSettingsVM(HudSettings settings, Action onSettingsChanged) 
             : base(settings, onSettingsChanged)
         {
+            NormalizeKillfeedMode();
             ApplyNativeKillfeedSetting();
+        }
+
+        private void NormalizeKillfeedMode()
+        {
+            if (Settings.KillfeedMode == KillfeedMode.Warband &&
+                Settings.NativeKillfeedEnabled &&
+                !Settings.WarbandKillfeedEnabled)
+            {
+                Settings.KillfeedMode = KillfeedMode.Native;
+            }
         }
 
         private void ApplyNativeKillfeedSetting()
         {
-            float value = Settings.NativeKillfeedEnabled ? 0f : 2f;
-            ManagedOptions.SetConfig(ManagedOptions.ManagedOptionsType.ReportCasualtiesType, value);
+            SyncLegacyKillfeedFlags();
+            ManagedOptions.SetConfig(ManagedOptions.ManagedOptionsType.ReportCasualtiesType, 0f);
+        }
+
+        private void SyncLegacyKillfeedFlags()
+        {
+            Settings.NativeKillfeedEnabled = Settings.KillfeedMode == KillfeedMode.Native;
+            Settings.WarbandKillfeedEnabled = Settings.KillfeedMode != KillfeedMode.Native;
+        }
+
+        private void SetKillfeedMode(KillfeedMode mode)
+        {
+            if (Settings.KillfeedMode == mode)
+                return;
+
+            Settings.KillfeedMode = mode;
+            ApplyNativeKillfeedSetting();
+            RefreshModeProperties();
+            OnWarbandKillfeedToggled?.Invoke(Settings.KillfeedMode != KillfeedMode.Native);
+            NotifyChanged();
+            NotifyPreviewUpdate();
+        }
+
+        public void ExecuteSelectNativeMode()
+        {
+            SetKillfeedMode(KillfeedMode.Native);
+        }
+
+        public void ExecuteSelectWarbandMode()
+        {
+            SetKillfeedMode(KillfeedMode.Warband);
+        }
+
+        public void ExecuteSelectNativePlusMode()
+        {
+            SetKillfeedMode(KillfeedMode.NativePlus);
+        }
+
+        private void RefreshModeProperties()
+        {
+            OnPropertyChangedWithValue(IsNativeKillfeedModeSelected, "IsNativeKillfeedModeSelected");
+            OnPropertyChangedWithValue(IsWarbandKillfeedModeSelected, "IsWarbandKillfeedModeSelected");
+            OnPropertyChangedWithValue(IsNativePlusKillfeedModeSelected, "IsNativePlusKillfeedModeSelected");
+            OnPropertyChangedWithValue(NativeKillfeedEnabled, "NativeKillfeedEnabled");
+            OnPropertyChangedWithValue(WarbandKillfeedEnabled, "WarbandKillfeedEnabled");
         }
 
         private void NotifyPreviewUpdate()
@@ -30,33 +84,46 @@ namespace BetterMPHUD.ViewModels.Settings
         [DataSourceProperty]
         public bool NativeKillfeedEnabled
         {
-            get => Settings.NativeKillfeedEnabled;
+            get => Settings.KillfeedMode == KillfeedMode.Native;
             set
             {
-                if (Settings.NativeKillfeedEnabled != value)
-                {
-                    Settings.NativeKillfeedEnabled = value;
-                    OnPropertyChangedWithValue(value, "NativeKillfeedEnabled");
-                    ApplyNativeKillfeedSetting();
-                    NotifyChanged();
-                }
+                if (value)
+                    SetKillfeedMode(KillfeedMode.Native);
             }
         }
 
         [DataSourceProperty]
         public bool WarbandKillfeedEnabled
         {
-            get => Settings.WarbandKillfeedEnabled;
+            get => Settings.KillfeedMode != KillfeedMode.Native;
             set
             {
-                if (Settings.WarbandKillfeedEnabled != value)
-                {
-                    Settings.WarbandKillfeedEnabled = value;
-                    OnPropertyChangedWithValue(value, "WarbandKillfeedEnabled");
-                    OnWarbandKillfeedToggled?.Invoke(value);
-                    NotifyChanged();
-                }
+                if (value)
+                    SetKillfeedMode(KillfeedMode.Warband);
+                else
+                    SetKillfeedMode(KillfeedMode.Native);
             }
+        }
+
+        [DataSourceProperty]
+        public bool IsNativeKillfeedModeSelected
+        {
+            get => Settings.KillfeedMode == KillfeedMode.Native;
+            set { if (value) SetKillfeedMode(KillfeedMode.Native); }
+        }
+
+        [DataSourceProperty]
+        public bool IsWarbandKillfeedModeSelected
+        {
+            get => Settings.KillfeedMode == KillfeedMode.Warband;
+            set { if (value) SetKillfeedMode(KillfeedMode.Warband); }
+        }
+
+        [DataSourceProperty]
+        public bool IsNativePlusKillfeedModeSelected
+        {
+            get => Settings.KillfeedMode == KillfeedMode.NativePlus;
+            set { if (value) SetKillfeedMode(KillfeedMode.NativePlus); }
         }
 
         [DataSourceProperty]
@@ -95,6 +162,36 @@ namespace BetterMPHUD.ViewModels.Settings
 
         [DataSourceProperty]
         public string BackgroundColorText => Settings.KillfeedBackgroundColor;
+
+        [DataSourceProperty]
+        public bool OnlyShowMyKillsDeaths
+        {
+            get => Settings.KillfeedOnlyShowMyKillsDeaths;
+            set
+            {
+                if (Settings.KillfeedOnlyShowMyKillsDeaths != value)
+                {
+                    Settings.KillfeedOnlyShowMyKillsDeaths = value;
+                    OnPropertyChangedWithValue(value, "OnlyShowMyKillsDeaths");
+                    NotifyChanged();
+                }
+            }
+        }
+
+        [DataSourceProperty]
+        public bool HideTeamkills
+        {
+            get => Settings.KillfeedHideTeamkills;
+            set
+            {
+                if (Settings.KillfeedHideTeamkills != value)
+                {
+                    Settings.KillfeedHideTeamkills = value;
+                    OnPropertyChangedWithValue(value, "HideTeamkills");
+                    NotifyChanged();
+                }
+            }
+        }
 
         public void ExecuteIncreaseOffsetX() 
         { 
@@ -237,10 +334,14 @@ namespace BetterMPHUD.ViewModels.Settings
         public void ExecuteReset()
         {
             Settings.KillfeedCustom.Reset();
+            Settings.KillfeedMode = KillfeedMode.Warband;
+            ApplyNativeKillfeedSetting();
             Settings.KillfeedFadeoutTime = Constants.Adjustment.DefaultFadeout;
             Settings.KillfeedBackgroundEnabled = true;
             Settings.KillfeedBackgroundOpacity = 0.7f;
             Settings.KillfeedMaxEntries = 15;
+            Settings.KillfeedOnlyShowMyKillsDeaths = false;
+            Settings.KillfeedHideTeamkills = false;
             RefreshAll();
             NotifyPreviewUpdate();
         }
@@ -254,13 +355,15 @@ namespace BetterMPHUD.ViewModels.Settings
             OnPropertyChangedWithValue(BackgroundColorText, "BackgroundColorText");
             OnPropertyChangedWithValue(KillfeedBackgroundEnabled, "KillfeedBackgroundEnabled");
             OnPropertyChangedWithValue(MaxEntriesText, "MaxEntriesText");
+            OnPropertyChangedWithValue(OnlyShowMyKillsDeaths, "OnlyShowMyKillsDeaths");
+            OnPropertyChangedWithValue(HideTeamkills, "HideTeamkills");
             NotifyChanged();
         }
 
         public override void RefreshAll()
         {
-            OnPropertyChangedWithValue(NativeKillfeedEnabled, "NativeKillfeedEnabled");
-            OnPropertyChangedWithValue(WarbandKillfeedEnabled, "WarbandKillfeedEnabled");
+            ApplyNativeKillfeedSetting();
+            RefreshModeProperties();
             OnPropertyChangedWithValue(FadeoutTimeText, "FadeoutTimeText");
             RefreshDisplay();
         }

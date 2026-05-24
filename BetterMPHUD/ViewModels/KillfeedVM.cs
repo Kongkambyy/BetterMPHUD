@@ -15,6 +15,10 @@ namespace BetterMPHUD.ViewModels
         private const int BASE_ICON = 24;
         private const int BASE_SKULL = 34;
         private const int BASE_ROW = 32;
+        private const int NATIVE_PLUS_BASE_FONT = 18;
+        private const int NATIVE_PLUS_BASE_ICON = 21;
+        private const int NATIVE_PLUS_BASE_SKULL = 23;
+        private const int NATIVE_PLUS_BASE_ROW = 34;
 
         public KillfeedVM()
         {
@@ -33,7 +37,7 @@ namespace BetterMPHUD.ViewModels
             Clear();
             
             float scale = settings.KillfeedCustom.Scale;
-            GetScaledSizes(scale, out int font, out float icon, out float skull, out float row);
+            GetScaledSizes(scale, settings.KillfeedMode, out int font, out float icon, out float skull, out float row);
 
             string[] victims = new[]
             {
@@ -57,6 +61,7 @@ namespace BetterMPHUD.ViewModels
                     null
                 );
                 
+                item.UpdateStyle(settings.KillfeedMode);
                 item.UpdateSizes(font, icon, skull, row);
                 item.UpdateBackground(
                     settings.KillfeedBackgroundEnabled,
@@ -83,10 +88,11 @@ namespace BetterMPHUD.ViewModels
             if (!_isPreviewMode) return;
             
             float scale = settings.KillfeedCustom.Scale;
-            GetScaledSizes(scale, out int font, out float icon, out float skull, out float row);
+            GetScaledSizes(scale, settings.KillfeedMode, out int font, out float icon, out float skull, out float row);
 
             foreach (var item in _killList)
             {
+                item.UpdateStyle(settings.KillfeedMode);
                 item.UpdateSizes(font, icon, skull, row);
                 item.UpdateBackground(
                     settings.KillfeedBackgroundEnabled,
@@ -98,12 +104,14 @@ namespace BetterMPHUD.ViewModels
 
         public void UpdateScale(float scale)
         {
+            UpdateScale(scale, KillfeedMode.Warband);
+        }
+
+        public void UpdateScale(float scale, KillfeedMode mode)
+        {
             if (scale < 0.1f) scale = 0.1f;
 
-            int newFont = (int)Math.Max(1, BASE_FONT * scale);
-            float newIcon = Math.Max(1, BASE_ICON * scale);
-            float newSkull = Math.Max(1, BASE_SKULL * scale);
-            float newRow = Math.Max(1, BASE_ROW * scale);
+            GetScaledSizes(scale, mode, out int newFont, out float newIcon, out float newSkull, out float newRow);
 
             foreach (var item in _killList.ToList())
             {
@@ -113,12 +121,22 @@ namespace BetterMPHUD.ViewModels
         
         public void GetScaledSizes(float scale, out int font, out float icon, out float skull, out float row)
         {
+            GetScaledSizes(scale, KillfeedMode.Warband, out font, out icon, out skull, out row);
+        }
+
+        public void GetScaledSizes(float scale, KillfeedMode mode, out int font, out float icon, out float skull, out float row)
+        {
             if (scale < 0.1f) scale = 0.1f;
+
+            int baseFont = mode == KillfeedMode.NativePlus ? NATIVE_PLUS_BASE_FONT : BASE_FONT;
+            int baseIcon = mode == KillfeedMode.NativePlus ? NATIVE_PLUS_BASE_ICON : BASE_ICON;
+            int baseSkull = mode == KillfeedMode.NativePlus ? NATIVE_PLUS_BASE_SKULL : BASE_SKULL;
+            int baseRow = mode == KillfeedMode.NativePlus ? NATIVE_PLUS_BASE_ROW : BASE_ROW;
             
-            font = (int)Math.Max(1, BASE_FONT * scale);
-            icon = Math.Max(1, BASE_ICON * scale);
-            skull = Math.Max(1, BASE_SKULL * scale);
-            row = Math.Max(1, BASE_ROW * scale);
+            font = (int)Math.Max(1, baseFont * scale);
+            icon = Math.Max(1, baseIcon * scale);
+            skull = Math.Max(1, baseSkull * scale);
+            row = Math.Max(1, baseRow * scale);
         }
 
         public void AddKill(KillfeedItemVM item, int maxEntries)
@@ -178,6 +196,14 @@ namespace BetterMPHUD.ViewModels
             foreach (var item in _killList)
             {
                 item.UpdateBackground(show, color, opacity);
+            }
+        }
+
+        public void UpdateStyle(KillfeedMode mode)
+        {
+            foreach (var item in _killList)
+            {
+                item.UpdateStyle(mode);
             }
         }
     }

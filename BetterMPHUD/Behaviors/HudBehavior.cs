@@ -8,6 +8,7 @@ using TaleWorlds.MountAndBlade.View.Screens;
 using TaleWorlds.ScreenSystem;
 using BetterMPHUD.Core;
 using BetterMPHUD.Handlers;
+using BetterMPHUD.Patches;
 using BetterMPHUD.ViewModels;
 
 namespace BetterMPHUD.Behaviors
@@ -18,6 +19,7 @@ namespace BetterMPHUD.Behaviors
         private HudMenuVM _menuVM;
         private bool _initialized;
         private bool _isCleaningUp;
+        private bool _isCustomScoreboardPinned;
         private float _settingsTimer;
         private float _originalReportCasualtiesType;
 
@@ -65,6 +67,7 @@ namespace BetterMPHUD.Behaviors
             UpdateHealthNumbers();
 
             UpdateCrosshair();
+            UpdateScoreboard();
 
             HandleCameraSnapback();
         }
@@ -101,6 +104,48 @@ namespace BetterMPHUD.Behaviors
             if (screen == null) return;
 
             _crosshair.Update(_menuVM.GetSettings(), screen);
+        }
+
+        private void UpdateScoreboard()
+        {
+            if (_menuVM == null || Mission.Current == null) return;
+
+            MissionScreen screen = ScreenManager.TopScreen as MissionScreen;
+            HudSettings settings = _menuVM.GetSettings();
+
+            bool useCustomScoreboard = settings.ScoreboardMode == ScoreboardMode.Custom;
+            ScoreboardPatchState.UseCustomScoreboard = useCustomScoreboard;
+            if (!useCustomScoreboard)
+            {
+                if (_isCustomScoreboardPinned)
+                    UnpinCustomScoreboard();
+
+                _scoreboard.UpdateCustomScoreboard(settings, Mission.Current, screen, false);
+                return;
+            }
+
+            bool isHotkeyDown = _scoreboard.IsNativeScoreboardHotkeyDown(screen);
+            bool isHotkeyPressed = _scoreboard.IsNativeScoreboardHotkeyPressed(screen);
+
+            if (_isCustomScoreboardPinned && isHotkeyPressed)
+            {
+                UnpinCustomScoreboard();
+                _scoreboard.UpdateCustomScoreboard(settings, Mission.Current, screen, false);
+                return;
+            }
+
+            bool shouldShow = isHotkeyDown || _isCustomScoreboardPinned;
+            _scoreboard.UpdateCustomScoreboard(settings, Mission.Current, screen, shouldShow);
+
+            if (shouldShow && !_isCustomScoreboardPinned && IsShowCursorActionPressed())
+                PinCustomScoreboard();
+
+            _scoreboard.SetInteractive(_isCustomScoreboardPinned);
+        }
+
+        private bool IsShowCursorActionPressed()
+        {
+            return Input.IsKeyPressed(InputKey.X1MouseButton);
         }
 
         private void HandleCameraSnapback()
@@ -142,6 +187,7 @@ namespace BetterMPHUD.Behaviors
                 _healthNumbers.Initialize(screen);
 
                 _crosshair.Initialize(screen);
+                _scoreboard.OnShowCursorRequested = PinCustomScoreboard;
 
                 _initialized = true;
                 ApplyAllSettings();
@@ -197,14 +243,13 @@ namespace BetterMPHUD.Behaviors
                 return;
 
             HudSettings settings = _menuVM.GetSettings();
+            ScoreboardPatchState.UseCustomScoreboard = settings.ScoreboardMode == ScoreboardMode.Custom;
 
             _killfeed.ApplySettings(settings);
             _topBar.Apply(settings, Mission.Current);
             _agentStatus.Apply(settings, Mission.Current);
             _topBar.ApplyBetterAvatars(settings.BetterAvatarsEnabled);
-            _scoreboard.Apply(settings, Mission.Current);
             _chat.Apply(settings, Mission.Current);
-
 
             MissionScreen screen = ScreenManager.TopScreen as MissionScreen;
             if (screen != null)
@@ -227,6 +272,7 @@ namespace BetterMPHUD.Behaviors
         {
             if (_menuVM == null || _configLayer == null) return;
 
+            UnpinCustomScoreboard();
             _menuVM.IsConfigMenuOpen = true;
             _configLayer.InputRestrictions.SetInputRestrictions(true, InputUsageMask.All);
             ScreenManager.TrySetFocus(_configLayer);
@@ -241,6 +287,20 @@ namespace BetterMPHUD.Behaviors
             ScreenManager.TryLoseFocus(_configLayer);
         }
 
+        private void PinCustomScoreboard()
+        {
+            _isCustomScoreboardPinned = true;
+            if (_scoreboard != null)
+                _scoreboard.SetInteractive(true);
+        }
+
+        private void UnpinCustomScoreboard()
+        {
+            _isCustomScoreboardPinned = false;
+            if (_scoreboard != null)
+                _scoreboard.SetInteractive(false);
+        }
+
         public override void OnRemoveBehavior()
         {
             _isCleaningUp = true;
@@ -249,6 +309,7 @@ namespace BetterMPHUD.Behaviors
             try
             {
                 ManagedOptions.SetConfig(ManagedOptions.ManagedOptionsType.ReportCasualtiesType, _originalReportCasualtiesType);
+                ScoreboardPatchState.UseCustomScoreboard = false;
 
                 MissionScreen screen = ScreenManager.TopScreen as MissionScreen;
                 
@@ -263,7 +324,7 @@ namespace BetterMPHUD.Behaviors
                 if (_agentStatus != null) _agentStatus.Reset();
                 if (_camera != null) _camera.Reset();
                 if (_crosshair != null) _crosshair.Cleanup(screen);
-                if (_scoreboard != null) _scoreboard.Reset();
+                if (_scoreboard != null) _scoreboard.Cleanup(screen);
                 if (_chat != null) _chat.Reset();
             }
             catch (Exception ex)

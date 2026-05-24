@@ -33,16 +33,27 @@ namespace BetterMPHUD.Handlers
 
         public void OnAgentKilled(Agent victim, Agent killer, HudSettings settings)
         {
-            if (_viewModel == null || settings == null || !settings.WarbandKillfeedEnabled) return;
+            if (_viewModel == null || settings == null || settings.KillfeedMode == KillfeedMode.Native) return;
             if (victim == null || killer == null || !victim.IsHuman) return;
             if (_viewModel.IsPreviewMode) return;
+
+            bool isTeamkill = killer.Team == victim.Team && killer != victim;
+            if (settings.KillfeedHideTeamkills && isTeamkill)
+                return;
+
+            if (settings.KillfeedOnlyShowMyKillsDeaths)
+            {
+                Agent mainAgent = Mission.Current != null ? Mission.Current.MainAgent : null;
+                if (mainAgent == null || (killer != mainAgent && victim != mainAgent))
+                    return;
+            }
 
             TaleWorlds.Library.Color color;
             var playerTeam = Mission.Current != null ? Mission.Current.PlayerTeam : null;
             
             if (playerTeam == null)
                 color = Constants.Colors.Neutral;
-            else if (killer.Team == victim.Team && killer != victim) 
+            else if (isTeamkill)
                 color = Constants.Colors.TeamKill;
             else if (victim.Team == playerTeam)
                 color = Constants.Colors.EnemyKill;
@@ -53,7 +64,7 @@ namespace BetterMPHUD.Handlers
             float expireTime = currentTime + settings.KillfeedFadeoutTime;
             float scale = settings.KillfeedCustom.Scale;
 
-            _viewModel.GetScaledSizes(scale, out int font, out float icon, out float skull, out float row);
+            _viewModel.GetScaledSizes(scale, settings.KillfeedMode, out int font, out float icon, out float skull, out float row);
 
             KillfeedItemVM item = new KillfeedItemVM(
                 killer.Name, 
@@ -65,6 +76,7 @@ namespace BetterMPHUD.Handlers
                 expireTime,
                 delegate(KillfeedItemVM vm) { _viewModel.RemoveKill(vm); });
 
+            item.UpdateStyle(settings.KillfeedMode);
             item.UpdateSizes(font, icon, skull, row);
             
             item.UpdateBackground(
@@ -103,7 +115,7 @@ namespace BetterMPHUD.Handlers
         {
             if (_viewModel == null) return;
             _viewModel.HidePreview();
-            _viewModel.IsVisible = settings.WarbandKillfeedEnabled;
+            _viewModel.IsVisible = settings.KillfeedMode != KillfeedMode.Native;
         }
 
         public void ApplySettings(HudSettings settings)
@@ -111,8 +123,9 @@ namespace BetterMPHUD.Handlers
             if (_viewModel != null)
             {
                 if (!_viewModel.IsPreviewMode)
-                    _viewModel.IsVisible = settings.WarbandKillfeedEnabled;
+                    _viewModel.IsVisible = settings.KillfeedMode != KillfeedMode.Native;
                 
+                _viewModel.UpdateStyle(settings.KillfeedMode);
                 _viewModel.UpdateBackgrounds(
                     settings.KillfeedBackgroundEnabled,
                     settings.KillfeedBackgroundColor,
@@ -134,7 +147,7 @@ namespace BetterMPHUD.Handlers
             _rootWidget.PositionYOffset = _original.Y + custom.OffsetY;
             
             if (_viewModel != null)
-                _viewModel.UpdateScale(custom.Scale);
+                _viewModel.UpdateScale(custom.Scale, settings.KillfeedMode);
         }
 
         public void SetEnabled(bool enabled)

@@ -1,0 +1,470 @@
+<Prefab>
+    <Window>
+        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsVisible">
+            <Children>
+                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                        Sprite="BlankWhiteSquare_9" Color="#000000FF" AlphaFactor="@BackgroundOpacity"
+                        IsVisible="@BackgroundVisible"/>
+
+                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                        SuggestedWidth="1780" SuggestedHeight="900"
+                        HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Children>
+                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                Sprite="BlankWhiteSquare_9" Color="#11100EFF" AlphaFactor="@BackgroundOpacity"
+                                IsVisible="@BackgroundVisible"/>
+                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2"
+                                VerticalAlignment="Top" Sprite="BlankWhiteSquare_9" Color="#A18661FF"/>
+                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2"
+                                VerticalAlignment="Bottom" Sprite="BlankWhiteSquare_9" Color="#000000FF" AlphaFactor="0.85"/>
+                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent"
+                                SuggestedWidth="2" HorizontalAlignment="Center"
+                                Sprite="BlankWhiteSquare_9" Color="#A1866188"/>
+                        <TextWidget Text="@TeamOneRoundScore" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                    SuggestedWidth="120" SuggestedHeight="64" HorizontalAlignment="Center"
+                                    PositionXOffset="-86" PositionYOffset="4" Brush.FontSize="46"
+                                    Brush.FontColor="#F4E1C4FF" Brush.TextHorizontalAlignment="Center"
+                                    Brush.TextVerticalAlignment="Center" Brush.TextShadowOffset="2"
+                                    Brush.TextShadowColor="#000000FF"/>
+                        <TextWidget Text="@TeamTwoRoundScore" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                    SuggestedWidth="120" SuggestedHeight="64" HorizontalAlignment="Center"
+                                    PositionXOffset="86" PositionYOffset="4" Brush.FontSize="46"
+                                    Brush.FontColor="#F4E1C4FF" Brush.TextHorizontalAlignment="Center"
+                                    Brush.TextVerticalAlignment="Center" Brush.TextShadowOffset="2"
+                                    Brush.TextShadowColor="#000000FF"/>
+                        <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                      VerticalAlignment="Bottom" HorizontalAlignment="Left" MarginLeft="26" MarginBottom="10"
+                                      Command.Click="ExecuteToggleMute" UpdateChildrenStates="true">
+                            <Children>
+                                <ListPanel WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" UpdateChildrenStates="true">
+                                    <Children>
+                                        <ButtonWidget ButtonType="Toggle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                      SuggestedWidth="31" SuggestedHeight="24" Brush="MPScoreboard.MuteAll.Button"
+                                                      IsSelected="@HasMutedAll"/>
+                                        <TextWidget Text="@ToggleMuteText" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                    VerticalAlignment="Bottom" MarginLeft="5" Brush="MPScoreboard.MuteAll.Text"/>
+                                    </Children>
+                                </ListPanel>
+                            </Children>
+                        </ButtonWidget>
+                        <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                      VerticalAlignment="Bottom" HorizontalAlignment="Center" MarginBottom="4"
+                                      Command.Click="ExecuteShowCursor" UpdateChildrenStates="true">
+                            <Children>
+                                <ListPanel WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                                    <Children>
+                                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="36" SuggestedHeight="48"
+                                                HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#F4E1C4FF" AlphaFactor="0.95">
+                                            <Children>
+                                                <TextWidget Text="M4" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                            Brush.FontSize="14" Brush.FontColor="#11100EFF"
+                                                            Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+                                            </Children>
+                                        </Widget>
+                                        <TextWidget Text="Show Cursor" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                    HorizontalAlignment="Center" Brush="MPScoreboard.Info.Text"/>
+                                    </Children>
+                                </ListPanel>
+                            </Children>
+                        </ButtonWidget>
+
+                        <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                   StackLayout.LayoutMethod="HorizontalLeftToRight"
+                                   MarginLeft="26" MarginRight="26" MarginTop="22" MarginBottom="22">
+                            <Children>
+                                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                           StackLayout.LayoutMethod="VerticalTopToBottom"
+                                           MarginRight="30">
+                                    <Children>
+                                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="104">
+                                            <Children>
+                                                <TextWidget Text="@TeamOneName" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
+                                                            SuggestedHeight="34" Brush.FontSize="25" Brush.FontColor="#D7C088FF"
+                                                            Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"
+                                                            Brush.TextShadowOffset="2" Brush.TextShadowColor="#000000FF"/>
+                                                <TextWidget Text="@TeamOneTotals" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
+                                                            SuggestedHeight="28" PositionYOffset="36"
+                                                            Brush.FontSize="17" Brush.FontColor="#F2E8D5FF"
+                                                            Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"
+                                                            Brush.TextShadowOffset="1" Brush.TextShadowColor="#000000FF"
+                                                            IsVisible="@TeamSummaryVisible"/>
+                                                <TextWidget Text="@TeamOneClasses" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
+                                                            SuggestedHeight="26" PositionYOffset="66"
+                                                            Brush.FontSize="15" Brush.FontColor="#AFA58FFF"
+                                                            Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"
+                                                            Brush.TextShadowOffset="1" Brush.TextShadowColor="#000000FF"
+                                                            IsVisible="@TeamSummaryVisible"/>
+                                            </Children>
+                                        </Widget>
+
+                                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="34" Sprite="BlankWhiteSquare_9" Color="#191815FF">
+                                            <Children>
+                                                <TextWidget Text="State" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="58" MarginLeft="16"
+                                                            Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"
+                                                            IsVisible="@ShowStateColumn"/>
+                                                <TextWidget Text="Banner" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="70" MarginLeft="70"
+                                                            Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"
+                                                            IsVisible="@ShowStateAndBannerLayout"/>
+                                                <TextWidget Text="Banner" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="70" MarginLeft="16"
+                                                            Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"
+                                                            IsVisible="@ShowBannerOnlyLayout"/>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="100" MarginLeft="130" Command.Click="ExecuteSortTeamOneByName" IsVisible="@ShowStateAndBannerLayout">
+                                                    <Children><TextWidget Text="@TeamOneNameHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="100" MarginLeft="70" Command.Click="ExecuteSortTeamOneByName" IsVisible="@ShowStateOnlyLayout">
+                                                    <Children><TextWidget Text="@TeamOneNameHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="100" MarginLeft="70" Command.Click="ExecuteSortTeamOneByName" IsVisible="@ShowBannerOnlyLayout">
+                                                    <Children><TextWidget Text="@TeamOneNameHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="100" MarginLeft="16" Command.Click="ExecuteSortTeamOneByName" IsVisible="@ShowNameOnlyLayout">
+                                                    <Children><TextWidget Text="@TeamOneNameHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
+                                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="230" SuggestedHeight="24"
+                                                        HorizontalAlignment="Center" VerticalAlignment="Center" PositionXOffset="-62"
+                                                        Sprite="BlankWhiteSquare_9" Color="#060606FF" AlphaFactor="0.82">
+                                                    <Children>
+                                                        <EditableTextWidget Text="@TeamOneSearchText" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                            MarginLeft="8" MarginRight="8" Brush="MP.ChatLog.Text"
+                                                                            Brush.FontSize="13" Brush.FontColor="#D7C088FF" Brush.TextHorizontalAlignment="Left"
+                                                                            Brush.TextVerticalAlignment="Center" DefaultSearchText="Search"/>
+                                                    </Children>
+                                                </Widget>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="70" HorizontalAlignment="Right" PositionXOffset="-238" Command.Click="ExecuteSortTeamOneByPing" IsVisible="@ShowPing">
+                                                    <Children><TextWidget Text="@TeamOnePingHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="54" HorizontalAlignment="Right" PositionXOffset="-168" Command.Click="ExecuteSortTeamOneByKills">
+                                                    <Children><TextWidget Text="@TeamOneKillsHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="54" HorizontalAlignment="Right" PositionXOffset="-112" Command.Click="ExecuteSortTeamOneByDeaths">
+                                                    <Children><TextWidget Text="@TeamOneDeathsHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="54" HorizontalAlignment="Right" PositionXOffset="-56" Command.Click="ExecuteSortTeamOneByAssists">
+                                                    <Children><TextWidget Text="@TeamOneAssistsHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="56" HorizontalAlignment="Right" Command.Click="ExecuteSortTeamOneByScore">
+                                                    <Children><TextWidget Text="@TeamOneScoreHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
+                                            </Children>
+                                        </Widget>
+
+                                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="680">
+                                            <Children>
+                                                <ScrollablePanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                 AutoHideScrollBars="true" ClipRect="TeamOneClipRect"
+                                                                 InnerPanel="TeamOneClipRect\TeamOnePlayersList"
+                                                                 VerticalScrollbar="..\TeamOneScrollbar" MouseScrollAxis="Vertical">
+                                                    <Children>
+                                                        <Widget Id="TeamOneClipRect" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                                                            <Children>
+                                                                <ListPanel Id="TeamOnePlayersList" DataSource="{TeamOnePlayers}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                                                           StackLayout.LayoutMethod="VerticalTopToBottom">
+                                                                    <ItemTemplate>
+                                                                        <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="@RowHeight" MarginTop="2"
+                                                                                      Command.AlternateClick="ExecuteOpenActions" UpdateChildrenStates="true">
+                                                                            <Children>
+                                                                                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#000000FF" AlphaFactor="0.22"/>
+                                                                                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="1" VerticalAlignment="Bottom" Sprite="BlankWhiteSquare_9" Color="#A1866133"/>
+                                                                                <ImageWidget Sprite="@ClassSprite" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@StateIconSize" SuggestedHeight="@StateIconSize" VerticalAlignment="Center" MarginLeft="16" Color="#CFC7B6FF" IsVisible="@ShowClassSprite"/>
+                                                                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@BannerWidth" SuggestedHeight="@BannerHeight" VerticalAlignment="Center" MarginLeft="70" IsVisible="@ShowStateAndBannerLayout">
+                                                                                    <Children>
+                                                                                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@HasWarlordsBanner">
+                                                                                            <Children>
+                                                                                                <Widget DataSource="{WarlordsPlayer}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+                                                                                                    <Children>
+                                                                                                        <MaskedTextureWidget DataSource="{ScoreboardBanner}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                                                                             Brush="MPLobby.Clan.Banner" AdditionalArgs="@AdditionalArgs" ImageId="@Id"
+                                                                                                                             TextureProviderName="@TextureProviderName" OverlayTextureScale="1" IsDisabled="true"/>
+                                                                                                    </Children>
+                                                                                                </Widget>
+                                                                                            </Children>
+                                                                                        </Widget>
+                                                                                    </Children>
+                                                                                </Widget>
+                                                                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@BannerWidth" SuggestedHeight="@BannerHeight" VerticalAlignment="Center" MarginLeft="16" IsVisible="@ShowBannerOnlyLayout">
+                                                                                    <Children>
+                                                                                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@HasWarlordsBanner">
+                                                                                            <Children>
+                                                                                                <Widget DataSource="{WarlordsPlayer}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+                                                                                                    <Children>
+                                                                                                        <MaskedTextureWidget DataSource="{ScoreboardBanner}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                                                                             Brush="MPLobby.Clan.Banner" AdditionalArgs="@AdditionalArgs" ImageId="@Id"
+                                                                                                                             TextureProviderName="@TextureProviderName" OverlayTextureScale="1" IsDisabled="true"/>
+                                                                                                    </Children>
+                                                                                                </Widget>
+                                                                                            </Children>
+                                                                                        </Widget>
+                                                                                    </Children>
+                                                                                </Widget>
+                                                                                <TextWidget Text="@Name" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="190" MarginLeft="130" IsVisible="@ShowStateAndBannerLayout"
+                                                                                            Brush.FontSize="@NameFontSize" Brush.FontColor="@RowColor" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"
+                                                                                            Brush.TextShadowOffset="1" Brush.TextShadowColor="#000000FF"/>
+                                                                                <TextWidget Text="@Name" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="250" MarginLeft="70" IsVisible="@ShowStateOnlyLayout"
+                                                                                            Brush.FontSize="@NameFontSize" Brush.FontColor="@RowColor" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"
+                                                                                            Brush.TextShadowOffset="1" Brush.TextShadowColor="#000000FF"/>
+                                                                                <TextWidget Text="@Name" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="250" MarginLeft="70" IsVisible="@ShowBannerOnlyLayout"
+                                                                                            Brush.FontSize="@NameFontSize" Brush.FontColor="@RowColor" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"
+                                                                                            Brush.TextShadowOffset="1" Brush.TextShadowColor="#000000FF"/>
+                                                                                <TextWidget Text="@Name" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="304" MarginLeft="16" IsVisible="@ShowNameOnlyLayout"
+                                                                                            Brush.FontSize="@NameFontSize" Brush.FontColor="@RowColor" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"
+                                                                                            Brush.TextShadowOffset="1" Brush.TextShadowColor="#000000FF"/>
+                                                                                <TextWidget Text="@Ping" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="70" HorizontalAlignment="Right" PositionXOffset="-238" IsVisible="@ShowPing"
+                                                                                            Brush.FontSize="@ValueFontSize" Brush.FontColor="@RowColor" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+                                                                                <TextWidget Text="@Kills" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="54" HorizontalAlignment="Right" PositionXOffset="-168"
+                                                                                            Brush.FontSize="@ValueFontSize" Brush.FontColor="@RowColor" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+                                                                                <TextWidget Text="@Deaths" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="54" HorizontalAlignment="Right" PositionXOffset="-112"
+                                                                                            Brush.FontSize="@ValueFontSize" Brush.FontColor="@RowColor" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+                                                                                <TextWidget Text="@Assists" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="54" HorizontalAlignment="Right" PositionXOffset="-56"
+                                                                                            Brush.FontSize="@ValueFontSize" Brush.FontColor="@RowColor" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+                                                                                <TextWidget Text="@Score" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="56" HorizontalAlignment="Right"
+                                                                                            Brush.FontSize="@ValueFontSize" Brush.FontColor="@RowColor" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+                                                                            </Children>
+                                                                        </ButtonWidget>
+                                                                    </ItemTemplate>
+                                                                </ListPanel>
+                                                            </Children>
+                                                        </Widget>
+                                                    </Children>
+                                                </ScrollablePanel>
+                                                <ScrollbarWidget Id="TeamOneScrollbar" HeightSizePolicy="StretchToParent" WidthSizePolicy="Fixed"
+                                                                 SuggestedWidth="8" HorizontalAlignment="Right" MarginTop="4" MarginBottom="4"
+                                                                 AlignmentAxis="Vertical" Handle="TeamOneScrollbarHandle" ValueInt="0">
+                                                    <Children>
+                                                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="3"
+                                                                HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" AlphaFactor="0.4" Color="#A18661FF"/>
+                                                        <ImageWidget Id="TeamOneScrollbarHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                     SuggestedWidth="6" SuggestedHeight="28" HorizontalAlignment="Center"
+                                                                     Brush="MPScoreboard.Scrollbar.Handle"/>
+                                                    </Children>
+                                                </ScrollbarWidget>
+                                            </Children>
+                                        </Widget>
+                                    </Children>
+                                </ListPanel>
+
+                                <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                           StackLayout.LayoutMethod="VerticalTopToBottom"
+                                           MarginLeft="30">
+                                    <Children>
+                                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="104">
+                                            <Children>
+                                                <TextWidget Text="@TeamTwoName" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
+                                                            SuggestedHeight="34" Brush.FontSize="25" Brush.FontColor="#D7C088FF"
+                                                            Brush.TextHorizontalAlignment="Right" Brush.TextVerticalAlignment="Center"
+                                                            Brush.TextShadowOffset="2" Brush.TextShadowColor="#000000FF"/>
+                                                <TextWidget Text="@TeamTwoTotals" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
+                                                            SuggestedHeight="28" PositionYOffset="36"
+                                                            Brush.FontSize="17" Brush.FontColor="#F2E8D5FF"
+                                                            Brush.TextHorizontalAlignment="Right" Brush.TextVerticalAlignment="Center"
+                                                            Brush.TextShadowOffset="1" Brush.TextShadowColor="#000000FF"
+                                                            IsVisible="@TeamSummaryVisible"/>
+                                                <TextWidget Text="@TeamTwoClasses" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
+                                                            SuggestedHeight="26" PositionYOffset="66"
+                                                            Brush.FontSize="15" Brush.FontColor="#AFA58FFF"
+                                                            Brush.TextHorizontalAlignment="Right" Brush.TextVerticalAlignment="Center"
+                                                            Brush.TextShadowOffset="1" Brush.TextShadowColor="#000000FF"
+                                                            IsVisible="@TeamSummaryVisible"/>
+                                            </Children>
+                                        </Widget>
+
+                                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="34" Sprite="BlankWhiteSquare_9" Color="#191815FF">
+                                            <Children>
+                                                <TextWidget Text="State" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="58" MarginLeft="16"
+                                                            Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"
+                                                            IsVisible="@ShowStateColumn"/>
+                                                <TextWidget Text="Banner" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="70" MarginLeft="70"
+                                                            Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"
+                                                            IsVisible="@ShowStateAndBannerLayout"/>
+                                                <TextWidget Text="Banner" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="70" MarginLeft="16"
+                                                            Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"
+                                                            IsVisible="@ShowBannerOnlyLayout"/>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="100" MarginLeft="130" Command.Click="ExecuteSortTeamTwoByName" IsVisible="@ShowStateAndBannerLayout">
+                                                    <Children><TextWidget Text="@TeamTwoNameHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="100" MarginLeft="70" Command.Click="ExecuteSortTeamTwoByName" IsVisible="@ShowStateOnlyLayout">
+                                                    <Children><TextWidget Text="@TeamTwoNameHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="100" MarginLeft="70" Command.Click="ExecuteSortTeamTwoByName" IsVisible="@ShowBannerOnlyLayout">
+                                                    <Children><TextWidget Text="@TeamTwoNameHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="100" MarginLeft="16" Command.Click="ExecuteSortTeamTwoByName" IsVisible="@ShowNameOnlyLayout">
+                                                    <Children><TextWidget Text="@TeamTwoNameHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
+                                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="230" SuggestedHeight="24"
+                                                        HorizontalAlignment="Center" VerticalAlignment="Center" PositionXOffset="-62"
+                                                        Sprite="BlankWhiteSquare_9" Color="#060606FF" AlphaFactor="0.82">
+                                                    <Children>
+                                                        <EditableTextWidget Text="@TeamTwoSearchText" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                            MarginLeft="8" MarginRight="8" Brush="MP.ChatLog.Text"
+                                                                            Brush.FontSize="13" Brush.FontColor="#D7C088FF" Brush.TextHorizontalAlignment="Left"
+                                                                            Brush.TextVerticalAlignment="Center" DefaultSearchText="Search"/>
+                                                    </Children>
+                                                </Widget>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="70" HorizontalAlignment="Right" PositionXOffset="-238" Command.Click="ExecuteSortTeamTwoByPing" IsVisible="@ShowPing">
+                                                    <Children><TextWidget Text="@TeamTwoPingHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="54" HorizontalAlignment="Right" PositionXOffset="-168" Command.Click="ExecuteSortTeamTwoByKills">
+                                                    <Children><TextWidget Text="@TeamTwoKillsHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="54" HorizontalAlignment="Right" PositionXOffset="-112" Command.Click="ExecuteSortTeamTwoByDeaths">
+                                                    <Children><TextWidget Text="@TeamTwoDeathsHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="54" HorizontalAlignment="Right" PositionXOffset="-56" Command.Click="ExecuteSortTeamTwoByAssists">
+                                                    <Children><TextWidget Text="@TeamTwoAssistsHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="56" HorizontalAlignment="Right" Command.Click="ExecuteSortTeamTwoByScore">
+                                                    <Children><TextWidget Text="@TeamTwoScoreHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
+                                            </Children>
+                                        </Widget>
+
+                                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="680">
+                                            <Children>
+                                                <ScrollablePanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                 AutoHideScrollBars="true" ClipRect="TeamTwoClipRect"
+                                                                 InnerPanel="TeamTwoClipRect\TeamTwoPlayersList"
+                                                                 VerticalScrollbar="..\TeamTwoScrollbar" MouseScrollAxis="Vertical">
+                                                    <Children>
+                                                        <Widget Id="TeamTwoClipRect" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                                                            <Children>
+                                                                <ListPanel Id="TeamTwoPlayersList" DataSource="{TeamTwoPlayers}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                                                           StackLayout.LayoutMethod="VerticalTopToBottom">
+                                                                    <ItemTemplate>
+                                                                        <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="@RowHeight" MarginTop="2"
+                                                                                      Command.AlternateClick="ExecuteOpenActions" UpdateChildrenStates="true">
+                                                                            <Children>
+                                                                                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#000000FF" AlphaFactor="0.22"/>
+                                                                                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="1" VerticalAlignment="Bottom" Sprite="BlankWhiteSquare_9" Color="#A1866133"/>
+                                                                                <ImageWidget Sprite="@ClassSprite" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@StateIconSize" SuggestedHeight="@StateIconSize" VerticalAlignment="Center" MarginLeft="16" Color="#CFC7B6FF" IsVisible="@ShowClassSprite"/>
+                                                                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@BannerWidth" SuggestedHeight="@BannerHeight" VerticalAlignment="Center" MarginLeft="70" IsVisible="@ShowStateAndBannerLayout">
+                                                                                    <Children>
+                                                                                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@HasWarlordsBanner">
+                                                                                            <Children>
+                                                                                                <Widget DataSource="{WarlordsPlayer}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+                                                                                                    <Children>
+                                                                                                        <MaskedTextureWidget DataSource="{ScoreboardBanner}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                                                                             Brush="MPLobby.Clan.Banner" AdditionalArgs="@AdditionalArgs" ImageId="@Id"
+                                                                                                                             TextureProviderName="@TextureProviderName" OverlayTextureScale="1" IsDisabled="true"/>
+                                                                                                    </Children>
+                                                                                                </Widget>
+                                                                                            </Children>
+                                                                                        </Widget>
+                                                                                    </Children>
+                                                                                </Widget>
+                                                                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@BannerWidth" SuggestedHeight="@BannerHeight" VerticalAlignment="Center" MarginLeft="16" IsVisible="@ShowBannerOnlyLayout">
+                                                                                    <Children>
+                                                                                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@HasWarlordsBanner">
+                                                                                            <Children>
+                                                                                                <Widget DataSource="{WarlordsPlayer}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+                                                                                                    <Children>
+                                                                                                        <MaskedTextureWidget DataSource="{ScoreboardBanner}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                                                                             Brush="MPLobby.Clan.Banner" AdditionalArgs="@AdditionalArgs" ImageId="@Id"
+                                                                                                                             TextureProviderName="@TextureProviderName" OverlayTextureScale="1" IsDisabled="true"/>
+                                                                                                    </Children>
+                                                                                                </Widget>
+                                                                                            </Children>
+                                                                                        </Widget>
+                                                                                    </Children>
+                                                                                </Widget>
+                                                                                <TextWidget Text="@Name" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="190" MarginLeft="130" IsVisible="@ShowStateAndBannerLayout"
+                                                                                            Brush.FontSize="@NameFontSize" Brush.FontColor="@RowColor" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"
+                                                                                            Brush.TextShadowOffset="1" Brush.TextShadowColor="#000000FF"/>
+                                                                                <TextWidget Text="@Name" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="250" MarginLeft="70" IsVisible="@ShowStateOnlyLayout"
+                                                                                            Brush.FontSize="@NameFontSize" Brush.FontColor="@RowColor" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"
+                                                                                            Brush.TextShadowOffset="1" Brush.TextShadowColor="#000000FF"/>
+                                                                                <TextWidget Text="@Name" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="250" MarginLeft="70" IsVisible="@ShowBannerOnlyLayout"
+                                                                                            Brush.FontSize="@NameFontSize" Brush.FontColor="@RowColor" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"
+                                                                                            Brush.TextShadowOffset="1" Brush.TextShadowColor="#000000FF"/>
+                                                                                <TextWidget Text="@Name" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="304" MarginLeft="16" IsVisible="@ShowNameOnlyLayout"
+                                                                                            Brush.FontSize="@NameFontSize" Brush.FontColor="@RowColor" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Center"
+                                                                                            Brush.TextShadowOffset="1" Brush.TextShadowColor="#000000FF"/>
+                                                                                <TextWidget Text="@Ping" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="70" HorizontalAlignment="Right" PositionXOffset="-238" IsVisible="@ShowPing"
+                                                                                            Brush.FontSize="@ValueFontSize" Brush.FontColor="@RowColor" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+                                                                                <TextWidget Text="@Kills" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="54" HorizontalAlignment="Right" PositionXOffset="-168"
+                                                                                            Brush.FontSize="@ValueFontSize" Brush.FontColor="@RowColor" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+                                                                                <TextWidget Text="@Deaths" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="54" HorizontalAlignment="Right" PositionXOffset="-112"
+                                                                                            Brush.FontSize="@ValueFontSize" Brush.FontColor="@RowColor" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+                                                                                <TextWidget Text="@Assists" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="54" HorizontalAlignment="Right" PositionXOffset="-56"
+                                                                                            Brush.FontSize="@ValueFontSize" Brush.FontColor="@RowColor" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+                                                                                <TextWidget Text="@Score" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="56" HorizontalAlignment="Right"
+                                                                                            Brush.FontSize="@ValueFontSize" Brush.FontColor="@RowColor" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+                                                                            </Children>
+                                                                        </ButtonWidget>
+                                                                    </ItemTemplate>
+                                                                </ListPanel>
+                                                            </Children>
+                                                        </Widget>
+                                                    </Children>
+                                                </ScrollablePanel>
+                                                <ScrollbarWidget Id="TeamTwoScrollbar" HeightSizePolicy="StretchToParent" WidthSizePolicy="Fixed"
+                                                                 SuggestedWidth="8" HorizontalAlignment="Right" MarginTop="4" MarginBottom="4"
+                                                                 AlignmentAxis="Vertical" Handle="TeamTwoScrollbarHandle" ValueInt="0">
+                                                    <Children>
+                                                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="3"
+                                                                HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" AlphaFactor="0.4" Color="#A18661FF"/>
+                                                        <ImageWidget Id="TeamTwoScrollbarHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                                     SuggestedWidth="6" SuggestedHeight="28" HorizontalAlignment="Center"
+                                                                     Brush="MPScoreboard.Scrollbar.Handle"/>
+                                                    </Children>
+                                                </ScrollbarWidget>
+                                            </Children>
+                                        </Widget>
+                                    </Children>
+                                </ListPanel>
+                            </Children>
+                        </ListPanel>
+
+                        <ContextMenuBrushWidget WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                IsActivated="@IsPlayerActionsActive" IsVisible="false"
+                                                ActionListPanel="ScoreboardActionListPanel"
+                                                Brush="Scoreboard.ContextMenu.Background"
+                                                UpdateChildrenStates="true">
+                            <Children>
+                                <ListPanel Id="ScoreboardActionListPanel" DataSource="{PlayerActionList}"
+                                           WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                           StackLayout.LayoutMethod="VerticalTopToBottom"
+                                           MarginLeft="5" MarginRight="5" MarginTop="5" MarginBottom="5">
+                                    <ItemTemplate>
+                                        <ContextMenuItemWidget WidthSizePolicy="CoverChildren" HeightSizePolicy="Fixed"
+                                                               SuggestedHeight="35"
+                                                               TypeIconWidget="TypeIconWidget"
+                                                               ActionButtonWidget="ButtonDimensionsSyncWidget\ActionButtonWidget"
+                                                               TypeIconState="@Value">
+                                            <Children>
+                                                <BrushWidget Id="TypeIconWidget" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                             SuggestedWidth="23" SuggestedHeight="23"
+                                                             Brush="Scoreboard.ContextMenu.Icon"
+                                                             VerticalAlignment="Center" MarginLeft="2"/>
+                                                <TextWidget WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren"
+                                                            Text="@Definition"
+                                                            Brush="Scoreboard.ContextMenu.ItemText"
+                                                            VerticalAlignment="Center" MarginLeft="30" MarginRight="10"/>
+                                                <DimensionSyncWidget Id="ButtonDimensionsSyncWidget"
+                                                                     DoNotAcceptEvents="true"
+                                                                     WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent"
+                                                                     HorizontalAlignment="Center"
+                                                                     DimensionToSync="Horizontal"
+                                                                     WidgetToCopyHeightFrom="..\..\..\ScoreboardActionListPanel"
+                                                                     IsEnabled="@IsEnabled">
+                                                    <Children>
+                                                        <ButtonWidget CanAcceptEvents="@IsEnabled"
+                                                                      Id="ActionButtonWidget"
+                                                                      WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                      Command.Click="ExecuteAction"
+                                                                      DoNotPassEventsToChildren="true"
+                                                                      UpdateChildrenStates="true"
+                                                                      Brush="MPLobby.Matchmaking.Region.DropdownItem"/>
+                                                    </Children>
+                                                </DimensionSyncWidget>
+                                            </Children>
+                                        </ContextMenuItemWidget>
+                                    </ItemTemplate>
+                                </ListPanel>
+                            </Children>
+                        </ContextMenuBrushWidget>
+                    </Children>
+                </Widget>
+            </Children>
+        </Widget>
+    </Window>
+</Prefab>

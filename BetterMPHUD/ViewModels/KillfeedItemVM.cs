@@ -20,6 +20,7 @@ namespace BetterMPHUD
         private bool _showBackground;
         private string _backgroundColor;
         private float _backgroundOpacity;
+        private KillfeedMode _mode;
 
         private readonly Action<KillfeedItemVM> _onRemove;
         public float ExpireTime { get; set; }
@@ -46,6 +47,7 @@ namespace BetterMPHUD
             _showBackground = true;
             _backgroundColor = "#000000FF";
             _backgroundOpacity = 0.7f;
+            _mode = KillfeedMode.Warband;
         }
 
         public void UpdateSizes(int fontSize, float iconSize, float skullSize, float rowHeight)
@@ -61,6 +63,19 @@ namespace BetterMPHUD
             ShowBackground = show;
             BackgroundColor = color;
             BackgroundOpacity = opacity;
+        }
+
+        public void UpdateStyle(KillfeedMode mode)
+        {
+            if (_mode == mode)
+                return;
+
+            _mode = mode;
+            OnPropertyChangedWithValue(IsWarbandStyle, "IsWarbandStyle");
+            OnPropertyChangedWithValue(IsNativePlusStyle, "IsNativePlusStyle");
+            OnPropertyChangedWithValue(ShowWarbandBackground, "ShowWarbandBackground");
+            OnPropertyChangedWithValue(HideWarbandBackground, "HideWarbandBackground");
+            OnPropertyChangedWithValue(ShowNativePlusBackground, "ShowNativePlusBackground");
         }
 
         public void ExecuteRemove() => _onRemove?.Invoke(this);
@@ -108,6 +123,12 @@ namespace BetterMPHUD
         public bool HideBackground => !_showBackground;
 
         [DataSourceProperty]
+        public bool IsWarbandStyle => _mode == KillfeedMode.Warband;
+
+        [DataSourceProperty]
+        public bool IsNativePlusStyle => _mode == KillfeedMode.NativePlus;
+
+        [DataSourceProperty]
         public string KillIconSprite 
         { 
             get => _killIconSprite; 
@@ -153,9 +174,21 @@ namespace BetterMPHUD
                     _showBackground = value; 
                     OnPropertyChangedWithValue(value, "ShowBackground"); 
                     OnPropertyChangedWithValue(!value, "HideBackground");
+                    OnPropertyChangedWithValue(ShowWarbandBackground, "ShowWarbandBackground");
+                    OnPropertyChangedWithValue(HideWarbandBackground, "HideWarbandBackground");
+                    OnPropertyChangedWithValue(ShowNativePlusBackground, "ShowNativePlusBackground");
                 } 
             } 
         }
+
+        [DataSourceProperty]
+        public bool ShowWarbandBackground => _showBackground && _mode == KillfeedMode.Warband;
+
+        [DataSourceProperty]
+        public bool HideWarbandBackground => !_showBackground && _mode == KillfeedMode.Warband;
+
+        [DataSourceProperty]
+        public bool ShowNativePlusBackground => _showBackground && _mode == KillfeedMode.NativePlus;
 
         [DataSourceProperty]
         public string BackgroundColor 

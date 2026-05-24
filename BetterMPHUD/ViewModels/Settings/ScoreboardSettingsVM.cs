@@ -73,6 +73,72 @@ namespace BetterMPHUD.ViewModels.Settings
         }
 
         [DataSourceProperty]
+        public bool SummaryEnabled
+        {
+            get => Settings.ScoreboardSummaryEnabled;
+            set
+            {
+                if (Settings.ScoreboardSummaryEnabled != value)
+                {
+                    Settings.ScoreboardSummaryEnabled = value;
+                    OnPropertyChangedWithValue(value, "SummaryEnabled");
+                    NotifyChanged();
+                }
+            }
+        }
+
+        [DataSourceProperty]
+        public bool ShowPing
+        {
+            get => Settings.ScoreboardShowPing;
+            set
+            {
+                if (Settings.ScoreboardShowPing != value)
+                {
+                    Settings.ScoreboardShowPing = value;
+                    OnPropertyChangedWithValue(value, "ShowPing");
+                    NotifyChanged();
+                }
+            }
+        }
+
+        [DataSourceProperty]
+        public bool ShowState
+        {
+            get => Settings.ScoreboardShowState;
+            set
+            {
+                if (Settings.ScoreboardShowState != value)
+                {
+                    Settings.ScoreboardShowState = value;
+                    OnPropertyChangedWithValue(value, "ShowState");
+                    NotifyChanged();
+                }
+            }
+        }
+
+        [DataSourceProperty]
+        public bool ShowWarlordsBanners
+        {
+            get => Settings.ScoreboardShowWarlordsBanners;
+            set
+            {
+                if (Settings.ScoreboardShowWarlordsBanners != value)
+                {
+                    Settings.ScoreboardShowWarlordsBanners = value;
+                    OnPropertyChangedWithValue(value, "ShowWarlordsBanners");
+                    NotifyChanged();
+                }
+            }
+        }
+
+        [DataSourceProperty]
+        public bool IsNativeScoreboardModeSelected => Settings.ScoreboardMode == ScoreboardMode.Native;
+
+        [DataSourceProperty]
+        public bool IsCustomScoreboardModeSelected => Settings.ScoreboardMode == ScoreboardMode.Custom;
+
+        [DataSourceProperty]
         public string BackgroundOpacityText => (Settings.ScoreboardBackgroundOpacity * 100).ToString("F0") + "%";
 
         [DataSourceProperty]
@@ -81,10 +147,40 @@ namespace BetterMPHUD.ViewModels.Settings
         [DataSourceProperty]
         public string DeadPlayerOpacityText => (Settings.ScoreboardDeadPlayerOpacity * 100).ToString("F0") + "%";
 
+        [DataSourceProperty]
+        public string RowScaleText => (Settings.ScoreboardRowScale * 100).ToString("F0") + "%";
+
+        private static readonly string[] SortColumns =
+        {
+            "Name", "Kills", "Score"
+        };
+
+        [DataSourceProperty]
+        public string DefaultSortColumnText => Settings.ScoreboardDefaultSortColumn;
+
+        [DataSourceProperty]
+        public string DefaultSortDirectionText => Settings.ScoreboardDefaultSortAscending ? "Ascending" : "Descending";
+
         public void ExecuteIncreaseBackgroundOpacity() => AdjustBackgroundOpacity(0.05f);
         public void ExecuteDecreaseBackgroundOpacity() => AdjustBackgroundOpacity(-0.05f);
         public void ExecuteIncreaseBackgroundOpacityLarge() => AdjustBackgroundOpacity(0.1f);
         public void ExecuteDecreaseBackgroundOpacityLarge() => AdjustBackgroundOpacity(-0.1f);
+
+        public void ExecuteIncreaseRowScale() => AdjustRowScale(0.05f);
+        public void ExecuteDecreaseRowScale() => AdjustRowScale(-0.05f);
+        public void ExecuteIncreaseRowScaleLarge() => AdjustRowScale(0.1f);
+        public void ExecuteDecreaseRowScaleLarge() => AdjustRowScale(-0.1f);
+
+        private void AdjustRowScale(float delta)
+        {
+            float newValue = Settings.ScoreboardRowScale + delta;
+            if (newValue >= 0.75f && newValue <= 1.6f)
+            {
+                Settings.ScoreboardRowScale = (float)Math.Round(newValue, 2);
+                OnPropertyChangedWithValue(RowScaleText, "RowScaleText");
+                NotifyChanged();
+            }
+        }
 
         private void AdjustBackgroundOpacity(float delta)
         {
@@ -136,6 +232,48 @@ namespace BetterMPHUD.ViewModels.Settings
         public void ExecuteSetDeadPlayerColorOrange() => SetDeadPlayerColor("#FF8800FF");
         public void ExecuteSetDeadPlayerColorPurple() => SetDeadPlayerColor("#8844FFFF");
 
+        public void ExecuteNextScoreboardDefaultSortColumn() => AdjustDefaultSortColumn(1);
+        public void ExecutePreviousScoreboardDefaultSortColumn() => AdjustDefaultSortColumn(-1);
+        public void ExecuteNextScoreboardDefaultSortDirection() => ToggleDefaultSortDirection();
+        public void ExecutePreviousScoreboardDefaultSortDirection() => ToggleDefaultSortDirection();
+        public void ExecuteSelectNativeScoreboardMode() => SetScoreboardMode(ScoreboardMode.Native);
+        public void ExecuteSelectCustomScoreboardMode() => SetScoreboardMode(ScoreboardMode.Custom);
+
+        private void AdjustDefaultSortColumn(int direction)
+        {
+            int index = Array.IndexOf(SortColumns, Settings.ScoreboardDefaultSortColumn);
+            if (index < 0)
+                index = Array.IndexOf(SortColumns, "Score");
+
+            index += direction;
+            if (index < 0)
+                index = SortColumns.Length - 1;
+            if (index >= SortColumns.Length)
+                index = 0;
+
+            Settings.ScoreboardDefaultSortColumn = SortColumns[index];
+            OnPropertyChangedWithValue(DefaultSortColumnText, "DefaultSortColumnText");
+            NotifyChanged();
+        }
+
+        private void ToggleDefaultSortDirection()
+        {
+            Settings.ScoreboardDefaultSortAscending = !Settings.ScoreboardDefaultSortAscending;
+            OnPropertyChangedWithValue(DefaultSortDirectionText, "DefaultSortDirectionText");
+            NotifyChanged();
+        }
+
+        private void SetScoreboardMode(ScoreboardMode mode)
+        {
+            if (Settings.ScoreboardMode == mode)
+                return;
+
+            Settings.ScoreboardMode = mode;
+            OnPropertyChangedWithValue(IsNativeScoreboardModeSelected, "IsNativeScoreboardModeSelected");
+            OnPropertyChangedWithValue(IsCustomScoreboardModeSelected, "IsCustomScoreboardModeSelected");
+            NotifyChanged();
+        }
+
         private void SetDeadPlayerColor(string color)
         {
             Settings.ScoreboardDeadPlayerColor = color;
@@ -152,6 +290,14 @@ namespace BetterMPHUD.ViewModels.Settings
             Settings.ScoreboardDeadPlayerColor = "";
             Settings.ScoreboardDeadPlayerTintEnabled = false;
             Settings.HideUIWhenScoreboardOpen = false;
+            Settings.ScoreboardSummaryEnabled = true;
+            Settings.ScoreboardMode = ScoreboardMode.Custom;
+            Settings.ScoreboardShowPing = true;
+            Settings.ScoreboardShowState = true;
+            Settings.ScoreboardShowWarlordsBanners = true;
+            Settings.ScoreboardRowScale = 1f;
+            Settings.ScoreboardDefaultSortColumn = "Score";
+            Settings.ScoreboardDefaultSortAscending = false;
             RefreshAll();
         }
 
@@ -161,9 +307,18 @@ namespace BetterMPHUD.ViewModels.Settings
             OnPropertyChangedWithValue(StripingEnabled, "StripingEnabled");
             OnPropertyChangedWithValue(DeadPlayerTintEnabled, "DeadPlayerTintEnabled");
             OnPropertyChangedWithValue(HideUIWhenOpen, "HideUIWhenOpen");
+            OnPropertyChangedWithValue(SummaryEnabled, "SummaryEnabled");
+            OnPropertyChangedWithValue(ShowPing, "ShowPing");
+            OnPropertyChangedWithValue(ShowState, "ShowState");
+            OnPropertyChangedWithValue(ShowWarlordsBanners, "ShowWarlordsBanners");
+            OnPropertyChangedWithValue(IsNativeScoreboardModeSelected, "IsNativeScoreboardModeSelected");
+            OnPropertyChangedWithValue(IsCustomScoreboardModeSelected, "IsCustomScoreboardModeSelected");
             OnPropertyChangedWithValue(BackgroundOpacityText, "BackgroundOpacityText");
             OnPropertyChangedWithValue(StripingOpacityText, "StripingOpacityText");
             OnPropertyChangedWithValue(DeadPlayerOpacityText, "DeadPlayerOpacityText");
+            OnPropertyChangedWithValue(RowScaleText, "RowScaleText");
+            OnPropertyChangedWithValue(DefaultSortColumnText, "DefaultSortColumnText");
+            OnPropertyChangedWithValue(DefaultSortDirectionText, "DefaultSortDirectionText");
             NotifyChanged();
         }
     }

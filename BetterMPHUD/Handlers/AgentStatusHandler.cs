@@ -12,6 +12,7 @@ namespace BetterMPHUD.Handlers
     {
         private readonly WidgetCustomizer _customizer = new WidgetCustomizer();
         private readonly Dictionary<HudElement, TrackedWidget> _widgets = new Dictionary<HudElement, TrackedWidget>();
+        private readonly TrackedWidget _warlordsGoldWidget = new TrackedWidget { Element = HudElement.GoldAmount };
         private bool _cached;
 
         public AgentStatusHandler()
@@ -32,15 +33,17 @@ namespace BetterMPHUD.Handlers
 
         public void Apply(HudSettings settings, Mission mission)
         {
-            GauntletLayer layer = FindAgentStatusLayer(mission);
-            if (layer == null || layer.UIContext == null || layer.UIContext.Root == null) return;
+            if (mission == null) return;
 
-            if (!_cached)
+            GauntletLayer layer = FindAgentStatusLayer(mission);
+
+            if (layer != null && layer.UIContext != null && layer.UIContext.Root != null && !_cached)
             {
                 CacheWidgets(layer.UIContext.Root);
                 _cached = true;
             }
 
+            TryCacheWarlordsGoldWidget(mission);
             ApplyCustomization(settings);
         }
 
@@ -70,9 +73,38 @@ namespace BetterMPHUD.Handlers
             _widgets[HudElement.MountHealth].Cache(WidgetFinder.FindById(root, "HorseHealthWidget"));
             _widgets[HudElement.ShieldHealth].Cache(WidgetFinder.FindById(root, "ShieldHealthWidget"));
             _widgets[HudElement.GoldAmount].Cache(WidgetFinder.FindBySprite(root, "personal_killfeed_notification"));
+            if (_widgets[HudElement.GoldAmount].Widget != null)
+                _customizer.StoreChildrenOriginals(_widgets[HudElement.GoldAmount].Widget);
             _widgets[HudElement.DamageFeed].Cache(WidgetFinder.FindByType(root, "MissionAgentDamageFeedWidget"));
             
             SearchAdditionalWidgets(root, 0);
+        }
+
+        private void TryCacheWarlordsGoldWidget(Mission mission)
+        {
+            if (_warlordsGoldWidget.IsReady)
+                return;
+
+            GauntletLayer layer = null;
+            MissionBehavior behavior = LayerFinder.FindBehaviorByName(mission, "WLPendingRoundGoldMissionView");
+            if (behavior != null)
+                layer = LayerFinder.FindInBehavior(behavior);
+
+            if (layer == null)
+            {
+                layer = LayerFinder.FindByPredicate(mission, delegate(GauntletLayer candidate)
+                {
+                    return WidgetFinder.FindById(candidate.UIContext.Root, "GoldHudPanel") != null;
+                });
+            }
+
+            if (layer == null || layer.UIContext == null || layer.UIContext.Root == null)
+                return;
+
+            Widget goldHudPanel = WidgetFinder.FindById(layer.UIContext.Root, "GoldHudPanel");
+            _warlordsGoldWidget.Cache(goldHudPanel);
+            if (_warlordsGoldWidget.Widget != null)
+                _customizer.StoreChildrenOriginals(_warlordsGoldWidget.Widget);
         }
 
         private void SearchAdditionalWidgets(Widget widget, int depth)
@@ -114,8 +146,18 @@ namespace BetterMPHUD.Handlers
             ApplyElement(HudElement.ShieldHealth, settings.ShieldHealthCustom, settings.ShowShieldHealth);
             ApplyElement(HudElement.WeaponInfo, settings.WeaponInfoCustom, settings.ShowWeaponInfo);
             ApplyElement(HudElement.GoldAmount, settings.GoldAmountCustom, settings.ShowGoldAmount);
+            ApplyWarlordsGold(settings.GoldAmountCustom, settings.ShowGoldAmount);
             ApplyElement(HudElement.TroopCount, settings.TroopCountCustom, settings.ShowTroopCount);
             ApplyElement(HudElement.DamageFeed, settings.DamageFeedCustom, settings.ShowDamageFeed);
+        }
+
+        private void ApplyWarlordsGold(ElementCustomization custom, bool isVisible)
+        {
+            if (!_warlordsGoldWidget.IsReady) return;
+
+            _warlordsGoldWidget.Widget.AlphaFactor = 1.0f;
+            _warlordsGoldWidget.Widget.DoNotAcceptEvents = false;
+            _customizer.ApplyCustomization(_warlordsGoldWidget.Widget, _warlordsGoldWidget.Original, custom, isVisible);
         }
 
         private void ApplyElement(HudElement element, ElementCustomization custom, bool isVisible)
@@ -132,6 +174,7 @@ namespace BetterMPHUD.Handlers
         {
             _cached = false;
             _widgets.Clear();
+            _warlordsGoldWidget.Cache(null);
             InitializeWidgets();
             _customizer.Clear();
         }

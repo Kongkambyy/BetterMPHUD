@@ -73,3 +73,11 @@ C:\Users\Joachim Kamby\RiderProjects\BetterMPHUD\BetterMPHUD\obj\Debug\BetterMPH
 C:\Users\Joachim Kamby\RiderProjects\BetterMPHUD\BetterMPHUD\obj\Debug\BetterMPHUD.pdb
 D:\SteamLibrary\steamapps\common\Mount & Blade II Bannerlord\Modules\BetterMPHUD\bin\Win64_Shipping_Client\BetterMPHUD.dll
 D:\SteamLibrary\steamapps\common\Mount & Blade II Bannerlord\Modules\BetterMPHUD\bin\Win64_Shipping_Client\BetterMPHUD.pdb
+R:\BetterMPHUD\deploybuild\Lib\0Harmony.dll
+R:\BetterMPHUD\deploybuild\BetterMPHUD.dll
+R:\BetterMPHUD\deploybuild\BetterMPHUD.pdb
+R:\BetterMPHUD\BetterMPHUD\obj\Debug\BetterMPHUD.csproj.AssemblyReference.cache
+R:\BetterMPHUD\BetterMPHUD\obj\Debug\BetterMPHUD.csproj.CoreCompileInputs.cache
+R:\BetterMPHUD\BetterMPHUD\obj\Debug\BetterMP.21691255.Up2Date
+R:\BetterMPHUD\BetterMPHUD\obj\Debug\BetterMPHUD.dll
+R:\BetterMPHUD\BetterMPHUD\obj\Debug\BetterMPHUD.pdb

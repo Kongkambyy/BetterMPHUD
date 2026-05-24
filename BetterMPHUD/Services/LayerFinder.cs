@@ -38,7 +38,7 @@ namespace BetterMPHUD.Services
                 FieldInfo[] fields = behavior.GetType().GetFields(Flags);
                 foreach (FieldInfo field in fields)
                 {
-                    if (field.FieldType != typeof(GauntletLayer)) continue;
+                    if (!typeof(GauntletLayer).IsAssignableFrom(field.FieldType)) continue;
                     
                     GauntletLayer layer = field.GetValue(behavior) as GauntletLayer;
                     if (layer != null && layer.UIContext != null && layer.UIContext.Root != null && predicate(layer))
