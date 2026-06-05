@@ -24,6 +24,7 @@ namespace BetterMPHUD.ViewModels
         private bool _showPing = true;
         private bool _showStateColumn = true;
         private bool _showWarlordsBanners;
+        private bool _useAdvancedStats;
         private string _teamOneSortColumn = "Score";
         private string _teamTwoSortColumn = "Score";
         private bool _teamOneSortAscending;
@@ -34,6 +35,7 @@ namespace BetterMPHUD.ViewModels
         private bool _teamTwoManualSort;
         private bool _isPlayerActionsActive;
         private string _selectedPlayerName = "";
+        private ScoreboardPlayerVM _selectedPlayer;
         private bool _showWarlordsPlayerActions;
         private MBBindingList<ScoreboardPlayerActionVM> _playerActionList = new MBBindingList<ScoreboardPlayerActionVM>();
         private MBBindingList<ScoreboardPlayerVM> _teamOnePlayers = new MBBindingList<ScoreboardPlayerVM>();
@@ -322,6 +324,24 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty] public bool ShowNameOnlyLayout => !ShowStateColumn && !ShowWarlordsBanners;
 
         [DataSourceProperty]
+        public bool UseAdvancedStats
+        {
+            get => _useAdvancedStats;
+            set
+            {
+                if (_useAdvancedStats != value)
+                {
+                    _useAdvancedStats = value;
+                    OnPropertyChangedWithValue(value, "UseAdvancedStats");
+                    OnPropertyChangedWithValue(UseBasicStats, "UseBasicStats");
+                    RefreshSortHeaders();
+                }
+            }
+        }
+
+        [DataSourceProperty] public bool UseBasicStats => !UseAdvancedStats;
+
+        [DataSourceProperty]
         public bool ShowWarlordsPlayerActions
         {
             get => _showWarlordsPlayerActions;
@@ -345,6 +365,8 @@ namespace BetterMPHUD.ViewModels
                 {
                     _isPlayerActionsActive = value;
                     OnPropertyChangedWithValue(value, "IsPlayerActionsActive");
+                    if (!value)
+                        ClearSelectedPlayer();
                 }
             }
         }
@@ -405,12 +427,16 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty] public string TeamOneDeathsHeader => GetHeaderText(true, "Deaths", "D");
         [DataSourceProperty] public string TeamOneAssistsHeader => GetHeaderText(true, "Assists", "A");
         [DataSourceProperty] public string TeamOneScoreHeader => GetHeaderText(true, "Score", "S");
+        [DataSourceProperty] public string TeamOneKdaHeader => GetHeaderText(true, "KDA", "KDA");
+        [DataSourceProperty] public string TeamOneSprHeader => GetHeaderText(true, "SPR", "SPR");
         [DataSourceProperty] public string TeamTwoNameHeader => GetHeaderText(false, "Name", "Name");
         [DataSourceProperty] public string TeamTwoPingHeader => GetHeaderText(false, "Ping", "Ping");
         [DataSourceProperty] public string TeamTwoKillsHeader => GetHeaderText(false, "Kills", "K");
         [DataSourceProperty] public string TeamTwoDeathsHeader => GetHeaderText(false, "Deaths", "D");
         [DataSourceProperty] public string TeamTwoAssistsHeader => GetHeaderText(false, "Assists", "A");
         [DataSourceProperty] public string TeamTwoScoreHeader => GetHeaderText(false, "Score", "S");
+        [DataSourceProperty] public string TeamTwoKdaHeader => GetHeaderText(false, "KDA", "KDA");
+        [DataSourceProperty] public string TeamTwoSprHeader => GetHeaderText(false, "SPR", "SPR");
 
         private void RefreshColumnLayout()
         {
@@ -453,6 +479,9 @@ namespace BetterMPHUD.ViewModels
             if (player == null || string.IsNullOrWhiteSpace(player.NameValue))
                 return;
 
+            ClearSelectedPlayer();
+            _selectedPlayer = player;
+            _selectedPlayer.IsActionSelected = true;
             _selectedPlayerName = player.NameValue;
             MBBindingList<ScoreboardPlayerActionVM> reboundActions = new MBBindingList<ScoreboardPlayerActionVM>();
             if (actions != null)
@@ -466,6 +495,14 @@ namespace BetterMPHUD.ViewModels
 
             PlayerActionList = reboundActions;
             IsPlayerActionsActive = true;
+        }
+
+        private void ClearSelectedPlayer()
+        {
+            if (_selectedPlayer != null)
+                _selectedPlayer.IsActionSelected = false;
+
+            _selectedPlayer = null;
         }
 
         private void ExecuteShowCursor()
@@ -523,6 +560,8 @@ namespace BetterMPHUD.ViewModels
         private void ExecuteSortTeamOneByDeaths() => Sort(true, "Deaths");
         private void ExecuteSortTeamOneByAssists() => Sort(true, "Assists");
         private void ExecuteSortTeamOneByScore() => Sort(true, "Score");
+        private void ExecuteSortTeamOneByKda() => Sort(true, "KDA");
+        private void ExecuteSortTeamOneBySpr() => Sort(true, "SPR");
 
         private void ExecuteSortTeamTwoByName() => Sort(false, "Name");
         private void ExecuteSortTeamTwoByPing() => Sort(false, "Ping");
@@ -530,6 +569,8 @@ namespace BetterMPHUD.ViewModels
         private void ExecuteSortTeamTwoByDeaths() => Sort(false, "Deaths");
         private void ExecuteSortTeamTwoByAssists() => Sort(false, "Assists");
         private void ExecuteSortTeamTwoByScore() => Sort(false, "Score");
+        private void ExecuteSortTeamTwoByKda() => Sort(false, "KDA");
+        private void ExecuteSortTeamTwoBySpr() => Sort(false, "SPR");
 
         private void Sort(bool first, string column)
         {
@@ -576,6 +617,8 @@ namespace BetterMPHUD.ViewModels
                 case "Name":
                 case "Kills":
                 case "Score":
+                case "KDA":
+                case "SPR":
                     return column;
                 default:
                     return "Score";
@@ -590,12 +633,16 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(TeamOneDeathsHeader, "TeamOneDeathsHeader");
             OnPropertyChangedWithValue(TeamOneAssistsHeader, "TeamOneAssistsHeader");
             OnPropertyChangedWithValue(TeamOneScoreHeader, "TeamOneScoreHeader");
+            OnPropertyChangedWithValue(TeamOneKdaHeader, "TeamOneKdaHeader");
+            OnPropertyChangedWithValue(TeamOneSprHeader, "TeamOneSprHeader");
             OnPropertyChangedWithValue(TeamTwoNameHeader, "TeamTwoNameHeader");
             OnPropertyChangedWithValue(TeamTwoPingHeader, "TeamTwoPingHeader");
             OnPropertyChangedWithValue(TeamTwoKillsHeader, "TeamTwoKillsHeader");
             OnPropertyChangedWithValue(TeamTwoDeathsHeader, "TeamTwoDeathsHeader");
             OnPropertyChangedWithValue(TeamTwoAssistsHeader, "TeamTwoAssistsHeader");
             OnPropertyChangedWithValue(TeamTwoScoreHeader, "TeamTwoScoreHeader");
+            OnPropertyChangedWithValue(TeamTwoKdaHeader, "TeamTwoKdaHeader");
+            OnPropertyChangedWithValue(TeamTwoSprHeader, "TeamTwoSprHeader");
         }
     }
 }

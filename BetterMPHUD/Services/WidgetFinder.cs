@@ -40,6 +40,16 @@ namespace BetterMPHUD.Services
             return null;
         }
 
+        public static Widget FindParentOfId(Widget root, string id, int parentLevels)
+        {
+            Widget target = FindById(root, id);
+            Widget parent = target;
+            for (int i = 0; i < parentLevels && parent != null; i++)
+                parent = parent.ParentWidget;
+
+            return parent;
+        }
+
         public static Widget FindByPredicate(Widget root, Func<Widget, bool> predicate, int maxDepth = 50)
         {
             return SearchRecursive(root, predicate, 0, maxDepth);

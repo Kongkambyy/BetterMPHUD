@@ -72,7 +72,10 @@ namespace BetterMPHUD.Handlers
             
             _widgets[HudElement.MountHealth].Cache(WidgetFinder.FindById(root, "HorseHealthWidget"));
             _widgets[HudElement.ShieldHealth].Cache(WidgetFinder.FindById(root, "ShieldHealthWidget"));
-            _widgets[HudElement.GoldAmount].Cache(WidgetFinder.FindBySprite(root, "personal_killfeed_notification"));
+            Widget goldWidget = WidgetFinder.FindBySprite(root, "personal_killfeed_notification");
+            if (goldWidget == null)
+                goldWidget = WidgetFinder.FindParentOfId(root, "HUDGoldAmountCounterTextWidget", 2);
+            _widgets[HudElement.GoldAmount].Cache(goldWidget);
             if (_widgets[HudElement.GoldAmount].Widget != null)
                 _customizer.StoreChildrenOriginals(_widgets[HudElement.GoldAmount].Widget);
             _widgets[HudElement.DamageFeed].Cache(WidgetFinder.FindByType(root, "MissionAgentDamageFeedWidget"));

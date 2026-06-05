@@ -23,7 +23,10 @@ namespace BetterMPHUD.Handlers
     {
         private static readonly BindingFlags Flags = BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public;
         private const string WarlordsPeerComponentTypeName = "MBWarlords.LastConcord.WarlordsPeerComponent";
+        private const string WarlordsLobbyClientDataManagerTypeName = "MBWarlords.LastConcord.WLLobbyClientDataManager";
+        private const string WarlordsClansManagerTypeName = "MBWarlords.LastConcord.WLClansManager";
         private const float ScoreboardRefreshInterval = 0.25f;
+        private const float WarlordsVisualRefreshInterval = 2f;
     
         private Dictionary<Widget, float> _originalAlphas = new Dictionary<Widget, float>();
         private readonly Dictionary<NetworkCommunicator, WarlordsBannerCacheEntry> _warlordsBannerCache = new Dictionary<NetworkCommunicator, WarlordsBannerCacheEntry>();
@@ -33,9 +36,16 @@ namespace BetterMPHUD.Handlers
         private Widget _nativeScoreboardWidget;
         private WidgetOriginalValues _nativeScoreboardOriginal;
         private Type _warlordsPeerComponentType;
+        private Type _warlordsLobbyClientDataManagerType;
+        private Type _warlordsClansManagerType;
         private float _nextSummaryRefreshTime;
+        private float _nextWarlordsVisualRefreshTime;
         private float _currentRowScale = 1f;
         private string _lastRefreshKey = "";
+        private string _lastTeamOneRowsKey = "";
+        private string _lastTeamTwoRowsKey = "";
+        private string _actionPlayerName = "";
+        private string _actionPlayerPeerId = "";
         private bool _initialized;
         private bool _wasSummaryRequested;
 
@@ -54,7 +64,26 @@ namespace BetterMPHUD.Handlers
             public BannerImageIdentifierVM FactionBanner;
         }
 
+        private class ScoreboardPlayerData
+        {
+            public MissionPeer Peer;
+            public NetworkCommunicator NetworkPeer;
+            public string Name;
+            public string PeerId;
+            public int Score;
+            public int Kills;
+            public int Deaths;
+            public int Assists;
+            public float Kda;
+            public float Spr;
+            public int Ping;
+            public bool Alive;
+            public string ClassSprite;
+            public string RowColor;
+        }
+
         public Action OnShowCursorRequested;
+        public Action OnCloseRequested;
 
         public void Initialize(MissionScreen screen)
         {
@@ -93,6 +122,22 @@ namespace BetterMPHUD.Handlers
             UpdateSummary(settings, mission);
         }
 
+        public void ApplyNativeScoreboardSettings(HudSettings settings, Mission mission)
+        {
+            if (settings == null || mission == null)
+                return;
+
+            Widget scoreboardWidget;
+            GauntletLayer layer = FindScoreboardLayer(mission, out scoreboardWidget);
+            if (layer == null || layer.UIContext == null || layer.UIContext.Root == null || scoreboardWidget == null)
+            {
+                _originalAlphas.Clear();
+                return;
+            }
+
+            ApplyToAllWidgets(scoreboardWidget, settings, 0);
+        }
+
         public bool IsSummaryVisible
         {
             get { return _summaryVM != null && _summaryVM.IsVisible; }
@@ -126,6 +171,8 @@ namespace BetterMPHUD.Handlers
                 SetSummaryVisible(false);
                 _wasSummaryRequested = false;
                 _nextSummaryRefreshTime = 0f;
+                _lastTeamOneRowsKey = "";
+                _lastTeamTwoRowsKey = "";
                 return;
             }
 
@@ -330,6 +377,7 @@ namespace BetterMPHUD.Handlers
             _summaryVM.ShowPing = settings.ScoreboardShowPing;
             _summaryVM.ShowStateColumn = settings.ScoreboardShowState;
             _summaryVM.ShowWarlordsBanners = settings.ScoreboardShowWarlordsBanners && IsWarlordsActive();
+            _summaryVM.UseAdvancedStats = settings.ScoreboardUseAdvancedStats;
             _summaryVM.ShowWarlordsPlayerActions = IsWarlordsActive();
             _currentRowScale = settings.ScoreboardRowScale;
             _summaryVM.BackgroundVisible = settings.ScoreboardBackgroundEnabled;
@@ -337,7 +385,7 @@ namespace BetterMPHUD.Handlers
             _summaryVM.TeamSummaryVisible = settings.ScoreboardSummaryEnabled;
             _summaryVM.ApplyDefaultSort(settings.ScoreboardDefaultSortColumn, settings.ScoreboardDefaultSortAscending);
             Dictionary<MissionPeer, NetworkCommunicator> peerMap = BuildPeerMap();
-            RefreshWarlordsScoreboardVisuals();
+            RefreshWarlordsScoreboardVisuals(settings, mission);
             MissionScoreboardComponent scoreboard = mission.GetMissionBehavior<MissionScoreboardComponent>();
             if (scoreboard == null || scoreboard.Sides == null || scoreboard.Sides.Length == 0)
             {
@@ -345,8 +393,12 @@ namespace BetterMPHUD.Handlers
                 return;
             }
 
-            MissionScoreboardComponent.MissionScoreboardSide first = scoreboard.Sides[0];
-            MissionScoreboardComponent.MissionScoreboardSide second = scoreboard.Sides.Length > 1 ? scoreboard.Sides[1] : null;
+            MissionScoreboardComponent.MissionScoreboardSide first = GetPreferredFirstScoreboardSide(scoreboard, mission);
+            MissionScoreboardComponent.MissionScoreboardSide second = GetPreferredSecondScoreboardSide(scoreboard, first);
+            if (first == null)
+                first = scoreboard.Sides[0];
+            if (second == null)
+                second = GetOtherScoreboardSide(scoreboard, first);
 
             ApplySide(first, true, mission, peerMap);
             if (second != null)
@@ -359,15 +411,22 @@ namespace BetterMPHUD.Handlers
 
         private void UpdateSummaryFromPeers(Mission mission, Dictionary<MissionPeer, NetworkCommunicator> peerMap)
         {
-            Team playerTeam = mission.PlayerTeam;
-            Team enemyTeam = mission.PlayerEnemyTeam;
+            TaleWorlds.Core.BattleSideEnum firstSide = GetPreferredFirstSide(mission);
+            TaleWorlds.Core.BattleSideEnum secondSide = GetOppositeSide(firstSide);
+            Team playerTeam = GetTeamForSide(mission, firstSide);
+            Team enemyTeam = GetTeamForSide(mission, secondSide);
+            if (playerTeam == null)
+                playerTeam = mission.PlayerTeam;
+            if (enemyTeam == null || enemyTeam == playerTeam)
+                enemyTeam = mission.PlayerEnemyTeam;
 
-            ApplyPeerTeam(playerTeam, GetTeamName(playerTeam, true, mission), true, mission, peerMap);
-            ApplyPeerTeam(enemyTeam, GetTeamName(enemyTeam, false, mission), false, mission, peerMap);
+            int roundCount = GetScoreboardRoundCount(mission, 0, 0);
+            ApplyPeerTeam(playerTeam, GetTeamName(playerTeam, true, mission), true, mission, peerMap, roundCount);
+            ApplyPeerTeam(enemyTeam, GetTeamName(enemyTeam, false, mission), false, mission, peerMap, roundCount);
             SetSummaryVisible(true);
         }
 
-        private void ApplyPeerTeam(Team team, string name, bool first, Mission mission, Dictionary<MissionPeer, NetworkCommunicator> peerMap)
+        private void ApplyPeerTeam(Team team, string name, bool first, Mission mission, Dictionary<MissionPeer, NetworkCommunicator> peerMap, int roundCount)
         {
             int players = 0;
             int alive = 0;
@@ -377,7 +436,8 @@ namespace BetterMPHUD.Handlers
             int infantry = 0;
             int archers = 0;
             int cavalry = 0;
-            MBBindingList<ScoreboardPlayerVM> playersList = new MBBindingList<ScoreboardPlayerVM>();
+            List<ScoreboardPlayerData> playersList = new List<ScoreboardPlayerData>();
+            string searchText = GetSearchText(first);
 
             foreach (NetworkCommunicator networkPeer in GameNetwork.NetworkPeers)
             {
@@ -396,11 +456,11 @@ namespace BetterMPHUD.Handlers
                 if (peer.IsControlledAgentActive)
                     alive++;
 
-                if (MatchesSearch(peer.DisplayedName, GetSearchText(first)))
-                    playersList.Add(CreatePlayer(peer, networkPeer));
+                if (MatchesSearch(peer.DisplayedName, searchText))
+                    playersList.Add(CreatePlayerData(peer, networkPeer, roundCount));
             }
 
-            if (team != null)
+            if (team != null && _summaryVM.TeamSummaryVisible)
                 CountClassesForSide(mission, team.Side, ref infantry, ref archers, ref cavalry);
 
             int dead = Math.Max(players - alive, 0);
@@ -413,7 +473,7 @@ namespace BetterMPHUD.Handlers
                 _summaryVM.TeamOneTotals = totals;
                 _summaryVM.TeamOneClasses = classes;
                 _summaryVM.TeamOneRoundScore = "0";
-                _summaryVM.TeamOnePlayers = SortPlayers(playersList, true);
+                ApplyPlayersList(playersList, true);
             }
             else
             {
@@ -421,7 +481,7 @@ namespace BetterMPHUD.Handlers
                 _summaryVM.TeamTwoTotals = totals;
                 _summaryVM.TeamTwoClasses = classes;
                 _summaryVM.TeamTwoRoundScore = "0";
-                _summaryVM.TeamTwoPlayers = SortPlayers(playersList, false);
+                ApplyPlayersList(playersList, false);
             }
         }
 
@@ -435,7 +495,8 @@ namespace BetterMPHUD.Handlers
             int infantry = 0;
             int archers = 0;
             int cavalry = 0;
-            MBBindingList<ScoreboardPlayerVM> playersList = new MBBindingList<ScoreboardPlayerVM>();
+            List<ScoreboardPlayerData> playersList = new List<ScoreboardPlayerData>();
+            string searchText = GetSearchText(first);
 
             foreach (MissionPeer peer in side.Players)
             {
@@ -449,11 +510,12 @@ namespace BetterMPHUD.Handlers
                 if (peer.IsControlledAgentActive)
                     alive++;
 
-                if (MatchesSearch(peer.DisplayedName, GetSearchText(first)))
-                    playersList.Add(CreatePlayer(peer, GetNetworkPeer(peerMap, peer)));
+                if (MatchesSearch(peer.DisplayedName, searchText))
+                    playersList.Add(CreatePlayerData(peer, GetNetworkPeer(peerMap, peer), GetScoreboardRoundCount(mission, side.SideScore, GetOtherSideScore(mission, side.Side))));
             }
 
-            CountClassesForSide(mission, side.Side, ref infantry, ref archers, ref cavalry);
+            if (_summaryVM.TeamSummaryVisible)
+                CountClassesForSide(mission, side.Side, ref infantry, ref archers, ref cavalry);
 
             string teamName = GetSideName(side.Side, first, mission);
             int dead = Math.Max(players - alive, 0);
@@ -466,7 +528,7 @@ namespace BetterMPHUD.Handlers
                 _summaryVM.TeamOneTotals = totals;
                 _summaryVM.TeamOneClasses = classes;
                 _summaryVM.TeamOneRoundScore = side.SideScore.ToString();
-                _summaryVM.TeamOnePlayers = SortPlayers(playersList, true);
+                ApplyPlayersList(playersList, true);
             }
             else
             {
@@ -474,27 +536,46 @@ namespace BetterMPHUD.Handlers
                 _summaryVM.TeamTwoTotals = totals;
                 _summaryVM.TeamTwoClasses = classes;
                 _summaryVM.TeamTwoRoundScore = side.SideScore.ToString();
-                _summaryVM.TeamTwoPlayers = SortPlayers(playersList, false);
+                ApplyPlayersList(playersList, false);
             }
         }
 
-        private ScoreboardPlayerVM CreatePlayer(MissionPeer peer, NetworkCommunicator networkPeer)
+        private ScoreboardPlayerData CreatePlayerData(MissionPeer peer, NetworkCommunicator networkPeer, int roundCount)
         {
             Agent agent = peer.ControlledAgent;
-            string classSprite = GetScoreboardClassSprite(peer, agent);
-            string rowColor = peer.IsControlledAgentActive ? "#F2E8D5FF" : "#8C8170FF";
-            string name = string.IsNullOrEmpty(peer.DisplayedName) ? "Player" : peer.DisplayedName;
-            int ping = networkPeer != null ? (int)Math.Round(networkPeer.AveragePingInMilliseconds) : 0;
+            bool alive = peer.IsControlledAgentActive;
+            return new ScoreboardPlayerData
+            {
+                Peer = peer,
+                NetworkPeer = networkPeer,
+                Name = string.IsNullOrEmpty(peer.DisplayedName) ? "Player" : peer.DisplayedName,
+                PeerId = GetPeerId(peer),
+                Score = peer.Score,
+                Kills = peer.KillCount,
+                Deaths = peer.DeathCount,
+                Assists = peer.AssistCount,
+                Kda = CalculateKda(peer.KillCount, peer.AssistCount, peer.DeathCount),
+                Spr = CalculateSpr(peer.Score, roundCount),
+                Ping = networkPeer != null ? (int)Math.Round(networkPeer.AveragePingInMilliseconds) : 0,
+                Alive = alive,
+                ClassSprite = GetScoreboardClassSprite(peer, agent),
+                RowColor = alive ? "#F2E8D5FF" : "#8C8170FF",
+            };
+        }
+
+        private ScoreboardPlayerVM CreatePlayer(ScoreboardPlayerData data)
+        {
             bool showPing = _summaryVM == null || _summaryVM.ShowPing;
-            ScoreboardPlayerVM player = new ScoreboardPlayerVM(name, peer.Score, peer.KillCount, peer.DeathCount, peer.AssistCount, ping, peer.IsControlledAgentActive, showPing, classSprite, rowColor);
-            player.IsLocalPlayer = networkPeer != null && networkPeer.IsMine;
+            ScoreboardPlayerVM player = new ScoreboardPlayerVM(data.Name, data.PeerId, data.Score, data.Kills, data.Deaths, data.Assists, data.Kda, data.Spr, data.Ping, data.Alive, showPing, data.ClassSprite, data.RowColor);
+            player.UseAdvancedStats = _summaryVM != null && _summaryVM.UseAdvancedStats;
+            player.IsLocalPlayer = data.NetworkPeer != null && data.NetworkPeer.IsMine;
             player.RowScale = _currentRowScale;
             player.OnActionsRequested = OpenPlayerActions;
             bool showWarlordsBannerColumn = _summaryVM != null && _summaryVM.ShowWarlordsBanners;
             player.ShowStateColumn = _summaryVM == null || _summaryVM.ShowStateColumn;
             player.ShowWarlordsBannerColumn = showWarlordsBannerColumn;
             player.ShowNativeNameLayout = !showWarlordsBannerColumn;
-            ApplyWarlordsBanner(player, networkPeer);
+            ApplyWarlordsBanner(player, data.NetworkPeer);
             return player;
         }
 
@@ -515,7 +596,11 @@ namespace BetterMPHUD.Handlers
         private void OpenPlayerActions(ScoreboardPlayerVM player)
         {
             if (_summaryVM != null && player != null && !player.IsLocalPlayer)
-                _summaryVM.OpenPlayerActions(player, BuildPlayerActions(player.NameValue));
+            {
+                _actionPlayerName = player.NameValue;
+                _actionPlayerPeerId = player.PeerIdValue;
+                _summaryVM.OpenPlayerActions(player, BuildPlayerActions(player.NameValue, player.PeerIdValue));
+            }
         }
 
         private string GetRefreshKey(HudSettings settings)
@@ -526,6 +611,7 @@ namespace BetterMPHUD.Handlers
             return settings.ScoreboardShowPing
                 + "|" + settings.ScoreboardShowState
                 + "|" + settings.ScoreboardShowWarlordsBanners
+                + "|" + settings.ScoreboardUseAdvancedStats
                 + "|" + settings.ScoreboardRowScale.ToString("F2")
                 + "|" + settings.ScoreboardBackgroundEnabled
                 + "|" + settings.ScoreboardBackgroundOpacity.ToString("F2")
@@ -579,6 +665,22 @@ namespace BetterMPHUD.Handlers
             return _warlordsPeerComponentType;
         }
 
+        private Type GetWarlordsLobbyClientDataManagerType()
+        {
+            if (_warlordsLobbyClientDataManagerType == null)
+                _warlordsLobbyClientDataManagerType = FindType(WarlordsLobbyClientDataManagerTypeName);
+
+            return _warlordsLobbyClientDataManagerType;
+        }
+
+        private Type GetWarlordsClansManagerType()
+        {
+            if (_warlordsClansManagerType == null)
+                _warlordsClansManagerType = FindType(WarlordsClansManagerTypeName);
+
+            return _warlordsClansManagerType;
+        }
+
         private static Type FindType(string typeName)
         {
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -607,6 +709,20 @@ namespace BetterMPHUD.Handlers
             if (networkPeer == null)
                 return;
 
+            WarlordsBannerCacheEntry existingCacheEntry;
+            if (_warlordsBannerCache.TryGetValue(networkPeer, out existingCacheEntry))
+            {
+                bool hasCachedBannerState = existingCacheEntry.Banner != null
+                    || existingCacheEntry.FactionBanner != null
+                    || !string.IsNullOrWhiteSpace(existingCacheEntry.BannerCode)
+                    || !string.IsNullOrWhiteSpace(existingCacheEntry.FactionBannerCode);
+                if (hasCachedBannerState)
+                {
+                    ApplyWarlordsBannerCacheEntry(player, existingCacheEntry);
+                    return;
+                }
+            }
+
             Type componentType = GetWarlordsPeerComponentType();
             if (componentType == null)
                 return;
@@ -624,8 +740,16 @@ namespace BetterMPHUD.Handlers
             object clan = GetProperty(component, "Clan");
             string factionBannerCode = GetStringProperty(clan, "FactionBanner");
             WarlordsBannerCacheEntry cacheEntry = GetWarlordsBannerCacheEntry(networkPeer, bannerCode, factionBannerCode);
-            BannerImageIdentifierVM banner = cacheEntry != null ? cacheEntry.Banner : null;
-            BannerImageIdentifierVM factionBanner = cacheEntry != null ? cacheEntry.FactionBanner : null;
+            ApplyWarlordsBannerCacheEntry(player, cacheEntry);
+        }
+
+        private void ApplyWarlordsBannerCacheEntry(ScoreboardPlayerVM player, WarlordsBannerCacheEntry cacheEntry)
+        {
+            if (player == null || cacheEntry == null)
+                return;
+
+            BannerImageIdentifierVM banner = cacheEntry.Banner;
+            BannerImageIdentifierVM factionBanner = cacheEntry.FactionBanner;
             if (banner == null && factionBanner != null)
             {
                 banner = factionBanner;
@@ -675,14 +799,22 @@ namespace BetterMPHUD.Handlers
             }
         }
 
-        private void RefreshWarlordsScoreboardVisuals()
+        private void RefreshWarlordsScoreboardVisuals(HudSettings settings, Mission mission)
         {
-            _warlordsVisuals.Clear();
+            if (settings == null || mission == null || !settings.ScoreboardShowWarlordsBanners || !IsWarlordsActive())
+            {
+                _warlordsVisuals.Clear();
+                _nextWarlordsVisualRefreshTime = 0f;
+                return;
+            }
 
-            if (!IsWarlordsActive() || Mission.Current == null)
+            if (_warlordsVisuals.Count > 0 && mission.CurrentTime < _nextWarlordsVisualRefreshTime)
                 return;
 
-            foreach (MissionBehavior behavior in Mission.Current.MissionBehaviors)
+            _warlordsVisuals.Clear();
+            _nextWarlordsVisualRefreshTime = mission.CurrentTime + WarlordsVisualRefreshInterval;
+
+            foreach (MissionBehavior behavior in mission.MissionBehaviors)
             {
                 if (behavior == null || behavior.GetType().Name != "WLMissionGauntletMultiplayerScoreboard")
                     continue;
@@ -903,6 +1035,42 @@ namespace BetterMPHUD.Handlers
             return property != null ? property.GetValue(instance, null) : null;
         }
 
+        private static object GetStaticProperty(Type type, string propertyName)
+        {
+            if (type == null)
+                return null;
+
+            PropertyInfo property = type.GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+            return property != null ? property.GetValue(null, null) : null;
+        }
+
+        private static MethodInfo GetMethodByParameterCount(Type type, string methodName, int parameterCount)
+        {
+            if (type == null)
+                return null;
+
+            foreach (MethodInfo method in type.GetMethods(Flags))
+            {
+                if (method.Name == methodName && method.GetParameters().Length == parameterCount)
+                    return method;
+            }
+
+            return null;
+        }
+
+        private static bool TrySetProperty(object instance, string propertyName, object value)
+        {
+            if (instance == null)
+                return false;
+
+            PropertyInfo property = instance.GetType().GetProperty(propertyName, Flags);
+            if (property == null || !property.CanWrite)
+                return false;
+
+            property.SetValue(instance, value, null);
+            return true;
+        }
+
         private static object GetFieldValue(object instance, string fieldName)
         {
             if (instance == null)
@@ -936,6 +1104,124 @@ namespace BetterMPHUD.Handlers
             }
 
             return null;
+        }
+
+        private void ApplyPlayersList(List<ScoreboardPlayerData> players, bool first)
+        {
+            List<ScoreboardPlayerData> sorted = SortPlayerData(players, first);
+            string rowsKey = BuildRowsKey(sorted, first);
+            if (first)
+            {
+                if (_lastTeamOneRowsKey == rowsKey && TryUpdateExistingPlayers(_summaryVM.TeamOnePlayers, sorted))
+                    return;
+
+                _lastTeamOneRowsKey = rowsKey;
+                _summaryVM.TeamOnePlayers = CreatePlayerList(sorted);
+            }
+            else
+            {
+                if (_lastTeamTwoRowsKey == rowsKey && TryUpdateExistingPlayers(_summaryVM.TeamTwoPlayers, sorted))
+                    return;
+
+                _lastTeamTwoRowsKey = rowsKey;
+                _summaryVM.TeamTwoPlayers = CreatePlayerList(sorted);
+            }
+        }
+
+        private bool TryUpdateExistingPlayers(MBBindingList<ScoreboardPlayerVM> existingPlayers, List<ScoreboardPlayerData> players)
+        {
+            if (existingPlayers == null || players == null || existingPlayers.Count != players.Count)
+                return false;
+
+            bool showPing = _summaryVM == null || _summaryVM.ShowPing;
+            bool showState = _summaryVM == null || _summaryVM.ShowStateColumn;
+            bool useAdvancedStats = _summaryVM != null && _summaryVM.UseAdvancedStats;
+            bool showWarlordsBannerColumn = _summaryVM != null && _summaryVM.ShowWarlordsBanners;
+
+            for (int i = 0; i < players.Count; i++)
+            {
+                ScoreboardPlayerVM existing = existingPlayers[i];
+                ScoreboardPlayerData data = players[i];
+                if (existing == null || data == null || !string.Equals(existing.NameValue, data.Name, StringComparison.Ordinal))
+                    return false;
+
+                existing.Update(data.Name, data.PeerId, data.Score, data.Kills, data.Deaths, data.Assists, data.Kda, data.Spr, data.Ping, data.Alive, showPing, data.ClassSprite, data.RowColor, data.NetworkPeer != null && data.NetworkPeer.IsMine, _currentRowScale);
+                existing.UseAdvancedStats = useAdvancedStats;
+                existing.ShowStateColumn = showState;
+                existing.ShowWarlordsBannerColumn = showWarlordsBannerColumn;
+                existing.ShowNativeNameLayout = !showWarlordsBannerColumn;
+                existing.OnActionsRequested = OpenPlayerActions;
+                ApplyWarlordsBanner(existing, data.NetworkPeer);
+            }
+
+            return true;
+        }
+
+        private MBBindingList<ScoreboardPlayerVM> CreatePlayerList(List<ScoreboardPlayerData> players)
+        {
+            MBBindingList<ScoreboardPlayerVM> result = new MBBindingList<ScoreboardPlayerVM>();
+            foreach (ScoreboardPlayerData player in players)
+                result.Add(CreatePlayer(player));
+
+            return result;
+        }
+
+        private List<ScoreboardPlayerData> SortPlayerData(List<ScoreboardPlayerData> players, bool first)
+        {
+            List<ScoreboardPlayerData> sorted = new List<ScoreboardPlayerData>();
+            foreach (ScoreboardPlayerData player in players)
+                sorted.Add(player);
+
+            string column = _summaryVM != null ? _summaryVM.GetSortColumn(first) : "Score";
+            bool ascending = _summaryVM != null && _summaryVM.GetSortAscending(first);
+
+            sorted.Sort(delegate(ScoreboardPlayerData x, ScoreboardPlayerData y)
+            {
+                int result = ComparePlayerData(x, y, column);
+                return ascending ? result : -result;
+            });
+
+            return sorted;
+        }
+
+        private string BuildRowsKey(List<ScoreboardPlayerData> players, bool first)
+        {
+            System.Text.StringBuilder builder = new System.Text.StringBuilder();
+            foreach (ScoreboardPlayerData player in players)
+                builder.Append('|').Append(player.PeerId).Append(':').Append(player.Name);
+
+            return builder.ToString();
+        }
+
+        private int ComparePlayerData(ScoreboardPlayerData x, ScoreboardPlayerData y, string column)
+        {
+            if (x == null && y == null)
+                return 0;
+            if (x == null)
+                return -1;
+            if (y == null)
+                return 1;
+
+            switch (column)
+            {
+                case "Name":
+                    return StringComparer.OrdinalIgnoreCase.Compare(x.Name, y.Name);
+                case "Ping":
+                    return x.Ping.CompareTo(y.Ping);
+                case "Kills":
+                    return x.Kills.CompareTo(y.Kills);
+                case "Deaths":
+                    return x.Deaths.CompareTo(y.Deaths);
+                case "Assists":
+                    return x.Assists.CompareTo(y.Assists);
+                case "KDA":
+                    return x.Kda.CompareTo(y.Kda);
+                case "SPR":
+                    return x.Spr.CompareTo(y.Spr);
+                case "Score":
+                default:
+                    return x.Score.CompareTo(y.Score);
+            }
         }
 
         private MBBindingList<ScoreboardPlayerVM> SortPlayers(MBBindingList<ScoreboardPlayerVM> players, bool first)
@@ -981,6 +1267,10 @@ namespace BetterMPHUD.Handlers
                     return x.DeathsValue.CompareTo(y.DeathsValue);
                 case "Assists":
                     return x.AssistsValue.CompareTo(y.AssistsValue);
+                case "KDA":
+                    return x.KdaValue.CompareTo(y.KdaValue);
+                case "SPR":
+                    return x.SprValue.CompareTo(y.SprValue);
                 case "Score":
                 default:
                     return x.ScoreValue.CompareTo(y.ScoreValue);
@@ -993,9 +1283,9 @@ namespace BetterMPHUD.Handlers
                 OnShowCursorRequested();
         }
 
-        private MBBindingList<ScoreboardPlayerActionVM> BuildPlayerActions(string playerName)
+        private MBBindingList<ScoreboardPlayerActionVM> BuildPlayerActions(string playerName, string peerId)
         {
-            MBBindingList<ScoreboardPlayerActionVM> actions = TryBuildNativePlayerActions(playerName);
+            MBBindingList<ScoreboardPlayerActionVM> actions = TryBuildNativePlayerActions(playerName, peerId);
             if (actions.Count > 0)
                 return actions;
 
@@ -1011,10 +1301,10 @@ namespace BetterMPHUD.Handlers
             return actions;
         }
 
-        private MBBindingList<ScoreboardPlayerActionVM> TryBuildNativePlayerActions(string playerName)
+        private MBBindingList<ScoreboardPlayerActionVM> TryBuildNativePlayerActions(string playerName, string peerId)
         {
             MBBindingList<ScoreboardPlayerActionVM> result = new MBBindingList<ScoreboardPlayerActionVM>();
-            if (string.IsNullOrWhiteSpace(playerName) || Mission.Current == null)
+            if ((string.IsNullOrWhiteSpace(playerName) && string.IsNullOrWhiteSpace(peerId)) || Mission.Current == null)
                 return result;
 
             foreach (MissionBehavior behavior in Mission.Current.MissionBehaviors)
@@ -1027,7 +1317,7 @@ namespace BetterMPHUD.Handlers
                     continue;
 
                 object dataSource = GetScoreboardActionSource(GetFieldValue(behavior, "_dataSource"));
-                object entry = FindScoreboardPlayerEntry(dataSource, playerName);
+                object entry = FindScoreboardPlayerEntry(dataSource, playerName, peerId);
                 if (entry == null)
                     continue;
 
@@ -1062,8 +1352,13 @@ namespace BetterMPHUD.Handlers
 
         private void ExecuteScoreboardPlayerAction(string playerName, string actionDefinition)
         {
-            if (TryExecuteScoreboardPlayerAction(playerName, actionDefinition, false))
+            if (TryExecuteScoreboardPlayerAction(playerName, GetActionPeerId(playerName), actionDefinition, false))
+            {
+                if (IsInspectPlayerCardAction(actionDefinition))
+                    CloseCustomScoreboard();
+
                 return;
+            }
 
             if (string.Equals(actionDefinition, "Unmute Permanently", StringComparison.OrdinalIgnoreCase))
             {
@@ -1085,6 +1380,12 @@ namespace BetterMPHUD.Handlers
             }
 
             ShowScoreboardActionMessage(actionDefinition + " is not available for this player right now.");
+        }
+
+        private static bool IsInspectPlayerCardAction(string actionDefinition)
+        {
+            return IsActionTextMatch(actionDefinition, "Inspect Player Card")
+                || IsActionTextMatch(actionDefinition, "Inspect");
         }
 
         private bool IsPlayerTextMuted(string playerName)
@@ -1154,15 +1455,26 @@ namespace BetterMPHUD.Handlers
 
         private void InspectPlayerCard(string playerName)
         {
-            if (TryExecuteScoreboardPlayerAction(playerName, "Inspect Player Card", true))
+            if (TryExecuteScoreboardPlayerAction(playerName, GetActionPeerId(playerName), "Inspect Player Card", true))
+            {
+                CloseCustomScoreboard();
                 return;
+            }
 
             ShowScoreboardActionMessage("Could not open Inspect Player Card for this player.");
         }
 
+        private void CloseCustomScoreboard()
+        {
+            SetInteractive(false);
+            SetSummaryVisible(false);
+            if (OnCloseRequested != null)
+                OnCloseRequested();
+        }
+
         private void MutePlayerPermanently(string playerName)
         {
-            if (TryExecuteScoreboardPlayerAction(playerName, "Mute Permanently", false))
+            if (TryExecuteScoreboardPlayerAction(playerName, GetActionPeerId(playerName), "Mute Permanently", false))
                 return;
 
             MutePlayerText(playerName);
@@ -1171,7 +1483,7 @@ namespace BetterMPHUD.Handlers
 
         private void MutePlayerText(string playerName)
         {
-            if (TryExecuteScoreboardPlayerAction(playerName, "Mute Text", false))
+            if (TryExecuteScoreboardPlayerAction(playerName, GetActionPeerId(playerName), "Mute Text", false))
                 return;
 
             SetPlayerTextMuted(playerName, true);
@@ -1179,7 +1491,7 @@ namespace BetterMPHUD.Handlers
 
         private void MutePlayerVoice(string playerName)
         {
-            if (TryExecuteScoreboardPlayerAction(playerName, "Mute Voice", false))
+            if (TryExecuteScoreboardPlayerAction(playerName, GetActionPeerId(playerName), "Mute Voice", false))
                 return;
 
             SetPlayerVoiceMuted(playerName, true);
@@ -1187,15 +1499,25 @@ namespace BetterMPHUD.Handlers
 
         private void ReportPlayer(string playerName)
         {
-            if (TryExecuteScoreboardPlayerAction(playerName, "Report", false))
+            if (TryExecuteScoreboardPlayerAction(playerName, GetActionPeerId(playerName), "Report", false))
                 return;
 
             ShowScoreboardActionMessage("Report is not available for this player right now.");
         }
 
-        private bool TryExecuteScoreboardPlayerAction(string playerName, string actionDefinition, bool warlordsOnly)
+        private string GetActionPeerId(string playerName)
         {
-            if (string.IsNullOrWhiteSpace(playerName) || string.IsNullOrWhiteSpace(actionDefinition) || Mission.Current == null)
+            if (!string.IsNullOrWhiteSpace(_actionPlayerPeerId) && string.Equals(_actionPlayerName, playerName, StringComparison.Ordinal))
+                return _actionPlayerPeerId;
+
+            NetworkCommunicator networkPeer = FindNetworkPeerByName(playerName);
+            MissionPeer peer = networkPeer != null ? networkPeer.GetComponent<MissionPeer>() : null;
+            return GetPeerId(peer);
+        }
+
+        private bool TryExecuteScoreboardPlayerAction(string playerName, string peerId, string actionDefinition, bool warlordsOnly)
+        {
+            if ((string.IsNullOrWhiteSpace(playerName) && string.IsNullOrWhiteSpace(peerId)) || string.IsNullOrWhiteSpace(actionDefinition) || Mission.Current == null)
                 return false;
 
             foreach (MissionBehavior behavior in Mission.Current.MissionBehaviors)
@@ -1210,35 +1532,79 @@ namespace BetterMPHUD.Handlers
                 if (!isWarlords && (!isNative || warlordsOnly))
                     continue;
 
-                if (TryExecuteScoreboardPlayerAction(behavior, playerName, actionDefinition))
+                if (TryExecuteScoreboardPlayerAction(behavior, playerName, peerId, actionDefinition))
                     return true;
             }
 
             return false;
         }
 
-        private bool TryExecuteScoreboardPlayerAction(MissionBehavior behavior, string playerName, string actionDefinition)
+        private bool TryExecuteScoreboardPlayerAction(MissionBehavior behavior, string playerName, string peerId, string actionDefinition)
         {
-            object dataSource = GetScoreboardActionSource(GetFieldValue(behavior, "_dataSource"));
-            object entry = FindScoreboardPlayerEntry(dataSource, playerName);
+            object dataSourceRoot = GetFieldValue(behavior, "_dataSource");
+            object dataSource = GetScoreboardActionSource(dataSourceRoot);
+            object entry = FindScoreboardPlayerEntry(dataSource, playerName, peerId);
             if (entry == null)
                 return false;
 
-            InvokeNoArg(entry, "ExecuteSelection");
-            IEnumerable actions = GetProperty(dataSource, "PlayerActionList") as IEnumerable;
-            if (actions == null)
+            bool isWarlords = behavior.GetType().Name == "WLMissionGauntletMultiplayerScoreboard";
+            bool previousIsActive = GetBoolProperty(dataSource, "IsActive", false);
+            bool changedActive = false;
+            try
+            {
+                if (isWarlords && !previousIsActive)
+                    changedActive = TrySetProperty(dataSource, "IsActive", true);
+
+                InvokeNoArg(entry, "ExecuteSelection");
+                IEnumerable actions = GetProperty(dataSource, "PlayerActionList") as IEnumerable;
+                if (actions == null)
+                    return false;
+
+                foreach (object action in actions)
+                {
+                    if (!IsScoreboardActionMatch(action, actionDefinition))
+                        continue;
+
+                    return InvokeNoArg(action, "ExecuteAction");
+                }
+
+                return false;
+            }
+            finally
+            {
+                if (changedActive)
+                    TrySetProperty(dataSource, "IsActive", previousIsActive);
+            }
+        }
+
+        private static bool IsScoreboardActionMatch(object action, string actionDefinition)
+        {
+            if (action == null || string.IsNullOrWhiteSpace(actionDefinition))
                 return false;
 
-            foreach (object action in actions)
-            {
-                string definition = GetObjectText(action, "Definition");
-                if (!string.Equals(definition, actionDefinition, StringComparison.OrdinalIgnoreCase))
-                    continue;
+            string definition = GetObjectText(action, "Definition");
+            string value = GetObjectText(action, "Value");
+            return IsActionTextMatch(definition, actionDefinition)
+                || IsActionTextMatch(value, actionDefinition);
+        }
 
-                return InvokeNoArg(action, "ExecuteAction");
-            }
+        private static bool IsActionTextMatch(string candidate, string requested)
+        {
+            if (string.IsNullOrWhiteSpace(candidate) || string.IsNullOrWhiteSpace(requested))
+                return false;
 
-            return false;
+            if (string.Equals(candidate, requested, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            return string.Equals(NormalizeActionText(candidate), NormalizeActionText(requested), StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string NormalizeActionText(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return "";
+
+            return value.Replace(" ", "").Replace("_", "").Replace("-", "").Trim();
         }
 
         private static object GetScoreboardActionSource(object dataSource)
@@ -1250,23 +1616,23 @@ namespace BetterMPHUD.Handlers
             return scoreboard ?? dataSource;
         }
 
-        private object FindScoreboardPlayerEntry(object dataSource, string playerName)
+        private object FindScoreboardPlayerEntry(object dataSource, string playerName, string peerId)
         {
             if (dataSource == null)
                 return null;
 
-            object entry = FindScoreboardPlayerEntryInSide(GetProperty(dataSource, "AllySide"), playerName);
+            object entry = FindScoreboardPlayerEntryInSide(GetProperty(dataSource, "AllySide"), playerName, peerId);
             if (entry != null)
                 return entry;
 
-            entry = FindScoreboardPlayerEntryInSide(GetProperty(dataSource, "EnemySide"), playerName);
+            entry = FindScoreboardPlayerEntryInSide(GetProperty(dataSource, "EnemySide"), playerName, peerId);
             if (entry != null)
                 return entry;
 
-            return FindScoreboardPlayerEntryInSide(dataSource, playerName);
+            return FindScoreboardPlayerEntryInSide(dataSource, playerName, peerId);
         }
 
-        private object FindScoreboardPlayerEntryInSide(object source, string playerName)
+        private object FindScoreboardPlayerEntryInSide(object source, string playerName, string peerId)
         {
             if (source == null)
                 return null;
@@ -1291,7 +1657,7 @@ namespace BetterMPHUD.Handlers
 
                 foreach (object entry in entries)
                 {
-                    if (IsScoreboardPlayerEntry(entry, playerName))
+                    if (IsScoreboardPlayerEntry(entry, playerName, peerId))
                         return entry;
                 }
             }
@@ -1299,12 +1665,15 @@ namespace BetterMPHUD.Handlers
             return null;
         }
 
-        private static bool IsScoreboardPlayerEntry(object entry, string playerName)
+        private static bool IsScoreboardPlayerEntry(object entry, string playerName, string peerId)
         {
             if (entry == null)
                 return false;
 
             MissionPeer peer = GetMissionPeerFromEntry(entry);
+            if (!string.IsNullOrWhiteSpace(peerId) && string.Equals(GetPeerId(peer), peerId, StringComparison.Ordinal))
+                return true;
+
             if (peer != null && string.Equals(peer.DisplayedName, playerName, StringComparison.OrdinalIgnoreCase))
                 return true;
 
@@ -1343,6 +1712,14 @@ namespace BetterMPHUD.Handlers
             }
 
             return null;
+        }
+
+        private static string GetPeerId(MissionPeer peer)
+        {
+            if (peer == null || peer.Peer == null || peer.Peer.Id == null)
+                return "";
+
+            return peer.Peer.Id.ToString();
         }
 
         private static string GetNameFromScoreboardStats(object entry)
@@ -1498,7 +1875,11 @@ namespace BetterMPHUD.Handlers
 
         private string GetSideName(TaleWorlds.Core.BattleSideEnum side, bool first, Mission mission)
         {
-            string warlordsName = GetWarlordsScoreboardSideName(first);
+            string warlordsName = GetWarlordsScoreboardSideName(side);
+            if (!string.IsNullOrWhiteSpace(warlordsName))
+                return warlordsName;
+
+            warlordsName = GetWarlordsClanWarSideName(side);
             if (!string.IsNullOrWhiteSpace(warlordsName))
                 return warlordsName;
 
@@ -1522,7 +1903,11 @@ namespace BetterMPHUD.Handlers
         {
             if (team != null)
             {
-                string warlordsName = GetWarlordsScoreboardSideName(first);
+                string warlordsName = GetWarlordsScoreboardSideName(team.Side);
+                if (!string.IsNullOrWhiteSpace(warlordsName))
+                    return warlordsName;
+
+                warlordsName = GetWarlordsClanWarSideName(team.Side);
                 if (!string.IsNullOrWhiteSpace(warlordsName))
                     return warlordsName;
 
@@ -1534,7 +1919,7 @@ namespace BetterMPHUD.Handlers
             return first ? "Allies" : "Enemies";
         }
 
-        private string GetWarlordsScoreboardSideName(bool first)
+        private string GetWarlordsScoreboardSideName(TaleWorlds.Core.BattleSideEnum side)
         {
             if (!IsWarlordsActive() || Mission.Current == null)
                 return "";
@@ -1544,9 +1929,12 @@ namespace BetterMPHUD.Handlers
                 if (behavior == null || behavior.GetType().Name != "WLMissionGauntletMultiplayerScoreboard")
                     continue;
 
-                object dataSource = GetFieldValue(behavior, "_dataSource");
-                object sideVm = GetProperty(dataSource, first ? "AllySide" : "EnemySide");
-                string name = GetObjectText(sideVm, "Name");
+                object dataSource = GetScoreboardActionSource(GetFieldValue(behavior, "_dataSource"));
+                string name = GetWarlordsScoreboardSideName(dataSource, "AllySide", side);
+                if (!string.IsNullOrWhiteSpace(name))
+                    return name;
+
+                name = GetWarlordsScoreboardSideName(dataSource, "EnemySide", side);
                 if (!string.IsNullOrWhiteSpace(name))
                     return name;
             }
@@ -1554,12 +1942,150 @@ namespace BetterMPHUD.Handlers
             return "";
         }
 
+        private string GetWarlordsScoreboardSideName(object dataSource, string sidePropertyName, TaleWorlds.Core.BattleSideEnum side)
+        {
+            object sideVm = GetProperty(dataSource, sidePropertyName);
+            if (!IsWarlordsScoreboardSideVmForSide(sideVm, side))
+                return "";
+
+            string name = GetObjectText(sideVm, "Name");
+            return !string.IsNullOrWhiteSpace(name) ? name : "";
+        }
+
+        private bool IsWarlordsScoreboardSideVmForSide(object sideVm, TaleWorlds.Core.BattleSideEnum side)
+        {
+            object scoreboardSide = GetFieldValue(sideVm, "_missionScoreboardSide");
+            object sideValue = GetProperty(scoreboardSide, "Side");
+            if (sideValue == null)
+                sideValue = GetFieldValue(scoreboardSide, "Side");
+
+            if (sideValue is TaleWorlds.Core.BattleSideEnum)
+                return (TaleWorlds.Core.BattleSideEnum)sideValue == side;
+
+            if (sideValue is int)
+                return (int)sideValue == (int)side;
+
+            if (sideValue != null)
+            {
+                int parsed;
+                if (int.TryParse(sideValue.ToString(), out parsed))
+                    return parsed == (int)side;
+            }
+
+            return false;
+        }
+
+        private string GetWarlordsClanWarSideName(TaleWorlds.Core.BattleSideEnum side)
+        {
+            if (!IsWarlordsActive())
+                return "";
+
+            object lobbyDataManager = GetStaticProperty(GetWarlordsLobbyClientDataManagerType(), "Instance");
+            MethodInfo tryGetClanWarSideClanId = GetMethodByParameterCount(lobbyDataManager != null ? lobbyDataManager.GetType() : null, "TryGetClanWarSideClanId", 2);
+            if (tryGetClanWarSideClanId == null)
+                return "";
+
+            object[] clanIdArgs = new object[] { side, "" };
+            object hasClanWarSide = tryGetClanWarSideClanId.Invoke(lobbyDataManager, clanIdArgs);
+            if (!(hasClanWarSide is bool) || !(bool)hasClanWarSide)
+                return "";
+
+            string clanId = clanIdArgs[1] as string ?? "";
+            if (string.IsNullOrWhiteSpace(clanId))
+                return "";
+
+            object clansManager = GetStaticProperty(GetWarlordsClansManagerType(), "Instance");
+            MethodInfo tryGetClan = GetMethodByParameterCount(clansManager != null ? clansManager.GetType() : null, "TryGetClan", 2);
+            if (tryGetClan == null)
+                return "";
+
+            object[] clanArgs = new object[] { clanId, null };
+            object hasClan = tryGetClan.Invoke(clansManager, clanArgs);
+            if (!(hasClan is bool) || !(bool)hasClan)
+                return "";
+
+            object clan = clanArgs[1];
+            string tag = GetStringProperty(clan, "Tag");
+            if (!string.IsNullOrWhiteSpace(tag))
+                return tag;
+
+            string name = GetStringProperty(clan, "Name");
+            return !string.IsNullOrWhiteSpace(name) ? name : "";
+        }
+
+        private MissionScoreboardComponent.MissionScoreboardSide GetPreferredFirstScoreboardSide(MissionScoreboardComponent scoreboard, Mission mission)
+        {
+            if (scoreboard == null)
+                return null;
+
+            MissionScoreboardComponent.MissionScoreboardSide first = GetScoreboardSide(scoreboard, GetPreferredFirstSide(mission));
+            if (first != null)
+                return first;
+
+            first = GetScoreboardSide(scoreboard, TaleWorlds.Core.BattleSideEnum.Defender);
+            if (first != null)
+                return first;
+
+            return scoreboard.Sides != null && scoreboard.Sides.Length > 0 ? scoreboard.Sides[0] : null;
+        }
+
+        private MissionScoreboardComponent.MissionScoreboardSide GetPreferredSecondScoreboardSide(MissionScoreboardComponent scoreboard, MissionScoreboardComponent.MissionScoreboardSide first)
+        {
+            if (scoreboard == null)
+                return null;
+
+            if (first != null)
+            {
+                MissionScoreboardComponent.MissionScoreboardSide second = GetScoreboardSide(scoreboard, GetOppositeSide(first.Side));
+                if (second != null)
+                    return second;
+            }
+
+            return GetOtherScoreboardSide(scoreboard, first);
+        }
+
+        private TaleWorlds.Core.BattleSideEnum GetPreferredFirstSide(Mission mission)
+        {
+            TaleWorlds.Core.BattleSideEnum? localSide = GetLocalPlayerSide(mission);
+            if (localSide.HasValue && IsScoreboardSide(localSide.Value))
+                return localSide.Value;
+
+            return TaleWorlds.Core.BattleSideEnum.Defender;
+        }
+
+        private TaleWorlds.Core.BattleSideEnum GetOppositeSide(TaleWorlds.Core.BattleSideEnum side)
+        {
+            return side == TaleWorlds.Core.BattleSideEnum.Attacker
+                ? TaleWorlds.Core.BattleSideEnum.Defender
+                : TaleWorlds.Core.BattleSideEnum.Attacker;
+        }
+
+        private TaleWorlds.Core.BattleSideEnum? GetLocalPlayerSide(Mission mission)
+        {
+            MissionPeer peer = null;
+            if (GameNetwork.MyPeer != null)
+                peer = GameNetwork.MyPeer.GetComponent<MissionPeer>();
+
+            if (peer != null && peer.Team != null && IsScoreboardSide(peer.Team.Side))
+                return peer.Team.Side;
+
+            if (mission != null && mission.PlayerTeam != null && IsScoreboardSide(mission.PlayerTeam.Side))
+                return mission.PlayerTeam.Side;
+
+            return null;
+        }
+
+        private bool IsScoreboardSide(TaleWorlds.Core.BattleSideEnum side)
+        {
+            return side == TaleWorlds.Core.BattleSideEnum.Defender || side == TaleWorlds.Core.BattleSideEnum.Attacker;
+        }
+
         private string GetCultureNameForSide(TaleWorlds.Core.BattleSideEnum side)
         {
             MultiplayerOptions.OptionType optionType;
-            if (side == TaleWorlds.Core.BattleSideEnum.Defender)
+            if (side == TaleWorlds.Core.BattleSideEnum.Attacker)
                 optionType = MultiplayerOptions.OptionType.CultureTeam1;
-            else if (side == TaleWorlds.Core.BattleSideEnum.Attacker)
+            else if (side == TaleWorlds.Core.BattleSideEnum.Defender)
                 optionType = MultiplayerOptions.OptionType.CultureTeam2;
             else
                 return "";
@@ -1586,6 +2112,72 @@ namespace BetterMPHUD.Handlers
             return null;
         }
 
+        private MissionScoreboardComponent.MissionScoreboardSide GetScoreboardSide(MissionScoreboardComponent scoreboard, TaleWorlds.Core.BattleSideEnum side)
+        {
+            if (scoreboard == null || scoreboard.Sides == null)
+                return null;
+
+            foreach (MissionScoreboardComponent.MissionScoreboardSide scoreboardSide in scoreboard.Sides)
+            {
+                if (scoreboardSide != null && scoreboardSide.Side == side)
+                    return scoreboardSide;
+            }
+
+            return null;
+        }
+
+        private MissionScoreboardComponent.MissionScoreboardSide GetOtherScoreboardSide(MissionScoreboardComponent scoreboard, MissionScoreboardComponent.MissionScoreboardSide first)
+        {
+            if (scoreboard == null || scoreboard.Sides == null)
+                return null;
+
+            foreach (MissionScoreboardComponent.MissionScoreboardSide scoreboardSide in scoreboard.Sides)
+            {
+                if (scoreboardSide != null && scoreboardSide != first)
+                    return scoreboardSide;
+            }
+
+            return null;
+        }
+
+        private int GetOtherSideScore(Mission mission, TaleWorlds.Core.BattleSideEnum side)
+        {
+            MissionScoreboardComponent scoreboard = mission != null ? mission.GetMissionBehavior<MissionScoreboardComponent>() : null;
+            if (scoreboard == null || scoreboard.Sides == null)
+                return 0;
+
+            foreach (MissionScoreboardComponent.MissionScoreboardSide scoreboardSide in scoreboard.Sides)
+            {
+                if (scoreboardSide != null && scoreboardSide.Side != side)
+                    return scoreboardSide.SideScore;
+            }
+
+            return 0;
+        }
+
+        private int GetScoreboardRoundCount(Mission mission, int sideScore, int otherSideScore)
+        {
+            int completedRounds = Math.Max(sideScore, 0) + Math.Max(otherSideScore, 0);
+            return Math.Max(1, completedRounds + (IsCurrentRoundApplicable(mission) ? 1 : 0));
+        }
+
+        private bool IsCurrentRoundApplicable(Mission mission)
+        {
+            MissionLobbyComponent lobbyComponent = mission != null ? mission.GetMissionBehavior<MissionLobbyComponent>() : null;
+            return lobbyComponent == null
+                || lobbyComponent.CurrentMultiplayerState != MissionLobbyComponent.MultiplayerGameState.Ending;
+        }
+
+        private static float CalculateKda(int kills, int assists, int deaths)
+        {
+            return (kills + assists) / (float)Math.Max(deaths, 1);
+        }
+
+        private static float CalculateSpr(int score, int roundCount)
+        {
+            return score / (float)Math.Max(roundCount, 1);
+        }
+
         private void ApplyEmptySecondSide()
         {
             _summaryVM.TeamTwoName = "";
@@ -1593,6 +2185,7 @@ namespace BetterMPHUD.Handlers
             _summaryVM.TeamTwoClasses = "";
             _summaryVM.TeamTwoRoundScore = "";
             _summaryVM.TeamTwoPlayers = new MBBindingList<ScoreboardPlayerVM>();
+            _lastTeamTwoRowsKey = "";
         }
 
         private void SetSummaryVisible(bool visible)
@@ -1666,8 +2259,12 @@ namespace BetterMPHUD.Handlers
             _initialized = false;
             _originalAlphas.Clear();
             _warlordsBannerCache.Clear();
+            _warlordsVisuals.Clear();
             _nextSummaryRefreshTime = 0f;
+            _nextWarlordsVisualRefreshTime = 0f;
             _lastRefreshKey = "";
+            _lastTeamOneRowsKey = "";
+            _lastTeamTwoRowsKey = "";
             _wasSummaryRequested = false;
             RestoreNativeScoreboard();
             SetSummaryVisible(false);

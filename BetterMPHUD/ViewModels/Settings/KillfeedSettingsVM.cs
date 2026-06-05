@@ -30,7 +30,9 @@ namespace BetterMPHUD.ViewModels.Settings
         private void ApplyNativeKillfeedSetting()
         {
             SyncLegacyKillfeedFlags();
-            ManagedOptions.SetConfig(ManagedOptions.ManagedOptionsType.ReportCasualtiesType, 0f);
+            ManagedOptions.SetConfig(
+                ManagedOptions.ManagedOptionsType.ReportCasualtiesType,
+                Settings.KillfeedMode == KillfeedMode.Native ? 0f : 2f);
         }
 
         private void SyncLegacyKillfeedFlags()

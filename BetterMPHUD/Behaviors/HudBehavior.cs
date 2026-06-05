@@ -15,11 +15,18 @@ namespace BetterMPHUD.Behaviors
 {
     public class HudBehavior : MissionBehavior
     {
+        private const float ScoreboardRoundEndForceSeconds = 4f;
+        private static readonly InputKey[] ConfigMenuCaptureKeys = (InputKey[])Enum.GetValues(typeof(InputKey));
+
         private GauntletLayer _configLayer;
         private HudMenuVM _menuVM;
         private bool _initialized;
         private bool _isCleaningUp;
         private bool _isCustomScoreboardPinned;
+        private bool _isCustomScoreboardForcePinned;
+        private bool _suppressCustomScoreboardUntilReleased;
+        private bool _wasScoreboardForceStateActive;
+        private float _scoreboardForceUntilTime;
         private float _settingsTimer;
         private float _originalReportCasualtiesType;
 
@@ -59,7 +66,12 @@ namespace BetterMPHUD.Behaviors
             if (!_initialized)
                 TryInitialize();
 
-            if (Input.IsKeyPressed(InputKey.F10))
+            if (_menuVM != null && _menuVM.IsCapturingConfigMenuHotkey)
+            {
+                if (CaptureConfigMenuHotkey())
+                    return;
+            }
+            else if (IsConfigMenuHotkeyPressed())
                 ToggleMenu();
 
             PeriodicSettingsEnforce(dt);
@@ -121,31 +133,146 @@ namespace BetterMPHUD.Behaviors
                     UnpinCustomScoreboard();
 
                 _scoreboard.UpdateCustomScoreboard(settings, Mission.Current, screen, false);
+                _scoreboard.ApplyNativeScoreboardSettings(settings, Mission.Current);
                 return;
             }
 
             bool isHotkeyDown = _scoreboard.IsNativeScoreboardHotkeyDown(screen);
             bool isHotkeyPressed = _scoreboard.IsNativeScoreboardHotkeyPressed(screen);
+            bool forceScoreboardOpen = IsScoreboardForcedOpen();
 
-            if (_isCustomScoreboardPinned && isHotkeyPressed)
+            if (!forceScoreboardOpen && _isCustomScoreboardForcePinned)
             {
+                _isCustomScoreboardForcePinned = false;
                 UnpinCustomScoreboard();
                 _scoreboard.UpdateCustomScoreboard(settings, Mission.Current, screen, false);
                 return;
             }
 
-            bool shouldShow = isHotkeyDown || _isCustomScoreboardPinned;
+            if (_suppressCustomScoreboardUntilReleased && !forceScoreboardOpen)
+            {
+                if (!isHotkeyDown)
+                    _suppressCustomScoreboardUntilReleased = false;
+
+                _scoreboard.UpdateCustomScoreboard(settings, Mission.Current, screen, false);
+                _scoreboard.SetInteractive(false);
+                return;
+            }
+
+            if (_isCustomScoreboardPinned && isHotkeyPressed && !forceScoreboardOpen)
+            {
+                _isCustomScoreboardForcePinned = false;
+                UnpinCustomScoreboard();
+                _scoreboard.UpdateCustomScoreboard(settings, Mission.Current, screen, false);
+                return;
+            }
+
+            bool shouldShow = forceScoreboardOpen || isHotkeyDown || _isCustomScoreboardPinned;
             _scoreboard.UpdateCustomScoreboard(settings, Mission.Current, screen, shouldShow);
 
-            if (shouldShow && !_isCustomScoreboardPinned && IsShowCursorActionPressed())
+            if (forceScoreboardOpen && !_isCustomScoreboardPinned)
+            {
                 PinCustomScoreboard();
+                _isCustomScoreboardForcePinned = true;
+            }
+            else if (shouldShow && !_isCustomScoreboardPinned && IsShowCursorActionPressed())
+            {
+                _isCustomScoreboardForcePinned = false;
+                PinCustomScoreboard();
+            }
 
             _scoreboard.SetInteractive(_isCustomScoreboardPinned);
+        }
+
+        private bool IsScoreboardForcedOpen()
+        {
+            if (Mission.Current == null)
+                return false;
+
+            Mission mission = Mission.Current;
+            MissionLobbyComponent lobbyComponent = mission.GetMissionBehavior<MissionLobbyComponent>();
+            bool isForceStateActive = lobbyComponent != null
+                && lobbyComponent.CurrentMultiplayerState == MissionLobbyComponent.MultiplayerGameState.Ending;
+
+            if (!isForceStateActive)
+            {
+                _wasScoreboardForceStateActive = false;
+                _scoreboardForceUntilTime = 0f;
+                return false;
+            }
+
+            if (!_wasScoreboardForceStateActive)
+            {
+                _wasScoreboardForceStateActive = true;
+                _scoreboardForceUntilTime = mission.CurrentTime + ScoreboardRoundEndForceSeconds;
+            }
+
+            return mission.CurrentTime <= _scoreboardForceUntilTime;
         }
 
         private bool IsShowCursorActionPressed()
         {
             return Input.IsKeyPressed(InputKey.X1MouseButton);
+        }
+
+        private bool IsConfigMenuHotkeyPressed()
+        {
+            return Input.IsKeyPressed(GetConfigMenuHotkey());
+        }
+
+        private bool CaptureConfigMenuHotkey()
+        {
+            for (int i = 0; i < ConfigMenuCaptureKeys.Length; i++)
+            {
+                InputKey key = ConfigMenuCaptureKeys[i];
+                if (!Input.IsKeyPressed(key))
+                    continue;
+
+                if (key == InputKey.Escape)
+                {
+                    _menuVM.CancelConfigMenuHotkeyCapture();
+                    return true;
+                }
+
+                if (IsIgnoredConfigMenuCaptureKey(key))
+                    return true;
+
+                _menuVM.TrySetCapturedConfigMenuHotkey(key.ToString());
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool IsIgnoredConfigMenuCaptureKey(InputKey key)
+        {
+            string keyName = key.ToString();
+            return key == InputKey.Invalid
+                || keyName == "Extended"
+                || keyName.IndexOf("Mouse", StringComparison.OrdinalIgnoreCase) >= 0
+                || keyName.IndexOf("Controller", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private InputKey GetConfigMenuHotkey()
+        {
+            string keyName = null;
+            if (_menuVM != null && _menuVM.GetSettings() != null)
+                keyName = _menuVM.GetSettings().ConfigMenuHotkey;
+
+            if (string.IsNullOrWhiteSpace(keyName))
+                return InputKey.F10;
+
+            try
+            {
+                object key = Enum.Parse(typeof(InputKey), keyName, true);
+                if (key is InputKey)
+                    return (InputKey)key;
+            }
+            catch
+            {
+            }
+
+            return InputKey.F10;
         }
 
         private void HandleCameraSnapback()
@@ -188,6 +315,7 @@ namespace BetterMPHUD.Behaviors
 
                 _crosshair.Initialize(screen);
                 _scoreboard.OnShowCursorRequested = PinCustomScoreboard;
+                _scoreboard.OnCloseRequested = CloseCustomScoreboardFromAction;
 
                 _initialized = true;
                 ApplyAllSettings();
@@ -289,14 +417,23 @@ namespace BetterMPHUD.Behaviors
 
         private void PinCustomScoreboard()
         {
+            _suppressCustomScoreboardUntilReleased = false;
             _isCustomScoreboardPinned = true;
             if (_scoreboard != null)
                 _scoreboard.SetInteractive(true);
         }
 
+        private void CloseCustomScoreboardFromAction()
+        {
+            _isCustomScoreboardForcePinned = false;
+            _suppressCustomScoreboardUntilReleased = true;
+            UnpinCustomScoreboard();
+        }
+
         private void UnpinCustomScoreboard()
         {
             _isCustomScoreboardPinned = false;
+            _isCustomScoreboardForcePinned = false;
             if (_scoreboard != null)
                 _scoreboard.SetInteractive(false);
         }

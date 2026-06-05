@@ -133,6 +133,21 @@ namespace BetterMPHUD.ViewModels.Settings
         }
 
         [DataSourceProperty]
+        public bool UseAdvancedStats
+        {
+            get => Settings.ScoreboardUseAdvancedStats;
+            set
+            {
+                if (Settings.ScoreboardUseAdvancedStats != value)
+                {
+                    Settings.ScoreboardUseAdvancedStats = value;
+                    OnPropertyChangedWithValue(value, "UseAdvancedStats");
+                    NotifyChanged();
+                }
+            }
+        }
+
+        [DataSourceProperty]
         public bool IsNativeScoreboardModeSelected => Settings.ScoreboardMode == ScoreboardMode.Native;
 
         [DataSourceProperty]
@@ -152,7 +167,7 @@ namespace BetterMPHUD.ViewModels.Settings
 
         private static readonly string[] SortColumns =
         {
-            "Name", "Kills", "Score"
+            "Name", "Kills", "Score", "KDA", "SPR"
         };
 
         [DataSourceProperty]
@@ -295,6 +310,7 @@ namespace BetterMPHUD.ViewModels.Settings
             Settings.ScoreboardShowPing = true;
             Settings.ScoreboardShowState = true;
             Settings.ScoreboardShowWarlordsBanners = true;
+            Settings.ScoreboardUseAdvancedStats = false;
             Settings.ScoreboardRowScale = 1f;
             Settings.ScoreboardDefaultSortColumn = "Score";
             Settings.ScoreboardDefaultSortAscending = false;
@@ -311,6 +327,7 @@ namespace BetterMPHUD.ViewModels.Settings
             OnPropertyChangedWithValue(ShowPing, "ShowPing");
             OnPropertyChangedWithValue(ShowState, "ShowState");
             OnPropertyChangedWithValue(ShowWarlordsBanners, "ShowWarlordsBanners");
+            OnPropertyChangedWithValue(UseAdvancedStats, "UseAdvancedStats");
             OnPropertyChangedWithValue(IsNativeScoreboardModeSelected, "IsNativeScoreboardModeSelected");
             OnPropertyChangedWithValue(IsCustomScoreboardModeSelected, "IsCustomScoreboardModeSelected");
             OnPropertyChangedWithValue(BackgroundOpacityText, "BackgroundOpacityText");

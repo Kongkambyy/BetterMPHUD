@@ -120,6 +120,10 @@ namespace BetterMPHUD.Handlers
 
         public void ApplySettings(HudSettings settings)
         {
+            ManagedOptions.SetConfig(
+                ManagedOptions.ManagedOptionsType.ReportCasualtiesType,
+                settings.KillfeedMode == KillfeedMode.Native ? 0f : 2f);
+
             if (_viewModel != null)
             {
                 if (!_viewModel.IsPreviewMode)

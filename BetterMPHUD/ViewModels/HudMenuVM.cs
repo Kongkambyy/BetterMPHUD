@@ -174,6 +174,7 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(ScoreboardShowPing, "ScoreboardShowPing");
             OnPropertyChangedWithValue(ScoreboardShowState, "ScoreboardShowState");
             OnPropertyChangedWithValue(ScoreboardShowWarlordsBanners, "ScoreboardShowWarlordsBanners");
+            OnPropertyChangedWithValue(ScoreboardUseAdvancedStats, "ScoreboardUseAdvancedStats");
             OnPropertyChangedWithValue(IsWarlordsActive, "IsWarlordsActive");
             OnPropertyChangedWithValue(IsNativeScoreboardModeSelected, "IsNativeScoreboardModeSelected");
             OnPropertyChangedWithValue(IsCustomScoreboardModeSelected, "IsCustomScoreboardModeSelected");
@@ -222,6 +223,8 @@ namespace BetterMPHUD.ViewModels
         private void RefreshMiscProperties()
         {
             OnPropertyChangedWithValue(CameraSnapbackEnabled, "CameraSnapbackEnabled");
+            OnPropertyChangedWithValue(ConfigMenuHotkeyText, "ConfigMenuHotkeyText");
+            OnPropertyChangedWithValue(IsCapturingConfigMenuHotkey, "IsCapturingConfigMenuHotkey");
         }
 
         private void RefreshVisibilityProperties()
@@ -731,6 +734,7 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty] public bool ScoreboardShowPing { get => _scoreboard.ShowPing; set => _scoreboard.ShowPing = value; }
         [DataSourceProperty] public bool ScoreboardShowState { get => _scoreboard.ShowState; set => _scoreboard.ShowState = value; }
         [DataSourceProperty] public bool ScoreboardShowWarlordsBanners { get => _scoreboard.ShowWarlordsBanners; set => _scoreboard.ShowWarlordsBanners = value; }
+        [DataSourceProperty] public bool ScoreboardUseAdvancedStats { get => _scoreboard.UseAdvancedStats; set => _scoreboard.UseAdvancedStats = value; }
         [DataSourceProperty] public bool IsWarlordsActive => Type.GetType("MBWarlords.LastConcord.WarlordsPeerComponent, MBWarlords.LastConcord") != null || FindType("MBWarlords.LastConcord.WarlordsPeerComponent") != null;
         [DataSourceProperty] public bool IsNativeScoreboardModeSelected => _scoreboard.IsNativeScoreboardModeSelected;
         [DataSourceProperty] public bool IsCustomScoreboardModeSelected => _scoreboard.IsCustomScoreboardModeSelected;
@@ -797,6 +801,16 @@ namespace BetterMPHUD.ViewModels
         #endregion
 
         #region Misc Delegation
+
+        public void ExecutePreviousConfigMenuHotkey() => _misc.ExecutePreviousConfigMenuHotkey();
+        public void ExecuteNextConfigMenuHotkey() => _misc.ExecuteNextConfigMenuHotkey();
+        public void ExecuteResetConfigMenuHotkey() => _misc.ExecuteResetConfigMenuHotkey();
+        public void ExecuteCaptureConfigMenuHotkey() => _misc.ExecuteCaptureConfigMenuHotkey();
+        public void CancelConfigMenuHotkeyCapture() => _misc.CancelConfigMenuHotkeyCapture();
+        public bool TrySetCapturedConfigMenuHotkey(string keyName) => _misc.TrySetCapturedConfigMenuHotkey(keyName);
+
+        [DataSourceProperty] public string ConfigMenuHotkeyText => _misc.ConfigMenuHotkeyText;
+        [DataSourceProperty] public bool IsCapturingConfigMenuHotkey => _misc.IsCapturingConfigMenuHotkey;
 
         [DataSourceProperty] 
         public bool CameraSnapbackEnabled 

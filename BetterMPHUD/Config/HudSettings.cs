@@ -59,6 +59,7 @@ namespace BetterMPHUD
         public bool ShowTroopCount { get; set; } = true;
         public bool ShowCouchLanceState { get; set; } = true;
         public bool ShowDamageFeed { get; set; } = true;
+        public string ConfigMenuHotkey { get; set; } = "F10";
 
         public bool ShowHealthNumbers { get; set; } = true;
         public bool ShowMountHealthNumbers { get; set; } = true;
@@ -80,6 +81,7 @@ namespace BetterMPHUD
         public bool ScoreboardShowPing { get; set; } = true;
         public bool ScoreboardShowState { get; set; } = true;
         public bool ScoreboardShowWarlordsBanners { get; set; } = true;
+        public bool ScoreboardUseAdvancedStats { get; set; } = false;
         public float ScoreboardRowScale { get; set; } = 1f;
         public string ScoreboardDefaultSortColumn { get; set; } = "Score";
         public bool ScoreboardDefaultSortAscending { get; set; } = false;
@@ -174,6 +176,7 @@ namespace BetterMPHUD
             if (AllyAvatarsCustom == null) AllyAvatarsCustom = new ElementCustomization();
             if (EnemyAvatarsCustom == null) EnemyAvatarsCustom = new ElementCustomization();
             if (ChatCustom == null) ChatCustom = new ElementCustomization(); 
+            if (string.IsNullOrWhiteSpace(ConfigMenuHotkey)) ConfigMenuHotkey = "F10";
         }
     }
     
