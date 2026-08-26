@@ -27,6 +27,7 @@ namespace BetterMPHUD
         public float KillfeedFadeoutTime { get; set; } = 8f;
         public int KillfeedMaxEntries { get; set; } = 15;
         public bool KillfeedOnlyShowMyKillsDeaths { get; set; } = false;
+        public bool KillfeedOnlyShowMyClanKillsDeaths { get; set; } = false;
         public bool KillfeedHideTeamkills { get; set; } = false;
         public bool ShowChat { get; set; } = true;
 
@@ -60,6 +61,7 @@ namespace BetterMPHUD
         public bool ShowCouchLanceState { get; set; } = true;
         public bool ShowDamageFeed { get; set; } = true;
         public string ConfigMenuHotkey { get; set; } = "F10";
+        public string ScoreboardShowCursorHotkey { get; set; } = "X1MouseButton";
 
         public bool ShowHealthNumbers { get; set; } = true;
         public bool ShowMountHealthNumbers { get; set; } = true;
@@ -82,9 +84,11 @@ namespace BetterMPHUD
         public bool ScoreboardShowState { get; set; } = true;
         public bool ScoreboardShowWarlordsBanners { get; set; } = true;
         public bool ScoreboardUseAdvancedStats { get; set; } = false;
+        public bool ScoreboardAutoClearSearchOnClose { get; set; } = false;
         public float ScoreboardRowScale { get; set; } = 1f;
         public string ScoreboardDefaultSortColumn { get; set; } = "Score";
         public bool ScoreboardDefaultSortAscending { get; set; } = false;
+        public bool WarlordsOnlyShowRoundGoldTotal { get; set; } = false;
 
         public ElementCustomization TimeAndScoresCustom { get; set; }
         public ElementCustomization TeamAvatarsCustom { get; set; }
@@ -177,6 +181,7 @@ namespace BetterMPHUD
             if (EnemyAvatarsCustom == null) EnemyAvatarsCustom = new ElementCustomization();
             if (ChatCustom == null) ChatCustom = new ElementCustomization(); 
             if (string.IsNullOrWhiteSpace(ConfigMenuHotkey)) ConfigMenuHotkey = "F10";
+            if (string.IsNullOrWhiteSpace(ScoreboardShowCursorHotkey)) ScoreboardShowCursorHotkey = "X1MouseButton";
         }
     }
     

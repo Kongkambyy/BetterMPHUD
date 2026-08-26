@@ -1,5 +1,7 @@
 ﻿using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.GauntletUI.BaseTypes;
+using TaleWorlds.Library;
+using System;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.MountAndBlade.View.Screens;
 using BetterMPHUD.Core;
@@ -14,6 +16,7 @@ namespace BetterMPHUD.Handlers
         private KillfeedVM _viewModel;
         private Widget _rootWidget;
         private WidgetOriginalValues _original;
+        private static Type _warlordsPeerComponentType;
 
         public KillfeedVM ViewModel { get { return _viewModel; } }
         public bool IsInitialized { get { return _layer != null; } }
@@ -41,6 +44,9 @@ namespace BetterMPHUD.Handlers
             if (settings.KillfeedHideTeamkills && isTeamkill)
                 return;
 
+            string killerName = GetAgentDisplayName(killer);
+            string victimName = GetAgentDisplayName(victim);
+
             if (settings.KillfeedOnlyShowMyKillsDeaths)
             {
                 Agent mainAgent = Mission.Current != null ? Mission.Current.MainAgent : null;
@@ -48,7 +54,10 @@ namespace BetterMPHUD.Handlers
                     return;
             }
 
-            TaleWorlds.Library.Color color;
+            if (settings.KillfeedOnlyShowMyClanKillsDeaths && !ShouldShowClanKill(killerName, victimName))
+                return;
+
+            Color color;
             var playerTeam = Mission.Current != null ? Mission.Current.PlayerTeam : null;
             
             if (playerTeam == null)
@@ -67,8 +76,8 @@ namespace BetterMPHUD.Handlers
             _viewModel.GetScaledSizes(scale, settings.KillfeedMode, out int font, out float icon, out float skull, out float row);
 
             KillfeedItemVM item = new KillfeedItemVM(
-                killer.Name, 
-                victim.Name, 
+                killerName, 
+                victimName, 
                 color,
                 AgentHelper.GetClassSprite(killer),
                 AgentHelper.GetClassSprite(victim),
@@ -85,6 +94,84 @@ namespace BetterMPHUD.Handlers
                 settings.KillfeedBackgroundOpacity);
             
             _viewModel.AddKill(item, settings.KillfeedMaxEntries);
+        }
+
+        private static bool ShouldShowClanKill(string killerName, string victimName)
+        {
+            if (!IsWarlordsActive())
+                return false;
+
+            string localClanTag = GetFirstClanTag(GetLocalPlayerName());
+            if (string.IsNullOrEmpty(localClanTag))
+                return false;
+
+            return string.Equals(GetFirstClanTag(killerName), localClanTag, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(GetFirstClanTag(victimName), localClanTag, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string GetAgentDisplayName(Agent agent)
+        {
+            if (agent == null)
+                return "";
+
+            if (agent.MissionPeer != null && !string.IsNullOrWhiteSpace(agent.MissionPeer.DisplayedName))
+                return agent.MissionPeer.DisplayedName;
+
+            return agent.Name;
+        }
+
+        private static string GetLocalPlayerName()
+        {
+            if (GameNetwork.MyPeer != null)
+            {
+                MissionPeer peer = GameNetwork.MyPeer.GetComponent<MissionPeer>();
+                if (peer != null && !string.IsNullOrWhiteSpace(peer.DisplayedName))
+                    return peer.DisplayedName;
+            }
+
+            Agent mainAgent = Mission.Current != null ? Mission.Current.MainAgent : null;
+            return GetAgentDisplayName(mainAgent);
+        }
+
+        private static string GetFirstClanTag(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return "";
+
+            int openIndex = name.IndexOf('[');
+            if (openIndex < 0)
+                return "";
+
+            int closeIndex = name.IndexOf(']', openIndex + 1);
+            if (closeIndex <= openIndex + 1)
+                return "";
+
+            return name.Substring(openIndex, closeIndex - openIndex + 1);
+        }
+
+        private static bool IsWarlordsActive()
+        {
+            return GetWarlordsPeerComponentType() != null;
+        }
+
+        private static Type GetWarlordsPeerComponentType()
+        {
+            if (_warlordsPeerComponentType == null)
+                _warlordsPeerComponentType = FindType("MBWarlords.LastConcord.WarlordsPeerComponent");
+
+            return _warlordsPeerComponentType;
+        }
+
+        private static Type FindType(string typeName)
+        {
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                Type type = assembly.GetType(typeName, false);
+                if (type != null)
+                    return type;
+            }
+
+            return null;
         }
 
         public void UpdateExpiredEntries(float currentTime)

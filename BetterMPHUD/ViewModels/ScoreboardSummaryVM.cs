@@ -14,6 +14,7 @@ namespace BetterMPHUD.ViewModels
         private string _teamTwoClasses = "Inf 0 | Arc 0 | Cav 0";
         private string _teamOneRoundScore = "0";
         private string _teamTwoRoundScore = "0";
+        private string _showCursorHotkeyText = "M4";
         private string _teamOneSearchText = "";
         private string _teamTwoSearchText = "";
         private string _toggleMuteText = "Mute All";
@@ -177,6 +178,20 @@ namespace BetterMPHUD.ViewModels
         }
 
         [DataSourceProperty]
+        public string ShowCursorHotkeyText
+        {
+            get => _showCursorHotkeyText;
+            set
+            {
+                if (_showCursorHotkeyText != value)
+                {
+                    _showCursorHotkeyText = value;
+                    OnPropertyChangedWithValue(value, "ShowCursorHotkeyText");
+                }
+            }
+        }
+
+        [DataSourceProperty]
         public string TeamOneSearchText
         {
             get => _teamOneSearchText;
@@ -202,6 +217,12 @@ namespace BetterMPHUD.ViewModels
                     OnPropertyChangedWithValue(value, "TeamTwoSearchText");
                 }
             }
+        }
+
+        public void ClearSearch()
+        {
+            ExecuteClearTeamOneSearch();
+            ExecuteClearTeamTwoSearch();
         }
 
         [DataSourceProperty]
@@ -508,6 +529,16 @@ namespace BetterMPHUD.ViewModels
         private void ExecuteShowCursor()
         {
             OnShowCursorRequested?.Invoke();
+        }
+
+        private void ExecuteClearTeamOneSearch()
+        {
+            TeamOneSearchText = "";
+        }
+
+        private void ExecuteClearTeamTwoSearch()
+        {
+            TeamTwoSearchText = "";
         }
 
         private void ExecuteToggleMute()

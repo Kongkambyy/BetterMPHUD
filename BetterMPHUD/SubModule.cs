@@ -23,6 +23,7 @@ namespace BetterMPHUD
             _harmony = new Harmony("better-mp-hud");
             _harmony.PatchAll(typeof(NativeScoreboardPatch).Assembly);
             WarlordsScoreboardPatch.TryPatch(_harmony);
+            WarlordsRoundGoldMessagePatch.TryPatch(_harmony);
             InformationManager.DisplayMessage(new InformationMessage("BetterMPHUD Loaded", Colors.Cyan));
         }
 
@@ -30,6 +31,7 @@ namespace BetterMPHUD
         {
             base.OnMissionBehaviorInitialize(mission);
             WarlordsScoreboardPatch.TryPatch(_harmony);
+            WarlordsRoundGoldMessagePatch.TryPatch(_harmony);
             mission.AddMissionBehavior(new HudBehavior());
             InformationManager.DisplayMessage(new InformationMessage("BetterMPHUD Behavior Added", Colors.Cyan));
         }

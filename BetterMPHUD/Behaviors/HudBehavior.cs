@@ -66,9 +66,9 @@ namespace BetterMPHUD.Behaviors
             if (!_initialized)
                 TryInitialize();
 
-            if (_menuVM != null && _menuVM.IsCapturingConfigMenuHotkey)
+            if (_menuVM != null && (_menuVM.IsCapturingConfigMenuHotkey || _menuVM.IsCapturingScoreboardShowCursorHotkey))
             {
-                if (CaptureConfigMenuHotkey())
+                if (CaptureHotkey())
                     return;
             }
             else if (IsConfigMenuHotkeyPressed())
@@ -125,7 +125,7 @@ namespace BetterMPHUD.Behaviors
             MissionScreen screen = ScreenManager.TopScreen as MissionScreen;
             HudSettings settings = _menuVM.GetSettings();
 
-            bool useCustomScoreboard = settings.ScoreboardMode == ScoreboardMode.Custom;
+            bool useCustomScoreboard = settings.ScoreboardMode == ScoreboardMode.Custom && !IsWarlordsActive();
             ScoreboardPatchState.UseCustomScoreboard = useCustomScoreboard;
             if (!useCustomScoreboard)
             {
@@ -212,7 +212,7 @@ namespace BetterMPHUD.Behaviors
 
         private bool IsShowCursorActionPressed()
         {
-            return Input.IsKeyPressed(InputKey.X1MouseButton);
+            return Input.IsKeyPressed(GetScoreboardShowCursorHotkey());
         }
 
         private bool IsConfigMenuHotkeyPressed()
@@ -220,28 +220,50 @@ namespace BetterMPHUD.Behaviors
             return Input.IsKeyPressed(GetConfigMenuHotkey());
         }
 
-        private bool CaptureConfigMenuHotkey()
+        private bool CaptureHotkey()
         {
             for (int i = 0; i < ConfigMenuCaptureKeys.Length; i++)
             {
                 InputKey key = ConfigMenuCaptureKeys[i];
+                if (IsUnsafeCapturePollKey(key))
+                    continue;
+
                 if (!Input.IsKeyPressed(key))
                     continue;
 
                 if (key == InputKey.Escape)
                 {
                     _menuVM.CancelConfigMenuHotkeyCapture();
+                    _menuVM.CancelScoreboardShowCursorHotkeyCapture();
                     return true;
                 }
 
-                if (IsIgnoredConfigMenuCaptureKey(key))
-                    return true;
+                if (_menuVM.IsCapturingConfigMenuHotkey)
+                {
+                    if (IsIgnoredConfigMenuCaptureKey(key))
+                        return true;
 
-                _menuVM.TrySetCapturedConfigMenuHotkey(key.ToString());
+                    _menuVM.TrySetCapturedConfigMenuHotkey(key.ToString());
+                }
+                else if (_menuVM.IsCapturingScoreboardShowCursorHotkey)
+                {
+                    if (IsIgnoredScoreboardShowCursorCaptureKey(key))
+                        return true;
+
+                    _menuVM.TrySetCapturedScoreboardShowCursorHotkey(key.ToString());
+                }
+
                 return true;
             }
 
             return false;
+        }
+
+        private bool IsUnsafeCapturePollKey(InputKey key)
+        {
+            string keyName = key.ToString();
+            return key == InputKey.Invalid
+                || keyName == "Extended";
         }
 
         private bool IsIgnoredConfigMenuCaptureKey(InputKey key)
@@ -251,6 +273,27 @@ namespace BetterMPHUD.Behaviors
                 || keyName == "Extended"
                 || keyName.IndexOf("Mouse", StringComparison.OrdinalIgnoreCase) >= 0
                 || keyName.IndexOf("Controller", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private bool IsIgnoredScoreboardShowCursorCaptureKey(InputKey key)
+        {
+            string keyName = key.ToString();
+            if (key == InputKey.Invalid
+                || keyName == "Extended"
+                || keyName.IndexOf("Controller", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return true;
+            }
+
+            if (key == InputKey.LeftMouseButton
+                || key == InputKey.RightMouseButton
+                || key == InputKey.MouseScrollUp
+                || key == InputKey.MouseScrollDown)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private InputKey GetConfigMenuHotkey()
@@ -273,6 +316,46 @@ namespace BetterMPHUD.Behaviors
             }
 
             return InputKey.F10;
+        }
+
+        private InputKey GetScoreboardShowCursorHotkey()
+        {
+            string keyName = null;
+            if (_menuVM != null && _menuVM.GetSettings() != null)
+                keyName = _menuVM.GetSettings().ScoreboardShowCursorHotkey;
+
+            if (string.IsNullOrWhiteSpace(keyName))
+                return InputKey.X1MouseButton;
+
+            try
+            {
+                object key = Enum.Parse(typeof(InputKey), keyName, true);
+                if (key is InputKey)
+                    return (InputKey)key;
+            }
+            catch
+            {
+            }
+
+            return InputKey.X1MouseButton;
+        }
+
+        private static bool IsWarlordsActive()
+        {
+            return Type.GetType("MBWarlords.LastConcord.WarlordsPeerComponent, MBWarlords.LastConcord") != null
+                || FindType("MBWarlords.LastConcord.WarlordsPeerComponent") != null;
+        }
+
+        private static Type FindType(string typeName)
+        {
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                Type type = assembly.GetType(typeName, false);
+                if (type != null)
+                    return type;
+            }
+
+            return null;
         }
 
         private void HandleCameraSnapback()
@@ -371,7 +454,7 @@ namespace BetterMPHUD.Behaviors
                 return;
 
             HudSettings settings = _menuVM.GetSettings();
-            ScoreboardPatchState.UseCustomScoreboard = settings.ScoreboardMode == ScoreboardMode.Custom;
+            ScoreboardPatchState.UseCustomScoreboard = settings.ScoreboardMode == ScoreboardMode.Custom && !IsWarlordsActive();
 
             _killfeed.ApplySettings(settings);
             _topBar.Apply(settings, Mission.Current);

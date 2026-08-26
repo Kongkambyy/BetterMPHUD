@@ -36,6 +36,7 @@ namespace BetterMPHUD.ViewModels
         public void ExecuteOpenProfilesPage() => SetPage("Profiles");
         public void ExecuteOpenAvatarSidesPage() => SetPage("AvatarSides");
         public void ExecuteOpenScoreboardPage() => SetPage("Scoreboard");
+        public void ExecuteOpenWarlordsPage() => SetPage("Warlords");
 
         public void ExecuteBackToTopBar() => SetPage("TopBar");
         public void ExecuteBackToHP() => SetPage("HP");
@@ -58,6 +59,7 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty] public bool IsProfilesPageOpen => _currentPage == "Profiles";
         [DataSourceProperty] public bool IsAvatarSidesPageOpen => _currentPage == "AvatarSides";
         [DataSourceProperty] public bool IsScoreboardPageOpen => _currentPage == "Scoreboard";
+        [DataSourceProperty] public bool IsWarlordsPageOpen => _currentPage == "Warlords";
 
         [DataSourceProperty] 
         public bool ShouldShiftMenuRight => IsCrosshairSettingsPageOpen || IsDotSettingsPageOpen;
@@ -83,6 +85,7 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(IsProfilesPageOpen, "IsProfilesPageOpen");
             OnPropertyChangedWithValue(IsAvatarSidesPageOpen, "IsAvatarSidesPageOpen");
             OnPropertyChangedWithValue(IsScoreboardPageOpen, "IsScoreboardPageOpen");
+            OnPropertyChangedWithValue(IsWarlordsPageOpen, "IsWarlordsPageOpen");
             OnPropertyChangedWithValue(ShouldShiftMenuRight, "ShouldShiftMenuRight");
             OnPropertyChangedWithValue(MenuHorizontalOffset, "MenuHorizontalOffset");
         }

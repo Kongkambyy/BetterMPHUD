@@ -18,6 +18,7 @@ namespace BetterMPHUD.ViewModels
         private AvatarSettingsVM _avatar;
         private AgentStatusSettingsVM _agentStatus;
         private ScoreboardSettingsVM _scoreboard;
+        private WarlordsSettingsVM _warlords;
         private ChatSettingsVM _chat;
         private MiscSettingsVM _misc;
         private VisibilitySettingsVM _visibility;
@@ -55,6 +56,7 @@ namespace BetterMPHUD.ViewModels
             _avatar = new AvatarSettingsVM(_settings, OnSettingsChanged);
             _agentStatus = new AgentStatusSettingsVM(_settings, OnSettingsChanged);
             _scoreboard = new ScoreboardSettingsVM(_settings, OnSettingsChanged);
+            _warlords = new WarlordsSettingsVM(_settings, OnSettingsChanged);
             _chat = new ChatSettingsVM(_settings, OnSettingsChanged);
             _misc = new MiscSettingsVM(_settings, OnSettingsChanged);
             _visibility = new VisibilitySettingsVM(_settings, OnSettingsChanged);
@@ -79,6 +81,7 @@ namespace BetterMPHUD.ViewModels
             _avatar.SetOnPropertyRefresh(RefreshAvatarProperties);
             _agentStatus.SetOnPropertyRefresh(RefreshAgentStatusProperties);
             _scoreboard.SetOnPropertyRefresh(RefreshScoreboardProperties);
+            _warlords.SetOnPropertyRefresh(RefreshWarlordsProperties);
             _chat.SetOnPropertyRefresh(RefreshChatProperties);
             _misc.SetOnPropertyRefresh(RefreshMiscProperties);
             _visibility.SetOnPropertyRefresh(RefreshVisibilityProperties);
@@ -100,7 +103,9 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(IsNativePlusKillfeedModeSelected, "IsNativePlusKillfeedModeSelected");
             OnPropertyChangedWithValue(KillfeedBackgroundEnabled, "KillfeedBackgroundEnabled");
             OnPropertyChangedWithValue(OnlyShowMyKillsDeaths, "OnlyShowMyKillsDeaths");
+            OnPropertyChangedWithValue(OnlyShowMyClanKillsDeaths, "OnlyShowMyClanKillsDeaths");
             OnPropertyChangedWithValue(HideTeamkills, "HideTeamkills");
+            OnPropertyChangedWithValue(IsWarlordsActive, "IsWarlordsActive");
             RefreshEditOverlayProperties();
         }
 
@@ -175,6 +180,7 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(ScoreboardShowState, "ScoreboardShowState");
             OnPropertyChangedWithValue(ScoreboardShowWarlordsBanners, "ScoreboardShowWarlordsBanners");
             OnPropertyChangedWithValue(ScoreboardUseAdvancedStats, "ScoreboardUseAdvancedStats");
+            OnPropertyChangedWithValue(ScoreboardAutoClearSearchOnClose, "ScoreboardAutoClearSearchOnClose");
             OnPropertyChangedWithValue(IsWarlordsActive, "IsWarlordsActive");
             OnPropertyChangedWithValue(IsNativeScoreboardModeSelected, "IsNativeScoreboardModeSelected");
             OnPropertyChangedWithValue(IsCustomScoreboardModeSelected, "IsCustomScoreboardModeSelected");
@@ -184,6 +190,12 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(ScoreboardRowScaleText, "ScoreboardRowScaleText");
             OnPropertyChangedWithValue(ScoreboardDefaultSortColumnText, "ScoreboardDefaultSortColumnText");
             OnPropertyChangedWithValue(ScoreboardDefaultSortDirectionText, "ScoreboardDefaultSortDirectionText");
+        }
+
+        private void RefreshWarlordsProperties()
+        {
+            OnPropertyChangedWithValue(WarlordsOnlyShowRoundGoldTotal, "WarlordsOnlyShowRoundGoldTotal");
+            OnPropertyChangedWithValue(IsWarlordsActive, "IsWarlordsActive");
         }
 
         private void RefreshChatProperties()
@@ -225,6 +237,8 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(CameraSnapbackEnabled, "CameraSnapbackEnabled");
             OnPropertyChangedWithValue(ConfigMenuHotkeyText, "ConfigMenuHotkeyText");
             OnPropertyChangedWithValue(IsCapturingConfigMenuHotkey, "IsCapturingConfigMenuHotkey");
+            OnPropertyChangedWithValue(ScoreboardShowCursorHotkeyText, "ScoreboardShowCursorHotkeyText");
+            OnPropertyChangedWithValue(IsCapturingScoreboardShowCursorHotkey, "IsCapturingScoreboardShowCursorHotkey");
         }
 
         private void RefreshVisibilityProperties()
@@ -281,6 +295,7 @@ namespace BetterMPHUD.ViewModels
             OnPropertyChangedWithValue(IsProfilesPageOpen, "IsProfilesPageOpen");
             OnPropertyChangedWithValue(IsAvatarSidesPageOpen, "IsAvatarSidesPageOpen");
             OnPropertyChangedWithValue(IsScoreboardPageOpen, "IsScoreboardPageOpen");
+            OnPropertyChangedWithValue(IsWarlordsPageOpen, "IsWarlordsPageOpen");
             OnPropertyChangedWithValue(ShouldShiftMenuRight, "ShouldShiftMenuRight");
             OnPropertyChangedWithValue(MenuHorizontalOffset, "MenuHorizontalOffset");
             
@@ -305,6 +320,7 @@ namespace BetterMPHUD.ViewModels
             _avatar = new AvatarSettingsVM(_settings, OnSettingsChanged);
             _agentStatus = new AgentStatusSettingsVM(_settings, OnSettingsChanged);
             _scoreboard = new ScoreboardSettingsVM(_settings, OnSettingsChanged);
+            _warlords = new WarlordsSettingsVM(_settings, OnSettingsChanged);
             _chat = new ChatSettingsVM(_settings, OnSettingsChanged);
             _misc = new MiscSettingsVM(_settings, OnSettingsChanged);
             _visibility = new VisibilitySettingsVM(_settings, OnSettingsChanged);
@@ -320,6 +336,7 @@ namespace BetterMPHUD.ViewModels
             _avatar.RefreshAll();
             _agentStatus.RefreshAll();
             _scoreboard.RefreshAll();
+            _warlords.RefreshAll();
             _chat.RefreshAll();
             _misc.RefreshAll();
             _visibility.RefreshAll();
@@ -411,6 +428,7 @@ namespace BetterMPHUD.ViewModels
         public void ExecuteOpenProfilesPage() => _navigation.ExecuteOpenProfilesPage();
         public void ExecuteOpenAvatarSidesPage() => _navigation.ExecuteOpenAvatarSidesPage();
         public void ExecuteOpenScoreboardPage() => _navigation.ExecuteOpenScoreboardPage();
+        public void ExecuteOpenWarlordsPage() => _navigation.ExecuteOpenWarlordsPage();
         public void ExecuteBackToTopBar() => _navigation.ExecuteBackToTopBar();
         public void ExecuteBackToHP() => _navigation.ExecuteBackToHP();
         public void ExecuteBackToCrosshair() => _navigation.ExecuteBackToCrosshair();
@@ -432,6 +450,7 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty] public bool IsProfilesPageOpen => _navigation.IsProfilesPageOpen;
         [DataSourceProperty] public bool IsAvatarSidesPageOpen => _navigation.IsAvatarSidesPageOpen;
         [DataSourceProperty] public bool IsScoreboardPageOpen => _navigation.IsScoreboardPageOpen;
+        [DataSourceProperty] public bool IsWarlordsPageOpen => _navigation.IsWarlordsPageOpen;
         [DataSourceProperty] public bool ShouldShiftMenuRight => _navigation.ShouldShiftMenuRight;
         [DataSourceProperty] public float MenuHorizontalOffset => _navigation.MenuHorizontalOffset;
 
@@ -475,6 +494,7 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty] public bool IsNativePlusKillfeedModeSelected { get => _killfeed.IsNativePlusKillfeedModeSelected; set => _killfeed.IsNativePlusKillfeedModeSelected = value; }
         [DataSourceProperty] public bool KillfeedBackgroundEnabled { get => _killfeed.KillfeedBackgroundEnabled; set => _killfeed.KillfeedBackgroundEnabled = value; }
         [DataSourceProperty] public bool OnlyShowMyKillsDeaths { get => _killfeed.OnlyShowMyKillsDeaths; set => _killfeed.OnlyShowMyKillsDeaths = value; }
+        [DataSourceProperty] public bool OnlyShowMyClanKillsDeaths { get => _killfeed.OnlyShowMyClanKillsDeaths; set => _killfeed.OnlyShowMyClanKillsDeaths = value; }
         [DataSourceProperty] public bool HideTeamkills { get => _killfeed.HideTeamkills; set => _killfeed.HideTeamkills = value; }
         [DataSourceProperty] public string KillfeedOffsetXText => _killfeed.OffsetXText;
         [DataSourceProperty] public string KillfeedOffsetYText => _killfeed.OffsetYText;
@@ -735,6 +755,7 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty] public bool ScoreboardShowState { get => _scoreboard.ShowState; set => _scoreboard.ShowState = value; }
         [DataSourceProperty] public bool ScoreboardShowWarlordsBanners { get => _scoreboard.ShowWarlordsBanners; set => _scoreboard.ShowWarlordsBanners = value; }
         [DataSourceProperty] public bool ScoreboardUseAdvancedStats { get => _scoreboard.UseAdvancedStats; set => _scoreboard.UseAdvancedStats = value; }
+        [DataSourceProperty] public bool ScoreboardAutoClearSearchOnClose { get => _scoreboard.AutoClearSearchOnClose; set => _scoreboard.AutoClearSearchOnClose = value; }
         [DataSourceProperty] public bool IsWarlordsActive => Type.GetType("MBWarlords.LastConcord.WarlordsPeerComponent, MBWarlords.LastConcord") != null || FindType("MBWarlords.LastConcord.WarlordsPeerComponent") != null;
         [DataSourceProperty] public bool IsNativeScoreboardModeSelected => _scoreboard.IsNativeScoreboardModeSelected;
         [DataSourceProperty] public bool IsCustomScoreboardModeSelected => _scoreboard.IsCustomScoreboardModeSelected;
@@ -744,6 +765,17 @@ namespace BetterMPHUD.ViewModels
         [DataSourceProperty] public string ScoreboardRowScaleText => _scoreboard.RowScaleText;
         [DataSourceProperty] public string ScoreboardDefaultSortColumnText => _scoreboard.DefaultSortColumnText;
         [DataSourceProperty] public string ScoreboardDefaultSortDirectionText => _scoreboard.DefaultSortDirectionText;
+
+        #endregion
+
+        #region Warlords Delegation
+
+        [DataSourceProperty]
+        public bool WarlordsOnlyShowRoundGoldTotal
+        {
+            get => _warlords.OnlyShowRoundGoldTotal;
+            set => _warlords.OnlyShowRoundGoldTotal = value;
+        }
 
         #endregion
 
@@ -808,9 +840,17 @@ namespace BetterMPHUD.ViewModels
         public void ExecuteCaptureConfigMenuHotkey() => _misc.ExecuteCaptureConfigMenuHotkey();
         public void CancelConfigMenuHotkeyCapture() => _misc.CancelConfigMenuHotkeyCapture();
         public bool TrySetCapturedConfigMenuHotkey(string keyName) => _misc.TrySetCapturedConfigMenuHotkey(keyName);
+        public void ExecutePreviousScoreboardShowCursorHotkey() => _misc.ExecutePreviousScoreboardShowCursorHotkey();
+        public void ExecuteNextScoreboardShowCursorHotkey() => _misc.ExecuteNextScoreboardShowCursorHotkey();
+        public void ExecuteResetScoreboardShowCursorHotkey() => _misc.ExecuteResetScoreboardShowCursorHotkey();
+        public void ExecuteCaptureScoreboardShowCursorHotkey() => _misc.ExecuteCaptureScoreboardShowCursorHotkey();
+        public void CancelScoreboardShowCursorHotkeyCapture() => _misc.CancelScoreboardShowCursorHotkeyCapture();
+        public bool TrySetCapturedScoreboardShowCursorHotkey(string keyName) => _misc.TrySetCapturedScoreboardShowCursorHotkey(keyName);
 
         [DataSourceProperty] public string ConfigMenuHotkeyText => _misc.ConfigMenuHotkeyText;
         [DataSourceProperty] public bool IsCapturingConfigMenuHotkey => _misc.IsCapturingConfigMenuHotkey;
+        [DataSourceProperty] public string ScoreboardShowCursorHotkeyText => _misc.ScoreboardShowCursorHotkeyText;
+        [DataSourceProperty] public bool IsCapturingScoreboardShowCursorHotkey => _misc.IsCapturingScoreboardShowCursorHotkey;
 
         [DataSourceProperty] 
         public bool CameraSnapbackEnabled 

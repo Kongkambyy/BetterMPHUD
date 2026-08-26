@@ -1,13 +1,16 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Emit;
 using HarmonyLib;
+using TaleWorlds.InputSystem;
 
 namespace BetterMPHUD.Patches
 {
     public static class WarlordsScoreboardPatch
     {
         private const string WarlordsScoreboardTypeName =
-            "MBWarlords.LastConcord.GauntletUI.MissionViews.WLMissionGauntletMultiplayerScoreboard";
+            "MBWarlords.LastConcord.GauntletUI.MissionViews.WLMissionScoreboardView";
 
         private static bool _patched;
 
@@ -25,10 +28,14 @@ namespace BetterMPHUD.Patches
 
             MethodInfo tickMethod = AccessTools.Method(scoreboardType, "OnMissionTick");
             MethodInfo prefixMethod = AccessTools.Method(typeof(WarlordsScoreboardPatch), nameof(Prefix));
-            if (tickMethod == null || prefixMethod == null)
+            MethodInfo transpilerMethod = AccessTools.Method(typeof(WarlordsScoreboardPatch), nameof(Transpiler));
+            if (tickMethod == null || prefixMethod == null || transpilerMethod == null)
                 return false;
 
-            harmony.Patch(tickMethod, prefix: new HarmonyMethod(prefixMethod));
+            harmony.Patch(
+                tickMethod,
+                prefix: new HarmonyMethod(prefixMethod),
+                transpiler: new HarmonyMethod(transpilerMethod));
             _patched = true;
             return true;
         }
@@ -43,6 +50,20 @@ namespace BetterMPHUD.Patches
             SetField(__instance, "_mouseRequstedWhileScoreboardActive", false);
             SetField(__instance, "_isMouseVisible", false);
             return false;
+        }
+
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            MethodInfo original = AccessTools.Method(typeof(InputContext), nameof(InputContext.IsGameKeyPressed), new[] { typeof(int) });
+            MethodInfo replacement = AccessTools.Method(typeof(NativeScoreboardPatch), nameof(NativeScoreboardPatch.IsScoreboardGameKeyPressed));
+
+            foreach (CodeInstruction instruction in instructions)
+            {
+                if (instruction.Calls(original))
+                    yield return new CodeInstruction(OpCodes.Call, replacement);
+                else
+                    yield return instruction;
+            }
         }
 
         private static void SetDataSourceInactive(object instance)

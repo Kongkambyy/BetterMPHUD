@@ -149,6 +149,11 @@
 														<TextWidget Text="Scoreboard" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="18" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" PositionYOffset="-6"/>
 													</Children>
 												</ButtonWidget>
+												<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="50" MarginBottom="5" Brush="HUDNavigationButton" Command.Click="ExecuteOpenWarlordsPage" IsVisible="@IsWarlordsActive">
+													<Children>
+														<TextWidget Text="Warlords" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="18" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" PositionYOffset="-6"/>
+													</Children>
+												</ButtonWidget>
 												<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="50" MarginBottom="5" Brush="HUDNavigationButton" Command.Click="ExecuteOpenProfilesPage">
 													<Children>
 														<TextWidget Text="Profiles" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="18" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" PositionYOffset="-6"/>
@@ -287,6 +292,15 @@
 															<Children>
 																<TextWidget Text="Use KDA / SPR Columns" WidthSizePolicy="Fixed" SuggestedWidth="180" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
 																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@ScoreboardUseAdvancedStats" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
+																	<Children><BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/></Children>
+																</ButtonWidget>
+															</Children>
+														</ListPanel>
+
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
+															<Children>
+																<TextWidget Text="Clear Search On Close" WidthSizePolicy="Fixed" SuggestedWidth="180" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@ScoreboardAutoClearSearchOnClose" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
 																	<Children><BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/></Children>
 																</ButtonWidget>
 															</Children>
@@ -496,6 +510,14 @@
 															<Children>
 																<TextWidget Text="Only My Kills/Deaths" WidthSizePolicy="Fixed" SuggestedWidth="200" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
 																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@OnlyShowMyKillsDeaths" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
+																	<Children><BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/></Children>
+																</ButtonWidget>
+															</Children>
+														</ListPanel>
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8" IsVisible="@IsWarlordsActive">
+															<Children>
+																<TextWidget Text="Only My Clan Kills/Deaths" WidthSizePolicy="Fixed" SuggestedWidth="200" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="14" Brush.FontColor="#E0E0E0FF"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@OnlyShowMyClanKillsDeaths" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
 																	<Children><BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/></Children>
 																</ButtonWidget>
 															</Children>
@@ -1105,6 +1127,25 @@
 														<TextWidget Text="Click the key box, then press a keyboard key. Escape cancels." WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="16" Brush.FontSize="14" Brush.FontColor="#AAAAAAFF"/>
 														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
 															<Children>
+																<TextWidget Text="Scoreboard Cursor Hotkey" WidthSizePolicy="Fixed" SuggestedWidth="300" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="18" Brush.FontColor="#E0E0E0FF"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="40" SuggestedHeight="35" Brush="KillfeedOffsetMinusButton" Command.Click="ExecutePreviousScoreboardShowCursorHotkey"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="130" SuggestedHeight="35" MarginLeft="8" MarginRight="8" Command.Click="ExecuteCaptureScoreboardShowCursorHotkey">
+																	<Children>
+																		<Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#00000055"/>
+																		<TextWidget Text="@ScoreboardShowCursorHotkeyText" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="16" Brush.FontColor="#FFFFFFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+																	</Children>
+																</ButtonWidget>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="40" SuggestedHeight="35" Brush="KillfeedOffsetPlusButton" Command.Click="ExecuteNextScoreboardShowCursorHotkey"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="35" MarginLeft="8" Brush="HUDButton" Command.Click="ExecuteResetScoreboardShowCursorHotkey">
+																	<Children>
+																		<TextWidget Text="Reset" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#FFD700FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
+																	</Children>
+																</ButtonWidget>
+															</Children>
+														</ListPanel>
+														<TextWidget Text="Click the key box, then press a keyboard key. Use arrows for mouse buttons. Escape cancels." WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="16" Brush.FontSize="14" Brush.FontColor="#AAAAAAFF"/>
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
+															<Children>
 																<TextWidget Text="Warband Tilted Key" WidthSizePolicy="Fixed" SuggestedWidth="300" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="18" Brush.FontColor="#E0E0E0FF"/>
 																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@CameraSnapbackEnabled" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
 																	<Children>
@@ -1150,6 +1191,27 @@
 													</Children>
 												</ListPanel>
 												<TextWidget Text="Replaces steam avatars with larger class icons." WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" Brush.FontSize="14" Brush.FontColor="#AAAAAAFF"/>
+											</Children>
+										</ListPanel>
+										<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" StackLayout.LayoutMethod="VerticalTopToBottom" IsVisible="@IsWarlordsPageOpen">
+											<Children>
+												<TextWidget Text="Warlords Settings" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="20" Brush.FontSize="24" Brush.FontColor="#FFD700FF"/>
+												<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom" Margin="10" MarginBottom="15">
+													<Children>
+														<TextWidget Text="Gold Sum" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" MarginBottom="8" Brush.FontSize="16" Brush.FontColor="#CCCCCCFF"/>
+														<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="HorizontalLeftToRight" MarginBottom="8">
+															<Children>
+																<TextWidget Text="Only Show Total Sum" WidthSizePolicy="Fixed" SuggestedWidth="300" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" Brush.FontSize="18" Brush.FontColor="#E0E0E0FF"/>
+																<ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" Brush="HUDCheckboxUnticked" ButtonType="Toggle" IsSelected="@WarlordsOnlyShowRoundGoldTotal" ToggleIndicator="ToggleIndicator" UpdateChildrenStates="true">
+																	<Children>
+																		<BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="HUDCheckboxTicked"/>
+																	</Children>
+																</ButtonWidget>
+															</Children>
+														</ListPanel>
+														<TextWidget Text="Shortens round gold feed messages to the final payout only." WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" HorizontalAlignment="Left" Brush.FontSize="14" Brush.FontColor="#AAAAAAFF"/>
+													</Children>
+												</ListPanel>
 											</Children>
 										</ListPanel>
 										<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" StackLayout.LayoutMethod="VerticalTopToBottom" IsVisible="@IsProfilesPageOpen">

@@ -27,6 +27,8 @@ namespace BetterMPHUD.Handlers
         private const string WarlordsClansManagerTypeName = "MBWarlords.LastConcord.WLClansManager";
         private const float ScoreboardRefreshInterval = 0.25f;
         private const float WarlordsVisualRefreshInterval = 2f;
+        private const float WarlordsBannerRetryInterval = 1.5f;
+        private const int WarlordsBannerResolveBudgetPerRefresh = 5;
     
         private Dictionary<Widget, float> _originalAlphas = new Dictionary<Widget, float>();
         private readonly Dictionary<NetworkCommunicator, WarlordsBannerCacheEntry> _warlordsBannerCache = new Dictionary<NetworkCommunicator, WarlordsBannerCacheEntry>();
@@ -44,8 +46,10 @@ namespace BetterMPHUD.Handlers
         private string _lastRefreshKey = "";
         private string _lastTeamOneRowsKey = "";
         private string _lastTeamTwoRowsKey = "";
+        private string _lastWarlordsBannerRoundKey = "";
         private string _actionPlayerName = "";
         private string _actionPlayerPeerId = "";
+        private int _warlordsBannerResolveBudget;
         private bool _initialized;
         private bool _wasSummaryRequested;
 
@@ -55,6 +59,7 @@ namespace BetterMPHUD.Handlers
             public string FactionBannerCode;
             public BannerImageIdentifierVM Banner;
             public BannerImageIdentifierVM FactionBanner;
+            public float NextRetryTime;
         }
 
         private class WarlordsScoreboardVisuals
@@ -167,6 +172,9 @@ namespace BetterMPHUD.Handlers
 
             if (!isHeld)
             {
+                if (_wasSummaryRequested && settings != null && settings.ScoreboardAutoClearSearchOnClose)
+                    ClearSearch();
+
                 SetInteractive(false);
                 SetSummaryVisible(false);
                 _wasSummaryRequested = false;
@@ -380,10 +388,13 @@ namespace BetterMPHUD.Handlers
             _summaryVM.UseAdvancedStats = settings.ScoreboardUseAdvancedStats;
             _summaryVM.ShowWarlordsPlayerActions = IsWarlordsActive();
             _currentRowScale = settings.ScoreboardRowScale;
+            _summaryVM.ShowCursorHotkeyText = FormatScoreboardHotkeyText(settings.ScoreboardShowCursorHotkey);
             _summaryVM.BackgroundVisible = settings.ScoreboardBackgroundEnabled;
             _summaryVM.BackgroundOpacity = settings.ScoreboardBackgroundOpacity;
             _summaryVM.TeamSummaryVisible = settings.ScoreboardSummaryEnabled;
             _summaryVM.ApplyDefaultSort(settings.ScoreboardDefaultSortColumn, settings.ScoreboardDefaultSortAscending);
+            UpdateWarlordsBannerRoundCache(mission);
+            _warlordsBannerResolveBudget = WarlordsBannerResolveBudgetPerRefresh;
             Dictionary<MissionPeer, NetworkCommunicator> peerMap = BuildPeerMap();
             RefreshWarlordsScoreboardVisuals(settings, mission);
             MissionScoreboardComponent scoreboard = mission.GetMissionBehavior<MissionScoreboardComponent>();
@@ -575,7 +586,7 @@ namespace BetterMPHUD.Handlers
             player.ShowStateColumn = _summaryVM == null || _summaryVM.ShowStateColumn;
             player.ShowWarlordsBannerColumn = showWarlordsBannerColumn;
             player.ShowNativeNameLayout = !showWarlordsBannerColumn;
-            ApplyWarlordsBanner(player, data.NetworkPeer);
+            ApplyWarlordsBanner(player, data.Peer, data.NetworkPeer);
             return player;
         }
 
@@ -618,12 +629,30 @@ namespace BetterMPHUD.Handlers
                 + "|" + settings.ScoreboardSummaryEnabled
                 + "|" + settings.ScoreboardDefaultSortColumn
                 + "|" + settings.ScoreboardDefaultSortAscending
+                + "|" + settings.ScoreboardShowCursorHotkey
                 + "|" + _summaryVM.TeamOneSearchText
                 + "|" + _summaryVM.TeamTwoSearchText
                 + "|" + _summaryVM.GetSortColumn(true)
                 + "|" + _summaryVM.GetSortAscending(true)
                 + "|" + _summaryVM.GetSortColumn(false)
                 + "|" + _summaryVM.GetSortAscending(false);
+        }
+
+        private static string FormatScoreboardHotkeyText(string keyName)
+        {
+            if (string.Equals(keyName, "X1MouseButton", StringComparison.OrdinalIgnoreCase))
+                return "M4";
+
+            if (string.Equals(keyName, "X2MouseButton", StringComparison.OrdinalIgnoreCase))
+                return "M5";
+
+            if (string.Equals(keyName, "MiddleMouseButton", StringComparison.OrdinalIgnoreCase))
+                return "M3";
+
+            if (string.IsNullOrWhiteSpace(keyName))
+                return "M4";
+
+            return keyName;
         }
 
         private Dictionary<MissionPeer, NetworkCommunicator> BuildPeerMap()
@@ -681,6 +710,43 @@ namespace BetterMPHUD.Handlers
             return _warlordsClansManagerType;
         }
 
+        private void UpdateWarlordsBannerRoundCache(Mission mission)
+        {
+            string roundKey = GetWarlordsBannerRoundKey(mission);
+            if (string.Equals(_lastWarlordsBannerRoundKey, roundKey, StringComparison.Ordinal))
+                return;
+
+            _lastWarlordsBannerRoundKey = roundKey;
+            _warlordsBannerCache.Clear();
+            _warlordsVisuals.Clear();
+            _nextWarlordsVisualRefreshTime = 0f;
+        }
+
+        private string GetWarlordsBannerRoundKey(Mission mission)
+        {
+            if (mission == null)
+                return "";
+
+            MissionScoreboardComponent scoreboard = mission.GetMissionBehavior<MissionScoreboardComponent>();
+            if (scoreboard == null || scoreboard.Sides == null)
+                return IsCurrentRoundApplicable(mission) ? "active" : "ending";
+
+            int defenderScore = 0;
+            int attackerScore = 0;
+            foreach (MissionScoreboardComponent.MissionScoreboardSide side in scoreboard.Sides)
+            {
+                if (side == null)
+                    continue;
+
+                if (side.Side == TaleWorlds.Core.BattleSideEnum.Defender)
+                    defenderScore = side.SideScore;
+                else if (side.Side == TaleWorlds.Core.BattleSideEnum.Attacker)
+                    attackerScore = side.SideScore;
+            }
+
+            return defenderScore + ":" + attackerScore + ":" + (IsCurrentRoundApplicable(mission) ? "active" : "ending");
+        }
+
         private static Type FindType(string typeName)
         {
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -693,7 +759,7 @@ namespace BetterMPHUD.Handlers
             return null;
         }
 
-        private void ApplyWarlordsBanner(ScoreboardPlayerVM player, NetworkCommunicator networkPeer)
+        private void ApplyWarlordsBanner(ScoreboardPlayerVM player, MissionPeer peer, NetworkCommunicator networkPeer)
         {
             if (player == null)
                 return;
@@ -712,25 +778,30 @@ namespace BetterMPHUD.Handlers
             WarlordsBannerCacheEntry existingCacheEntry;
             if (_warlordsBannerCache.TryGetValue(networkPeer, out existingCacheEntry))
             {
-                bool hasCachedBannerState = existingCacheEntry.Banner != null
-                    || existingCacheEntry.FactionBanner != null
-                    || !string.IsNullOrWhiteSpace(existingCacheEntry.BannerCode)
-                    || !string.IsNullOrWhiteSpace(existingCacheEntry.FactionBannerCode);
-                if (hasCachedBannerState)
+                if (HasResolvedWarlordsBanner(existingCacheEntry))
                 {
                     ApplyWarlordsBannerCacheEntry(player, existingCacheEntry);
                     return;
                 }
+
+                float currentTime = Mission.Current != null ? Mission.Current.CurrentTime : 0f;
+                if (currentTime < existingCacheEntry.NextRetryTime)
+                    return;
             }
+
+            if (_warlordsBannerResolveBudget <= 0)
+                return;
 
             Type componentType = GetWarlordsPeerComponentType();
             if (componentType == null)
                 return;
 
-            object component = GetPeerComponent(networkPeer, componentType);
+            object component = GetWarlordsPeerComponent(peer, networkPeer, componentType);
             if (component == null)
                 return;
 
+            _warlordsBannerResolveBudget--;
+            BannerImageIdentifierVM playerBanner = CreateRuntimeScoreboardBannerImageIdentifier(component);
             string bannerCode = InvokeStringMethod(component, "GetEffectiveAccountBannerCode");
             if (string.IsNullOrWhiteSpace(bannerCode))
                 bannerCode = GetStringProperty(component, "AccountBannerCode");
@@ -739,8 +810,13 @@ namespace BetterMPHUD.Handlers
 
             object clan = GetProperty(component, "Clan");
             string factionBannerCode = GetStringProperty(clan, "FactionBanner");
-            WarlordsBannerCacheEntry cacheEntry = GetWarlordsBannerCacheEntry(networkPeer, bannerCode, factionBannerCode);
+            WarlordsBannerCacheEntry cacheEntry = GetWarlordsBannerCacheEntry(networkPeer, bannerCode, factionBannerCode, playerBanner);
             ApplyWarlordsBannerCacheEntry(player, cacheEntry);
+        }
+
+        private static bool HasResolvedWarlordsBanner(WarlordsBannerCacheEntry cacheEntry)
+        {
+            return cacheEntry != null && (cacheEntry.Banner != null || cacheEntry.FactionBanner != null);
         }
 
         private void ApplyWarlordsBannerCacheEntry(ScoreboardPlayerVM player, WarlordsBannerCacheEntry cacheEntry)
@@ -775,10 +851,7 @@ namespace BetterMPHUD.Handlers
                 return;
 
             if (visuals.PlayerViewModel != null)
-            {
                 player.WarlordsPlayer = visuals.PlayerViewModel;
-                player.HasWarlordsBanner = true;
-            }
 
             if (visuals.Banner != null)
             {
@@ -867,27 +940,20 @@ namespace BetterMPHUD.Handlers
             BannerImageIdentifierVM factionBanner = GetProperty(entry, "ScoreboardFactionBanner") as BannerImageIdentifierVM;
             ViewModel playerViewModel = entry as ViewModel;
 
-            if (banner == null)
-            {
-                InvokeNoArg(entry, "ResolveWarlordsPeerComponent");
-                InvokeNoArg(entry, "RefreshScoreboardBanner");
-                banner = GetProperty(entry, "ScoreboardBanner") as BannerImageIdentifierVM;
-            }
-
             if (banner == null || factionBanner == null)
             {
                 object component = GetFieldValue(entry, "_warlordsPeerComponent");
                 if (component != null)
                 {
                     if (banner == null)
-                        banner = CreateBannerImageIdentifier(GetWarlordsAccountBannerCode(component));
+                        banner = CreateRuntimeScoreboardBannerImageIdentifier(component);
 
                     if (factionBanner == null)
                         factionBanner = CreateBannerImageIdentifier(GetWarlordsFactionBannerCode(component));
                 }
             }
 
-            if (playerViewModel == null && banner == null && factionBanner == null)
+            if (banner == null && factionBanner == null)
                 return;
 
             _warlordsVisuals[name] = new WarlordsScoreboardVisuals
@@ -945,7 +1011,7 @@ namespace BetterMPHUD.Handlers
             return factionBannerCode;
         }
 
-        private WarlordsBannerCacheEntry GetWarlordsBannerCacheEntry(NetworkCommunicator networkPeer, string bannerCode, string factionBannerCode)
+        private WarlordsBannerCacheEntry GetWarlordsBannerCacheEntry(NetworkCommunicator networkPeer, string bannerCode, string factionBannerCode, BannerImageIdentifierVM playerBanner)
         {
             if (networkPeer == null)
                 return null;
@@ -953,7 +1019,8 @@ namespace BetterMPHUD.Handlers
             WarlordsBannerCacheEntry cacheEntry;
             if (_warlordsBannerCache.TryGetValue(networkPeer, out cacheEntry)
                 && cacheEntry.BannerCode == bannerCode
-                && cacheEntry.FactionBannerCode == factionBannerCode)
+                && cacheEntry.FactionBannerCode == factionBannerCode
+                && HasResolvedWarlordsBanner(cacheEntry))
             {
                 return cacheEntry;
             }
@@ -962,8 +1029,9 @@ namespace BetterMPHUD.Handlers
             {
                 BannerCode = bannerCode,
                 FactionBannerCode = factionBannerCode,
-                Banner = CreateBannerImageIdentifier(bannerCode),
+                Banner = playerBanner ?? CreateBannerImageIdentifier(bannerCode),
                 FactionBanner = CreateBannerImageIdentifier(factionBannerCode),
+                NextRetryTime = Mission.Current != null ? Mission.Current.CurrentTime + WarlordsBannerRetryInterval : WarlordsBannerRetryInterval,
             };
 
             _warlordsBannerCache[networkPeer] = cacheEntry;
@@ -988,6 +1056,26 @@ namespace BetterMPHUD.Handlers
             }
         }
 
+        private static BannerImageIdentifierVM CreateRuntimeScoreboardBannerImageIdentifier(object component)
+        {
+            if (component == null)
+                return null;
+
+            try
+            {
+                object banner = InvokeMethod(component, "CreateRuntimeScoreboardBanner");
+                Banner runtimeBanner = banner as Banner;
+                if (runtimeBanner == null)
+                    return null;
+
+                return new BannerImageIdentifierVM(runtimeBanner, true);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         private static object GetPeerComponent(NetworkCommunicator networkPeer, Type componentType)
         {
             if (networkPeer == null || componentType == null)
@@ -998,6 +1086,53 @@ namespace BetterMPHUD.Handlers
                 return null;
 
             return components[componentType];
+        }
+
+        private static object GetWarlordsPeerComponent(MissionPeer peer, NetworkCommunicator networkPeer, Type componentType)
+        {
+            object component = GetPeerComponent(networkPeer, componentType);
+            if (component != null)
+                return component;
+
+            object virtualPeer = peer != null ? peer.Peer : null;
+            return GetPeerComponentFromVirtualPeer(virtualPeer, componentType);
+        }
+
+        private static object GetPeerComponentFromVirtualPeer(object virtualPeer, Type componentType)
+        {
+            if (virtualPeer == null || componentType == null)
+                return null;
+
+            IDictionary components = GetProperty(virtualPeer, "PeerComponents") as IDictionary;
+            if (components != null && components.Contains(componentType))
+                return components[componentType];
+
+            MethodInfo genericGetComponent = GetGenericNoArgMethod(virtualPeer.GetType(), "GetComponent");
+            if (genericGetComponent == null)
+                return null;
+
+            try
+            {
+                return genericGetComponent.MakeGenericMethod(componentType).Invoke(virtualPeer, null);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static MethodInfo GetGenericNoArgMethod(Type type, string methodName)
+        {
+            if (type == null)
+                return null;
+
+            foreach (MethodInfo method in type.GetMethods(Flags))
+            {
+                if (method.Name == methodName && method.IsGenericMethodDefinition && method.GetParameters().Length == 0)
+                    return method;
+            }
+
+            return null;
         }
 
         private static string InvokeStringMethod(object instance, string methodName)
@@ -1151,7 +1286,7 @@ namespace BetterMPHUD.Handlers
                 existing.ShowWarlordsBannerColumn = showWarlordsBannerColumn;
                 existing.ShowNativeNameLayout = !showWarlordsBannerColumn;
                 existing.OnActionsRequested = OpenPlayerActions;
-                ApplyWarlordsBanner(existing, data.NetworkPeer);
+                ApplyWarlordsBanner(existing, data.Peer, data.NetworkPeer);
             }
 
             return true;
@@ -1466,6 +1601,9 @@ namespace BetterMPHUD.Handlers
 
         private void CloseCustomScoreboard()
         {
+            if (ProfileManager.GetActiveSettings().ScoreboardAutoClearSearchOnClose)
+                ClearSearch();
+
             SetInteractive(false);
             SetSummaryVisible(false);
             if (OnCloseRequested != null)
@@ -2192,6 +2330,17 @@ namespace BetterMPHUD.Handlers
         {
             if (_summaryVM != null)
                 _summaryVM.IsVisible = visible;
+        }
+
+        private void ClearSearch()
+        {
+            if (_summaryVM == null)
+                return;
+
+            _summaryVM.ClearSearch();
+            _lastRefreshKey = "";
+            _lastTeamOneRowsKey = "";
+            _lastTeamTwoRowsKey = "";
         }
 
         public void DebugPrintStructure()

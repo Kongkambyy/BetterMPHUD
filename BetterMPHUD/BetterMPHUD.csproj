@@ -81,6 +81,7 @@
     <Compile Include="Handlers\TopBarHandler.cs" />
     <Compile Include="Patches\NativeScoreboardPatch.cs" />
     <Compile Include="Patches\ScoreboardPatchState.cs" />
+    <Compile Include="Patches\WarlordsRoundGoldMessagePatch.cs" />
     <Compile Include="Patches\WarlordsScoreboardPatch.cs" />
     <Compile Include="Services\AgentHelper.cs" />
     <Compile Include="Services\LayerFinder.cs" />
@@ -112,6 +113,7 @@
     <Compile Include="ViewModels\Settings\ScoreboardSettingsVM.cs" />
     <Compile Include="ViewModels\Settings\TopBarSettingsVM.cs" />
     <Compile Include="ViewModels\Settings\VisibilitySettingsVM.cs" />
+    <Compile Include="ViewModels\Settings\WarlordsSettingsVM.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="GUI\BetterMPHUDSpriteData.xml" />

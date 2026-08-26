@@ -56,7 +56,7 @@
                                         <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="36" SuggestedHeight="48"
                                                 HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#F4E1C4FF" AlphaFactor="0.95">
                                             <Children>
-                                                <TextWidget Text="M4" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                <TextWidget Text="@ShowCursorHotkeyText" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
                                                             Brush.FontSize="14" Brush.FontColor="#11100EFF"
                                                             Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/>
                                             </Children>
@@ -130,6 +130,10 @@
                                                                             Brush.TextVerticalAlignment="Center" DefaultSearchText="Search"/>
                                                     </Children>
                                                 </Widget>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24"
+                                                              HorizontalAlignment="Center" VerticalAlignment="Center" PositionXOffset="68" Brush="HUDButton" Command.Click="ExecuteClearTeamOneSearch">
+                                                    <Children><TextWidget Text="X" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="12" Brush.FontColor="#D7C088FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
                                                 <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="70" HorizontalAlignment="Right" PositionXOffset="-238" Command.Click="ExecuteSortTeamOneByPing" IsVisible="@ShowPing">
                                                     <Children><TextWidget Text="@TeamOnePingHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
                                                 </ButtonWidget>
@@ -180,13 +184,9 @@
                                                                                     <Children>
                                                                                         <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@HasWarlordsBanner">
                                                                                             <Children>
-                                                                                                <Widget DataSource="{WarlordsPlayer}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
-                                                                                                    <Children>
-                                                                                                        <MaskedTextureWidget DataSource="{ScoreboardBanner}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
-                                                                                                                             Brush="MPLobby.Clan.Banner" AdditionalArgs="@AdditionalArgs" ImageId="@Id"
-                                                                                                                             TextureProviderName="@TextureProviderName" OverlayTextureScale="1" IsDisabled="true"/>
-                                                                                                    </Children>
-                                                                                                </Widget>
+                                                                                                <MaskedTextureWidget DataSource="{ScoreboardBanner}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                                                                     Brush="MPLobby.Clan.Banner" AdditionalArgs="@AdditionalArgs" ImageId="@Id"
+                                                                                                                     TextureProviderName="@TextureProviderName" OverlayTextureScale="1" IsDisabled="true"/>
                                                                                             </Children>
                                                                                         </Widget>
                                                                                     </Children>
@@ -195,13 +195,9 @@
                                                                                     <Children>
                                                                                         <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@HasWarlordsBanner">
                                                                                             <Children>
-                                                                                                <Widget DataSource="{WarlordsPlayer}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
-                                                                                                    <Children>
-                                                                                                        <MaskedTextureWidget DataSource="{ScoreboardBanner}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
-                                                                                                                             Brush="MPLobby.Clan.Banner" AdditionalArgs="@AdditionalArgs" ImageId="@Id"
-                                                                                                                             TextureProviderName="@TextureProviderName" OverlayTextureScale="1" IsDisabled="true"/>
-                                                                                                    </Children>
-                                                                                                </Widget>
+                                                                                                <MaskedTextureWidget DataSource="{ScoreboardBanner}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                                                                     Brush="MPLobby.Clan.Banner" AdditionalArgs="@AdditionalArgs" ImageId="@Id"
+                                                                                                                     TextureProviderName="@TextureProviderName" OverlayTextureScale="1" IsDisabled="true"/>
                                                                                             </Children>
                                                                                         </Widget>
                                                                                     </Children>
@@ -314,6 +310,10 @@
                                                                             Brush.TextVerticalAlignment="Center" DefaultSearchText="Search"/>
                                                     </Children>
                                                 </Widget>
+                                                <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24"
+                                                              HorizontalAlignment="Center" VerticalAlignment="Center" PositionXOffset="68" Brush="HUDButton" Command.Click="ExecuteClearTeamTwoSearch">
+                                                    <Children><TextWidget Text="X" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="12" Brush.FontColor="#D7C088FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
+                                                </ButtonWidget>
                                                 <ButtonWidget DoNotPassEventsToChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="70" HorizontalAlignment="Right" PositionXOffset="-238" Command.Click="ExecuteSortTeamTwoByPing" IsVisible="@ShowPing">
                                                     <Children><TextWidget Text="@TeamTwoPingHeader" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush.FontSize="14" Brush.FontColor="#A18661FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center"/></Children>
                                                 </ButtonWidget>
@@ -364,13 +364,9 @@
                                                                                     <Children>
                                                                                         <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@HasWarlordsBanner">
                                                                                             <Children>
-                                                                                                <Widget DataSource="{WarlordsPlayer}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
-                                                                                                    <Children>
-                                                                                                        <MaskedTextureWidget DataSource="{ScoreboardBanner}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
-                                                                                                                             Brush="MPLobby.Clan.Banner" AdditionalArgs="@AdditionalArgs" ImageId="@Id"
-                                                                                                                             TextureProviderName="@TextureProviderName" OverlayTextureScale="1" IsDisabled="true"/>
-                                                                                                    </Children>
-                                                                                                </Widget>
+                                                                                                <MaskedTextureWidget DataSource="{ScoreboardBanner}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                                                                     Brush="MPLobby.Clan.Banner" AdditionalArgs="@AdditionalArgs" ImageId="@Id"
+                                                                                                                     TextureProviderName="@TextureProviderName" OverlayTextureScale="1" IsDisabled="true"/>
                                                                                             </Children>
                                                                                         </Widget>
                                                                                     </Children>
@@ -379,13 +375,9 @@
                                                                                     <Children>
                                                                                         <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@HasWarlordsBanner">
                                                                                             <Children>
-                                                                                                <Widget DataSource="{WarlordsPlayer}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
-                                                                                                    <Children>
-                                                                                                        <MaskedTextureWidget DataSource="{ScoreboardBanner}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
-                                                                                                                             Brush="MPLobby.Clan.Banner" AdditionalArgs="@AdditionalArgs" ImageId="@Id"
-                                                                                                                             TextureProviderName="@TextureProviderName" OverlayTextureScale="1" IsDisabled="true"/>
-                                                                                                    </Children>
-                                                                                                </Widget>
+                                                                                                <MaskedTextureWidget DataSource="{ScoreboardBanner}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                                                                                                     Brush="MPLobby.Clan.Banner" AdditionalArgs="@AdditionalArgs" ImageId="@Id"
+                                                                                                                     TextureProviderName="@TextureProviderName" OverlayTextureScale="1" IsDisabled="true"/>
                                                                                             </Children>
                                                                                         </Widget>
                                                                                     </Children>

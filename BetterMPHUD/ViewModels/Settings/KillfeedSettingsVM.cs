@@ -181,6 +181,21 @@ namespace BetterMPHUD.ViewModels.Settings
         }
 
         [DataSourceProperty]
+        public bool OnlyShowMyClanKillsDeaths
+        {
+            get => Settings.KillfeedOnlyShowMyClanKillsDeaths;
+            set
+            {
+                if (Settings.KillfeedOnlyShowMyClanKillsDeaths != value)
+                {
+                    Settings.KillfeedOnlyShowMyClanKillsDeaths = value;
+                    OnPropertyChangedWithValue(value, "OnlyShowMyClanKillsDeaths");
+                    NotifyChanged();
+                }
+            }
+        }
+
+        [DataSourceProperty]
         public bool HideTeamkills
         {
             get => Settings.KillfeedHideTeamkills;
@@ -343,6 +358,7 @@ namespace BetterMPHUD.ViewModels.Settings
             Settings.KillfeedBackgroundOpacity = 0.7f;
             Settings.KillfeedMaxEntries = 15;
             Settings.KillfeedOnlyShowMyKillsDeaths = false;
+            Settings.KillfeedOnlyShowMyClanKillsDeaths = false;
             Settings.KillfeedHideTeamkills = false;
             RefreshAll();
             NotifyPreviewUpdate();
@@ -358,6 +374,7 @@ namespace BetterMPHUD.ViewModels.Settings
             OnPropertyChangedWithValue(KillfeedBackgroundEnabled, "KillfeedBackgroundEnabled");
             OnPropertyChangedWithValue(MaxEntriesText, "MaxEntriesText");
             OnPropertyChangedWithValue(OnlyShowMyKillsDeaths, "OnlyShowMyKillsDeaths");
+            OnPropertyChangedWithValue(OnlyShowMyClanKillsDeaths, "OnlyShowMyClanKillsDeaths");
             OnPropertyChangedWithValue(HideTeamkills, "HideTeamkills");
             NotifyChanged();
         }

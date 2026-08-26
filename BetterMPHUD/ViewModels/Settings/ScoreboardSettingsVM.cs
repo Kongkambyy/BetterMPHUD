@@ -148,6 +148,21 @@ namespace BetterMPHUD.ViewModels.Settings
         }
 
         [DataSourceProperty]
+        public bool AutoClearSearchOnClose
+        {
+            get => Settings.ScoreboardAutoClearSearchOnClose;
+            set
+            {
+                if (Settings.ScoreboardAutoClearSearchOnClose != value)
+                {
+                    Settings.ScoreboardAutoClearSearchOnClose = value;
+                    OnPropertyChangedWithValue(value, "AutoClearSearchOnClose");
+                    NotifyChanged();
+                }
+            }
+        }
+
+        [DataSourceProperty]
         public bool IsNativeScoreboardModeSelected => Settings.ScoreboardMode == ScoreboardMode.Native;
 
         [DataSourceProperty]
@@ -311,6 +326,7 @@ namespace BetterMPHUD.ViewModels.Settings
             Settings.ScoreboardShowState = true;
             Settings.ScoreboardShowWarlordsBanners = true;
             Settings.ScoreboardUseAdvancedStats = false;
+            Settings.ScoreboardAutoClearSearchOnClose = false;
             Settings.ScoreboardRowScale = 1f;
             Settings.ScoreboardDefaultSortColumn = "Score";
             Settings.ScoreboardDefaultSortAscending = false;
@@ -328,6 +344,7 @@ namespace BetterMPHUD.ViewModels.Settings
             OnPropertyChangedWithValue(ShowState, "ShowState");
             OnPropertyChangedWithValue(ShowWarlordsBanners, "ShowWarlordsBanners");
             OnPropertyChangedWithValue(UseAdvancedStats, "UseAdvancedStats");
+            OnPropertyChangedWithValue(AutoClearSearchOnClose, "AutoClearSearchOnClose");
             OnPropertyChangedWithValue(IsNativeScoreboardModeSelected, "IsNativeScoreboardModeSelected");
             OnPropertyChangedWithValue(IsCustomScoreboardModeSelected, "IsCustomScoreboardModeSelected");
             OnPropertyChangedWithValue(BackgroundOpacityText, "BackgroundOpacityText");
