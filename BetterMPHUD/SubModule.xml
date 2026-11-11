@@ -1,0 +1,13 @@
+<Module>
+    <Name value="BetterMPHUD"/>
+    <Id value="BetterMPHUD"/>
+    <Version value="v1.0.0"/>
+    <ModuleCategory value="MultiplayerOptional"/>
+    <SubModules>
+        <SubModule>
+            <Name value="BetterMPHUD"/>
+            <DLLName value="BetterMPHUD.dll"/>
+            <SubModuleClassType value="BetterMPHUD.SubModule"/>
+        </SubModule>
+    </SubModules>
+</Module>

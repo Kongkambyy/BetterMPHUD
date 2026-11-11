@@ -11,7 +11,7 @@
       <Name>ui_warbandkillfeed</Name>
       <AlwaysLoad />
       <SpriteSheetCount>1</SpriteSheetCount>
-      <SpriteSheetSize ID="1" Width="256" Height="64" />
+      <SpriteSheetSize ID="1" Width="1024" Height="128" />
     </SpriteCategory>
   </SpriteCategories>
   <SpriteParts>
@@ -134,10 +134,19 @@
     </SpritePart>
     <SpritePart>
       <SheetID>1</SheetID>
+      <Name>background_shadow</Name>
+      <Width>600</Width>
+      <Height>100</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_warbandkillfeed</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
       <Name>icon_bow</Name>
       <Width>42</Width>
       <Height>46</Height>
-      <SheetX>4</SheetX>
+      <SheetX>612</SheetX>
       <SheetY>4</SheetY>
       <CategoryName>ui_warbandkillfeed</CategoryName>
     </SpritePart>
@@ -146,7 +155,7 @@
       <Name>icon_death</Name>
       <Width>42</Width>
       <Height>46</Height>
-      <SheetX>54</SheetX>
+      <SheetX>662</SheetX>
       <SheetY>4</SheetY>
       <CategoryName>ui_warbandkillfeed</CategoryName>
     </SpritePart>
@@ -155,7 +164,7 @@
       <Name>icon_horse</Name>
       <Width>42</Width>
       <Height>46</Height>
-      <SheetX>104</SheetX>
+      <SheetX>712</SheetX>
       <SheetY>4</SheetY>
       <CategoryName>ui_warbandkillfeed</CategoryName>
     </SpritePart>
@@ -164,7 +173,7 @@
       <Name>icon_kill</Name>
       <Width>42</Width>
       <Height>46</Height>
-      <SheetX>154</SheetX>
+      <SheetX>762</SheetX>
       <SheetY>4</SheetY>
       <CategoryName>ui_warbandkillfeed</CategoryName>
     </SpritePart>
@@ -173,7 +182,7 @@
       <Name>icon_sword</Name>
       <Width>42</Width>
       <Height>46</Height>
-      <SheetX>204</SheetX>
+      <SheetX>812</SheetX>
       <SheetY>4</SheetY>
       <CategoryName>ui_warbandkillfeed</CategoryName>
     </SpritePart>
@@ -230,6 +239,10 @@
     <GenericSprite>
       <Name>hud_xlbuttonright</Name>
       <SpritePartName>hud_xlbuttonright</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>background_shadow</Name>
+      <SpritePartName>background_shadow</SpritePartName>
     </GenericSprite>
     <GenericSprite>
       <Name>icon_bow</Name>
